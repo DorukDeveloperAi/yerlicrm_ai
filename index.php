@@ -1,4 +1,5 @@
 <?php
+require_once 'config.php';
 require_once 'auth.php';
 requireLogin();
 
@@ -13,10 +14,14 @@ $total_records = $pdo->query("SELECT count(DISTINCT telefon_numarasi) FROM tbl_i
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel - YerliCRM</title>
     <link rel="icon" href="assets/images/favicon.ico" type="image/x-icon">
-    <link rel="stylesheet" href="assets/css/main.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Force CSS reload -->
+    <link rel="stylesheet" href="assets/css/main.css?v=<?php echo time(); ?>">
+    <script src="https://unpkg.com/phosphor-icons"></script>
 </head>
 
-<body style="align-items: flex-start; padding-top: 5vh;">
+<body class="bg-gray-50 text-gray-800 font-sans antialiased">
     <div class="dashboard-container">
         <header class="navbar">
             <div style="display: flex; align-items: center; gap: 2rem;">

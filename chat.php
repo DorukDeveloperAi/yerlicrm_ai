@@ -440,6 +440,65 @@ $all_campaigns = $pdo->query("SELECT id, baslik FROM tbl_ayarlar_kampanya_bilgil
             if (btn) btn.classList.add('active');
         }
 
+        function copyLeadLink(elementId) {
+            const copyText = document.getElementById(elementId);
+            copyText.select();
+            copyText.setSelectionRange(0, 99999); /* For mobile devices */
+            navigator.clipboard.writeText(copyText.value).then(() => {
+                alert("Link kopyalandı: " + copyText.value);
+            });
+        }
+
+        function saveAppointment() {
+            const form = document.getElementById('appointment-form');
+            const formData = new FormData(form);
+
+            fetch('api/save_appointment.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                if (data.success) {
+                    // Reset, switch to list or refresh
+                    loadConversation(currentCustomerId);
+                    // Optional: Switch to cancel tab to see it
+                    if(document.querySelector("button[onclick*='iptal']")) {
+                         document.querySelector("button[onclick*='iptal']").click();
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Bir hata oluştu.');
+            });
+        }
+
+        function cancelAppointment(id) {
+            if (!confirm('Randevuyu iptal etmek istediğinize emin misiniz?')) return;
+
+            const formData = new FormData();
+            formData.append('id', id);
+
+            fetch('api/cancel_appointment.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                if (data.success) {
+                    // Refresh details to update list
+                    loadConversation(currentCustomerId);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Bir hata oluştu.');
+            });
+        }
+
         function goToPage(page) {
             loadCustomers(page, currentStatus, currentPersonnel, currentCampaign);
         }
