@@ -1,0 +1,104 @@
+<?php
+require_once '../auth.php';
+requireLogin();
+
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    echo json_encode(['success' => false, 'message' => 'Invalid request']);
+    exit;
+}
+
+$phone = $_POST['phone'] ?? '';
+$type = $_POST['type'] ?? 'update'; // 'update' or 'inspector'
+$note = $_POST['note'] ?? '';
+$status_text = $_POST['status_id'] ?? '';
+$callback_date = $_POST['callback_date'] ?? '';
+$lead_score = $_POST['lead_score'] ?? '';
+$complaint_hospital = $_POST['complaint_hospital'] ?? '';
+$complaint_dept = $_POST['complaint_dept'] ?? '';
+$complaint_doctor = $_POST['complaint_doctor'] ?? '';
+$complaint_topic = $_POST['complaint_topic'] ?? '';
+$complaint_detail = $_POST['complaint_detail'] ?? '';
+$kampanya = $_POST['kampanya'] ?? '';
+
+if (!$phone) {
+    echo json_encode(['success' => false, 'message' => 'Telefon numarası eksik']);
+    exit;
+}
+
+// Convert date to timestamp if provided
+$callback_ts = $callback_date ? strtotime($callback_date) : 0;
+
+// Handle file upload
+$complaint_image = '';
+if (isset($_FILES['complaint_image']) && $_FILES['complaint_image']['error'] === UPLOAD_ERR_OK) {
+    $upload_dir = '../assets/uploads/';
+    if (!is_dir($upload_dir)) {
+        mkdir($upload_dir, 0777, true);
+    }
+    $file_ext = pathinfo($_FILES['complaint_image']['name'], PATHINFO_EXTENSION);
+    $file_name = uniqid() . '.' . $file_ext;
+    if (move_uploaded_file($_FILES['complaint_image']['tmp_name'], $upload_dir . $file_name)) {
+        $complaint_image = 'assets/uploads/' . $file_name;
+    }
+}
+
+// Prepare Data
+$data = [
+    'user_id' => $_SESSION['user_id'],
+    'ip_adresi' => $_SERVER['REMOTE_ADDR'],
+    'date' => time(),
+    'telefon_numarasi' => $phone,
+    'personel_mesaji' => $note,
+    'gorusme_sonucu_text' => $status_text,
+    'tekrar_arama_tarihi' => $callback_ts,
+    'lead_puanlama' => $lead_score,
+    'sikayet_hastane' => $complaint_hospital,
+    'sikayet_bolum' => $complaint_dept,
+    'sikayet_doktor' => $complaint_doctor,
+    'sikayet_konusu' => $complaint_topic,
+    'sikayet_detayi' => $complaint_detail,
+    'sikayet_gorseli' => $complaint_image,
+    'kampanya' => $kampanya
+];
+
+if ($type === 'inspector') {
+    $data['denetci_id'] = $_SESSION['user_id'];
+    $data['denetci_adi'] = $_SESSION['username'] ?? 'Denetçi';
+    $data['denetci_mesaj'] = $note;
+    $data['denetci_mesaj_tarihi'] = time();
+    $data['denetci_ip_adresi'] = $_SERVER['REMOTE_ADDR'];
+}
+
+// Insert into tbl_icerik_bilgileri_ai
+$sql = "INSERT INTO tbl_icerik_bilgileri_ai (
+    user_id, ip_adresi, date, telefon_numarasi, personel_mesaji, 
+    gorusme_sonucu_text, tekrar_arama_tarihi, lead_puanlama, 
+    sikayet_hastane, sikayet_bolum, sikayet_doktor, sikayet_konusu, 
+    sikayet_detayi, sikayet_gorseli, 
+    kampanya,
+    denetci_id, denetci_adi, denetci_mesaj, denetci_mesaj_tarihi, denetci_ip_adresi
+) VALUES (
+    :user_id, :ip_adresi, :date, :telefon_numarasi, :personel_mesaji, 
+    :gorusme_sonucu_text, :tekrar_arama_tarihi, :lead_puanlama, 
+    :sikayet_hastane, :sikayet_bolum, :sikayet_doktor, :sikayet_konusu, 
+    :sikayet_detayi, :sikayet_gorseli, 
+    :kampanya,
+    :denetci_id, :denetci_adi, :denetci_mesaj, :denetci_mesaj_tarihi, :denetci_ip_adresi
+)";
+
+// Ensure keys match exactly
+$insert_data = array_merge([
+    'denetci_id' => null,
+    'denetci_adi' => null,
+    'denetci_mesaj' => null,
+    'denetci_mesaj_tarihi' => null,
+    'denetci_ip_adresi' => null
+], $data);
+
+try {
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute($insert_data);
+    echo json_encode(['success' => true]);
+} catch (PDOException $e) {
+    echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+}
