@@ -628,7 +628,7 @@ body {
     cursor: pointer;
     transition: all 0.2s;
     display: grid;
-    grid-template-columns: 140px 1fr 130px;
+    grid-template-columns: 110px 1fr 90px;
     gap: 0;
     align-items: center;
     min-height: 100px;
@@ -657,8 +657,8 @@ body {
 .col-info {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
-    padding-right: 0.5rem;
+    gap: 0.5rem;
+    padding-right: 0.25rem;
 }
 
 .contact-details-wrapper {
@@ -669,8 +669,8 @@ body {
 }
 
 .profile-circle {
-    width: 36px;
-    height: 36px;
+    width: 32px;
+    height: 32px;
     background: #f1f5f9;
     border-radius: 50%;
     display: flex;
@@ -702,13 +702,11 @@ body {
 
 /* Col 2: Message Snippet */
 .col-msg {
-    padding: 0 1rem;
+    padding: 0 0.5rem;
+    /* Reduced padding */
     border-left: 2px solid #f1f5f9;
-    /* Stronger divider */
     color: #0f172a;
-    /* Darker for better visibility */
     font-size: 0.9rem;
-    /* Larger as requested */
     font-weight: 500;
     display: -webkit-box;
     -webkit-line-clamp: 3;
@@ -722,7 +720,6 @@ body {
 .col-meta {
     padding-left: 0.5rem;
     border-left: 2px solid #f1f5f9;
-    /* Stronger divider */
     display: flex;
     flex-direction: column;
     align-items: flex-end;
@@ -731,7 +728,8 @@ body {
 }
 
 .meta-date {
-    font-size: 0.7rem;
+    font-size: 0.6rem;
+    /* Reduced font size */
     color: #64748b;
     white-space: nowrap;
     display: flex;
@@ -742,7 +740,8 @@ body {
 
 .meta-campaign {
     font-weight: 600;
-    font-size: 0.75rem;
+    font-size: 0.65rem;
+    /* Reduced font size */
     color: #0f172a;
     margin-top: 0.25rem;
 }
