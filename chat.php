@@ -1075,6 +1075,11 @@ $statuses = $pdo->query("SELECT * FROM tbl_ayarlar_gorusme_sonucu_bilgileri ORDE
             return colors[index];
         }
 
+        function scrollToBottom() {
+            const box = document.getElementById('chat-box');
+            box.scrollTop = box.scrollHeight;
+        }
+
         function applyProfileColors() {
             document.querySelectorAll('.profile-circle').forEach(el => {
                 const name = el.getAttribute('data-name');
