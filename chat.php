@@ -332,13 +332,22 @@ $statuses = $pdo->query("SELECT * FROM tbl_ayarlar_gorusme_sonucu_bilgileri ORDE
         <aside class="chat-sidebar">
 
             <div class="sidebar-controls">
-                <div class="controls-row">
+                <div class="sidebar-filter-grid">
                     <select class="status-select" id="personnel-filter" onchange="filterByPersonnel(this.value)">
                         <option value="all">Personel</option>
                     </select>
 
                     <select class="status-select" id="campaign-filter" onchange="filterByCampaign(this.value)">
                         <option value="all">Kampanya</option>
+                    </select>
+
+                    <select class="status-select" id="status-filter" onchange="filterByStatus(this.value)">
+                        <option value="all">Sonuç</option>
+                        <?php foreach ($statuses as $s): ?>
+                            <option value="<?php echo htmlspecialchars($s['baslik']); ?>" <?php echo $status_filter === $s['baslik'] ? 'selected' : ''; ?>>
+                                <?php echo htmlspecialchars($s['baslik']); ?>
+                            </option>
+                        <?php endforeach; ?>
                     </select>
 
                     <button class="btn-new-record" onclick="openNewRecordModal()" title="Yeni Kayıt Ekle">
@@ -348,19 +357,11 @@ $statuses = $pdo->query("SELECT * FROM tbl_ayarlar_gorusme_sonucu_bilgileri ORDE
                     </button>
                 </div>
 
-                <select class="status-select" id="status-filter" onchange="filterByStatus(this.value)">
-                    <option value="all">Sonuç Filtresi</option>
-                    <?php foreach ($statuses as $s): ?>
-                        <option value="<?php echo htmlspecialchars($s['baslik']); ?>" <?php echo $status_filter === $s['baslik'] ? 'selected' : ''; ?>>
-                            <?php echo htmlspecialchars($s['baslik']); ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
+            </div>
 
-                <div class="sidebar-tabs">
-                    <button class="tab-btn active" id="tab-empty" onclick="setMainFilter('empty')">Yeni</button>
-                    <button class="tab-btn" id="tab-all" onclick="setMainFilter('all')">Tümü</button>
-                </div>
+            <div class="sidebar-tabs">
+                <button class="tab-btn active" id="tab-empty" onclick="setMainFilter('empty')">Yeni</button>
+                <button class="tab-btn" id="tab-all" onclick="setMainFilter('all')">Tümü</button>
             </div>
 
             <div class="spinner-container" id="list-spinner" style="display: none;">
@@ -394,8 +395,14 @@ $statuses = $pdo->query("SELECT * FROM tbl_ayarlar_gorusme_sonucu_bilgileri ORDE
                 <div class="spinner"></div>
                 <p style="margin-top: 1rem; color: var(--primary); font-weight: 500;">Yükleniyor...</p>
             </div>
-            <header class="sidebar-header" style="background: white;">
-                <h3 id="chat-title">Müşteri Seçin</h3>
+            <header class="sidebar-header"
+                style="background: white; display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.5rem; border-bottom: 1px solid #f3f4f6;">
+                <h3 id="chat-title" style="font-size: 1.1rem; font-weight: 700; color: #0f172a; margin: 0;">Müşteri
+                    Seçin</h3>
+                <div id="chat-meta" style="text-align: right; display: none;">
+                    <div id="meta-name" style="font-size: 0.9rem; font-weight: 600; color: #334155;"></div>
+                    <div id="meta-campaign" style="font-size: 0.75rem; color: #64748b;"></div>
+                </div>
             </header>
 
             <div class="chat-messages" id="chat-box">
@@ -419,16 +426,15 @@ $statuses = $pdo->query("SELECT * FROM tbl_ayarlar_gorusme_sonucu_bilgileri ORDE
                     <input type="hidden" name="phone" id="form-phone">
                     <div class="interaction-grid">
                         <!-- Top left: Note -->
-                        <div class="field-group full-height" style="grid-row: span 3;">
+                        <div class="field-group note-field">
                             <label>Görüşme Notu</label>
-                            <textarea name="note" id="form-note"
-                                placeholder="Görüşme notunu buraya yazın..."></textarea>
+                            <textarea name="note" id="form-note" placeholder="Not..."></textarea>
                         </div>
 
                         <div class="field-group">
                             <label>Görüşme Sonucu</label>
-                            <select name="status_id">
-                                <option value="">Görüşme Sonucu Seçiniz</option>
+                            <select name="status_id" onchange="toggleComplaintFields(this.value)">
+                                <option value="">Sonuç Seçiniz</option>
                                 <?php foreach ($statuses as $s): ?>
                                     <option value="<?php echo $s['baslik']; ?>">
                                         <?php echo htmlspecialchars($s['baslik']); ?>
@@ -437,16 +443,10 @@ $statuses = $pdo->query("SELECT * FROM tbl_ayarlar_gorusme_sonucu_bilgileri ORDE
                             </select>
                         </div>
 
-
-                        <div class="field-group">
-                            <label>Tekrar Arama Tarihi</label>
-                            <input type="date" name="callback_date">
-                        </div>
-
                         <div class="field-group">
                             <label>Lead Puanlama</label>
                             <select name="lead_score">
-                                <option value="">Puanlama</option>
+                                <option value="">Puan</option>
                                 <option value="1">1 Yıldız</option>
                                 <option value="2">2 Yıldız</option>
                                 <option value="3">3 Yıldız</option>
@@ -455,8 +455,15 @@ $statuses = $pdo->query("SELECT * FROM tbl_ayarlar_gorusme_sonucu_bilgileri ORDE
                             </select>
                         </div>
 
-                        <!-- Şikayet fields - initially hidden -->
-                        <div class="field-group complaint-field hidden">
+                        <div class="field-group">
+                            <label>Tekrar Arama</label>
+                            <input type="date" name="callback_date">
+                        </div>
+                    </div>
+
+                    <!-- Complaint Section (Separate below grid) -->
+                    <div id="complaint-section" class="complaint-grid hidden">
+                        <div class="field-group complaint-field">
                             <label>Şikayet Şube</label>
                             <select name="complaint_hospital" id="comp-hosp">
                                 <option value="">Şube Seçiniz</option>
@@ -468,7 +475,7 @@ $statuses = $pdo->query("SELECT * FROM tbl_ayarlar_gorusme_sonucu_bilgileri ORDE
                             </select>
                         </div>
 
-                        <div class="field-group complaint-field hidden">
+                        <div class="field-group complaint-field">
                             <label>Şikayet Bölüm</label>
                             <select name="complaint_dept">
                                 <option value="">Bölüm Seçiniz</option>
@@ -480,7 +487,7 @@ $statuses = $pdo->query("SELECT * FROM tbl_ayarlar_gorusme_sonucu_bilgileri ORDE
                             </select>
                         </div>
 
-                        <div class="field-group complaint-field hidden">
+                        <div class="field-group complaint-field">
                             <label>Şikayet Doktor</label>
                             <select name="complaint_doctor">
                                 <option value="">Doktor Seçiniz</option>
@@ -492,8 +499,7 @@ $statuses = $pdo->query("SELECT * FROM tbl_ayarlar_gorusme_sonucu_bilgileri ORDE
                             </select>
                         </div>
 
-                        <!-- Bottom row: Topic, Detail, File -->
-                        <div class="field-group complaint-field hidden">
+                        <div class="field-group complaint-field">
                             <label>Şikayet Konusu</label>
                             <select name="complaint_topic">
                                 <option value="">Konu Seçiniz</option>
@@ -505,16 +511,15 @@ $statuses = $pdo->query("SELECT * FROM tbl_ayarlar_gorusme_sonucu_bilgileri ORDE
                             </select>
                         </div>
 
-                        <div class="field-group complaint-field hidden" style="grid-column: span 2;">
+                        <div class="field-group complaint-field" style="grid-column: span 2;">
                             <label>Şikayet Detayı</label>
                             <input type="text" name="complaint_detail" placeholder="Şikayet detayı...">
                         </div>
 
-                        <div class="field-group complaint-field hidden">
+                        <div class="field-group complaint-field">
                             <label>Şikayet Görseli</label>
                             <input type="file" name="complaint_image">
                         </div>
-
                     </div>
 
                     <div class="interaction-footer">
@@ -707,19 +712,19 @@ $statuses = $pdo->query("SELECT * FROM tbl_ayarlar_gorusme_sonucu_bilgileri ORDE
         let currentPhone = '';
 
         function toggleComplaintFields(val) {
-            const fields = document.querySelectorAll('.complaint-field');
+            const section = document.getElementById('complaint-section');
             const showList = ['Teşekkür', 'Şikayet', 'Öneri'];
             // Check if selected value contains any of the showList keywords
             const shouldShow = showList.some(keyword => val.includes(keyword));
 
             if (shouldShow) {
-                fields.forEach(f => f.classList.remove('hidden'));
+                section.classList.remove('hidden');
             } else {
-                fields.forEach(f => f.classList.add('hidden'));
+                section.classList.add('hidden');
             }
         }
 
-        function loadConversation(phone, element) {
+        function loadConversation(phone, name, campaign, element) {
             currentPhone = phone;
             document.querySelectorAll('.contact-item').forEach(el => el.classList.remove('active'));
             if (element) element.classList.add('active');
@@ -728,6 +733,10 @@ $statuses = $pdo->query("SELECT * FROM tbl_ayarlar_gorusme_sonucu_bilgileri ORDE
             if (spinner) spinner.style.display = 'flex';
 
             document.getElementById('chat-title').innerText = phone;
+            document.getElementById('chat-meta').style.display = 'block';
+            document.getElementById('meta-name').innerText = name || 'İsimsiz';
+            document.getElementById('meta-campaign').innerText = campaign || '';
+
             document.getElementById('input-area').style.display = 'flex';
             document.getElementById('interaction-area').style.display = 'block';
             document.getElementById('form-phone').value = phone;

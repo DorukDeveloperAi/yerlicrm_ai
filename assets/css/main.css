@@ -428,30 +428,26 @@ body {
 .sidebar-controls {
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
-    padding: 1rem 0 0 0;
-    /* Remove side padding, keep top padding */
-    border-bottom: none;
+    gap: 0.5rem;
+    padding: 0.5rem 0.5rem 0 0.5rem;
     background: white;
 }
 
-.controls-row {
-    display: flex;
-    gap: 0.4rem;
+.sidebar-filter-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
     align-items: center;
-    width: 100%;
-    padding: 0 1rem;
-    /* Apply padding internally to controls */
 }
 
-.controls-row .btn-new-record {
-    flex-shrink: 0;
-    width: 40px;
-    height: 40px;
-    padding: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+.sidebar-filter-grid .status-select,
+.sidebar-filter-grid .btn-new-record {
+    width: 100%;
+}
+
+.sidebar-filter-grid .btn-new-record {
+    height: 38px;
+    /* Match select height approx */
 }
 
 .controls-row .status-select {
@@ -927,10 +923,34 @@ body {
 
 .interaction-grid {
     display: grid;
-    grid-template-columns: 2fr 1fr 1fr;
-    /* Adjusted for better balance */
-    gap: 0.75rem;
-    margin-bottom: 0.75rem;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    /* Note is wider */
+    gap: 0.5rem;
+    align-items: end;
+    /* Align labels and inputs to bottom */
+    margin-bottom: 0.5rem;
+}
+
+.note-field textarea {
+    height: 38px;
+    /* Fixed height to match inputs approx */
+    min-height: unset;
+    overflow: hidden;
+    /* No scrollbar */
+    resize: none;
+    line-height: 1.2;
+    padding: 0.5rem;
+}
+
+.complaint-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    margin-top: 0.5rem;
 }
 
 .field-group {

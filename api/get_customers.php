@@ -108,44 +108,43 @@ ob_start();
         $first_date = $formatDate($c['first_date']);
         $access_date = $formatDate($c['ilk_erisim_tarihi']);
         ?>
-        <div class="contact-item" onclick="loadConversation('<?php echo $c['telefon_numarasi']; ?>', this)">
-            <div class="col-info">
-                <div class="profile-circle">
-                    <?php echo $getInitials($c['musteri_adi_soyadi']); ?>
-                </div>
-                <div class="contact-details-wrapper">
-                    <span class="contact-name">
-                        <?php echo htmlspecialchars($c['musteri_adi_soyadi'] ?: 'İsimsiz Müşteri'); ?>
-                    </span>
-                    <span class="rep-name">
-                        <?php echo htmlspecialchars($c['rep_name'] ?: 'Atanmamış'); ?>
-                    </span>
-                </div>
-            </div>
-            <div class="col-msg">
-                <?php echo htmlspecialchars($snippet); ?>
-            </div>
-            <div class="col-meta">
-                <span class="meta-date" title="İşlem Tarihi">
-                    <?php echo $last_date; ?>
-                </span>
-                <span class="meta-date" title="Başvuru Tarihi">
-                    <?php echo $first_date; ?>
-                </span>
-                <span class="meta-date" title="İlk Erişim Tarihi">
-                    <?php echo $access_date; ?>
-                </span>
-                <span class="meta-campaign">
-                    <?php echo htmlspecialchars($c['kampanya'] ?: 'Genel'); ?>
-                </span>
-                <?php if (!empty($c['musteri_mesaji'])): ?>
-                    <div class="status-icon" title="Yeni Müşteri Mesajı">
-                        <i class="ph ph-chat-circle-dots"></i>
-                    </div>
-                <?php endif; ?>
-            </div>
+        <?php echo $getInitials($c['musteri_adi_soyadi']); ?>
+    </div>
+    <div class="contact-details-wrapper"
+        onclick="loadConversation('<?php echo $c['telefon_numarasi']; ?>', '<?php echo addslashes($c['musteri_adi_soyadi'] ?: 'İsimsiz'); ?>', '<?php echo addslashes($c['kampanya'] ?: 'Kampanya Yok'); ?>', this.parentElement)">
+        <div class="contact-details-wrapper">
+            <span class="contact-name">
+                <?php echo htmlspecialchars($c['musteri_adi_soyadi'] ?: 'İsimsiz Müşteri'); ?>
+            </span>
+            <span class="rep-name">
+                <?php echo htmlspecialchars($c['rep_name'] ?: 'Atanmamış'); ?>
+            </span>
         </div>
-    <?php endforeach; ?>
+    </div>
+    <div class="col-msg">
+        <?php echo htmlspecialchars($snippet); ?>
+    </div>
+    <div class="col-meta">
+        <span class="meta-date" title="İşlem Tarihi">
+            <?php echo $last_date; ?>
+        </span>
+        <span class="meta-date" title="Başvuru Tarihi">
+            <?php echo $first_date; ?>
+        </span>
+        <span class="meta-date" title="İlk Erişim Tarihi">
+            <?php echo $access_date; ?>
+        </span>
+        <span class="meta-campaign">
+            <?php echo htmlspecialchars($c['kampanya'] ?: 'Genel'); ?>
+        </span>
+        <?php if (!empty($c['musteri_mesaji'])): ?>
+            <div class="status-icon" title="Yeni Müşteri Mesajı">
+                <i class="ph ph-chat-circle-dots"></i>
+            </div>
+        <?php endif; ?>
+    </div>
+    </div>
+<?php endforeach; ?>
 </div>
 
 <?php
