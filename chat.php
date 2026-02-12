@@ -417,33 +417,27 @@ $statuses = $pdo->query("SELECT * FROM tbl_ayarlar_gorusme_sonucu_bilgileri ORDE
             <div class="interaction-container" id="interaction-area" style="display: none;">
                 <form id="interaction-form" enctype="multipart/form-data">
                     <input type="hidden" name="phone" id="form-phone">
-                    <div class="interaction-grid-single-row">
-                        <!-- Görüşme Notu -->
+                    <div class="interaction-grid-two-rows">
+                        <!-- Row 1: Görüşme Notu -->
                         <div class="field-group">
                             <label>Görüşme Notu</label>
                             <textarea name="note" id="form-note" placeholder="Not..." rows="3"></textarea>
                         </div>
 
-                        <!-- Görüşme Sonucu + Tekrar Arama (stacked) -->
-                        <div class="field-group-stacked">
-                            <div class="field-group">
-                                <label>Görüşme Sonucu</label>
-                                <select name="status_id" onchange="toggleComplaintFields(this.value)">
-                                    <option value="">Sonuç Seçiniz</option>
-                                      <?php foreach ($statuses as $s): ?>
-                                        <option value="<?php echo $s['baslik']; ?>">
-                                              <?php echo htmlspecialchars($s['baslik']); ?>
-                                        </option>
-                                      <?php endforeach; ?>
-                                </select>
-                            </div>
-                            <div class="field-group">
-                                <label>Tekrar Arama</label>
-                                <input type="date" name="callback_date">
-                            </div>
+                        <!-- Row 1: Görüşme Sonucu -->
+                        <div class="field-group">
+                            <label>Görüşme Sonucu</label>
+                            <select name="status_id" onchange="toggleComplaintFields(this.value)">
+                                <option value="">Sonuç Seçiniz</option>
+                                <?php foreach ($statuses as $s): ?>
+                                    <option value="<?php echo $s['baslik']; ?>">
+                                        <?php echo htmlspecialchars($s['baslik']); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
                         </div>
 
-                        <!-- Lead Puanlama -->
+                        <!-- Row 1: Lead Puanlama -->
                         <div class="field-group">
                             <label>Lead Puanlama</label>
                             <select name="lead_score">
@@ -455,6 +449,18 @@ $statuses = $pdo->query("SELECT * FROM tbl_ayarlar_gorusme_sonucu_bilgileri ORDE
                                 <option value="5">5 Yıldız</option>
                             </select>
                         </div>
+
+                        <!-- Row 2: Empty space -->
+                        <div></div>
+
+                        <!-- Row 2: Tekrar Arama (under Görüşme Sonucu) -->
+                        <div class="field-group">
+                            <label>Tekrar Arama</label>
+                            <input type="date" name="callback_date">
+                        </div>
+
+                        <!-- Row 2: Empty space -->
+                        <div></div>
                     </div>
 
                     <!-- Complaint Section (Separate below grid) -->
