@@ -151,6 +151,11 @@ requireLogin();
                 <i class="ph ph-chats"></i>
                 <span>Chat Ekranı</span>
             </a>
+            <a href="whatsapp_templates.php"
+                class="nav-item <?php echo $activePage == 'whatsapp_templates' ? 'active' : ''; ?>">
+                <i class="ph ph-whatsapp-logo"></i>
+                <span>WhatsApp Şablonları</span>
+            </a>
         </nav>
 
         <div class="p-4 mt-auto">

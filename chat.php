@@ -404,11 +404,11 @@ $statuses = $pdo->query("SELECT * FROM tbl_ayarlar_gorusme_sonucu_bilgileri ORDE
                 </div>
             </div>
 
+            <div id="templates-container" style="display: none; padding: 0 1rem;">
+                <!-- Template buttons will be injected here -->
+            </div>
             <div class="chat-input-area" id="input-area" style="display: none;">
                 <textarea id="message-text" placeholder="WhatsApp mesajınızı yazın..."></textarea>
-                <div id="templates-container" style="display: none;">
-                    <!-- Template buttons will be injected here -->
-                </div>
                 <button class="btn-send" onclick="sendMessage()" title="Mesaj Gönder">
                     <i class="ph ph-envelope-simple"></i>
                 </button>
