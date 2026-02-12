@@ -108,7 +108,8 @@ for ($i = 1; $i <= 10; $i++) {
             <div class="detail-form-group" style="flex: 1;">
                 <label class="detail-label-sm">Kampanya</label>
                 <div class="detail-value-row">
-                    <span class="detail-value-text"><?php echo htmlspecialchars($detail['kampanya'] ?: '-'); ?></span>
+                    <span class="detail-value-text"
+                        id="current-campaign-val"><?php echo htmlspecialchars($detail['kampanya'] ?: '-'); ?></span>
                     <button class="btn-edit-icon" title="Değiştir"
                         onclick="openEditModal('kampanya', '<?php echo addslashes($detail['kampanya']); ?>', 'Kampanya')">
                         <i class="ph ph-pencil-simple"></i>

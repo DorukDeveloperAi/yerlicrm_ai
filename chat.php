@@ -422,20 +422,12 @@ $statuses = $pdo->query("SELECT * FROM tbl_ayarlar_gorusme_sonucu_bilgileri ORDE
                         </div>
 
                         <div class="field-group">
-                            <label>Kampanya / Talep Türü</label>
-                            <select name="kampanya" id="form-campaign" onchange="toggleComplaintFields(this.value)">
-                                <option value="">Seçiniz</option>
-                                <option value="Teşekkür, Şikayet, Öneri">Teşekkür, Şikayet, Öneri</option>
-                                <?php foreach ($all_campaigns as $c): ?>
-                                    <option value="<?php echo htmlspecialchars($c['baslik']); ?>">
-                                        <?php echo htmlspecialchars($c['baslik']); ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
-
-                        <div class="field-group">
-                            <label>Görüşme Sonucu</label>
+                            <label style="display: flex; justify-content: space-between; align-items: center;">
+                                Görüşme Sonucu
+                                <span onclick="toggleComplaintFields('Teşekkür, Şikayet, Öneri')" style="font-size: 0.7rem; color: var(--primary); font-weight: 500; cursor: pointer;">
+                                    <i class="ph ph-warning-circle"></i> Şikayet/Teşekkür
+                                </span>
+                            </label>
                             <select name="status_id">
                                 <option value="">Görüşme Sonucu Seçiniz</option>
                                 <?php foreach ($statuses as $s): ?>
@@ -792,6 +784,15 @@ $statuses = $pdo->query("SELECT * FROM tbl_ayarlar_gorusme_sonucu_bilgileri ORDE
             const form = document.getElementById('interaction-form');
             const formData = new FormData(form);
             formData.append('type', type);
+
+            // Fetch campaign from detail pane
+            const campaignSpan = document.getElementById('current-campaign-val');
+            if (campaignSpan) {
+                const campaignVal = campaignSpan.innerText.trim();
+                if (campaignVal !== '-') {
+                    formData.append('kampanya', campaignVal);
+                }
+            }
 
             fetch('api/save_interaction.php', {
                 method: 'POST',
