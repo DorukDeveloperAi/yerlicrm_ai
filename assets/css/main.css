@@ -1317,12 +1317,13 @@ body {
 .field-group input[type="date"],
 .field-group textarea {
     width: 100%;
-    padding: 0.625rem;
+    padding: 0.75rem;
     border: 1px solid #e2e8f0;
     border-radius: 0.5rem;
     font-size: 0.875rem;
     outline: none;
     transition: border-color 0.2s;
+    min-height: 44px;
 }
 
 .field-group select:focus,
