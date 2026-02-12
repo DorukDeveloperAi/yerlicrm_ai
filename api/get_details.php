@@ -83,13 +83,7 @@ for ($i = 1; $i <= 10; $i++) {
 
 
 
-<div
-    style="padding: 0.5rem 1rem; display: flex; justify-content: flex-end; align-items: center; border-bottom: 1px solid #f3f4f6;">
-    <div class="user-profile-widget" onclick="toggleDrawer()" title="Menü ve Ayarlar"
-        style="position: static; box-shadow: none; width: 32px; height: 32px; border: 1px solid #e2e8f0;">
-        <i class="ph-fill ph-gear" style="font-size: 1.2rem;"></i>
-    </div>
-</div>
+
 
 <div class="detail-tabs">
     <button class="detail-tab-btn active" onclick="switchDetailTab('genel', this)">Detay</button>
