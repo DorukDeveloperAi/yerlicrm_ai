@@ -2,35 +2,18 @@
 require_once 'auth.php';
 requireLogin();
 
-// Pagination Settings
+<?php
+require_once 'auth.php';
+requireLogin();
+
+// Pagination Settings (Basics only, specific lists handled via AJAX)
 $limit = 50;
 $page = isset($_GET['page']) ? (int) $_GET['page'] : 1;
 $page = $page < 1 ? 1 : $page;
-$offset = ($page - 1) * $limit;
 
-// Status Filter
-$status_filter = isset($_GET['status']) ? $_GET['status'] : 'empty'; // Default to empty
-
-// Fetch statuses for the sidebar dropdown
+// Basic Statuses for sidebar (These are small/fast, can stay or move, keeping for now as they are core to sidebar UI)
 $statuses = $pdo->query("SELECT * FROM tbl_ayarlar_gorusme_sonucu_bilgileri ORDER BY id ASC")->fetchAll();
-
-// Fetch form data
-// Fetch form data (Commented out as tables do not exist and variables appear unused)
-// $hospitals = $pdo->query("SELECT id, baslik FROM tbl_ayarlar_hastane_bilgileri ORDER BY baslik ASC")->fetchAll();
-// $departments = $pdo->query("SELECT id, baslik, ayarlar_hastane_bilgileri_id FROM tbl_ayarlar_bolum_bilgileri ORDER BY baslik ASC")->fetchAll();
-// $doctors = $pdo->query("SELECT id, baslik, ayarlar_hastane_bilgileri_id, ayarlar_bolum_bilgileri_id FROM tbl_ayarlar_doktor_bilgileri ORDER BY baslik ASC")->fetchAll();
-// $complaint_topics = $pdo->query("SELECT id, baslik FROM tbl_ayarlar_sikayet_konusu_bilgileri ORDER BY baslik ASC")->fetchAll();
-
-// Fetch personnel and campaigns for sidebar filters
-$all_personnel = $pdo->query("SELECT id, username FROM users ORDER BY username ASC")->fetchAll();
-$all_campaigns = $pdo->query("SELECT DISTINCT kampanya as baslik FROM tbl_icerik_bilgileri_ai WHERE kampanya IS NOT NULL AND kampanya != '' ORDER BY kampanya ASC")->fetchAll();
-
-// Fetch data for Edit Modal (Global Scope)
-$modal_hospitals = $pdo->query("SELECT DISTINCT hastane FROM tbl_icerik_bilgileri_ai WHERE hastane IS NOT NULL AND hastane != '' ORDER BY hastane ASC")->fetchAll(PDO::FETCH_COLUMN);
-$modal_departments = $pdo->query("SELECT DISTINCT bolum FROM tbl_icerik_bilgileri_ai WHERE bolum IS NOT NULL AND bolum != '' ORDER BY bolum ASC")->fetchAll(PDO::FETCH_COLUMN);
-$modal_doctors = $pdo->query("SELECT DISTINCT doktor FROM tbl_icerik_bilgileri_ai WHERE doktor IS NOT NULL AND doktor != '' ORDER BY doktor ASC")->fetchAll(PDO::FETCH_COLUMN);
-$modal_requests = $pdo->query("SELECT DISTINCT talep_icerik FROM tbl_icerik_bilgileri_ai WHERE talep_icerik IS NOT NULL AND talep_icerik != '' ORDER BY talep_icerik ASC")->fetchAll(PDO::FETCH_COLUMN);
-$modal_campaigns = array_column($all_campaigns, 'baslik');
+?>
 ?>
 <!DOCTYPE html>
 <html lang="tr">
@@ -79,10 +62,10 @@ $modal_campaigns = array_column($all_campaigns, 'baslik');
         /* Floating Menu Button */
         .floating-menu-btn {
             position: fixed;
-            bottom: 2rem;
-            left: 2rem;
-            width: 3.5rem;
-            height: 3.5rem;
+            bottom: 1.25rem;
+            left: 1.25rem;
+            width: 2.25rem;
+            height: 2.25rem;
             background: var(--primary);
             color: white;
             border-radius: 50%;
@@ -90,9 +73,16 @@ $modal_campaigns = array_column($all_campaigns, 'baslik');
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.3);
+            box-shadow: 0 2px 8px rgba(99, 102, 241, 0.4);
             z-index: 1000;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            opacity: 0.8;
+        }
+
+        .floating-menu-btn:hover {
+            opacity: 1;
+            transform: scale(1.05);
+            background: var(--primary-dark);
         }
 
         .floating-menu-btn:hover {
@@ -154,6 +144,41 @@ $modal_campaigns = array_column($all_campaigns, 'baslik');
             color: white;
         }
 
+        .chat-main {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            background: white;
+            height: 100vh;
+            overflow: hidden;
+            border-left: 1px solid var(--border);
+            border-right: 1px solid var(--border);
+        }
+
+        .chat-sidebar {
+            width: 380px;
+            display: flex;
+            flex-direction: column;
+            background: white;
+            height: 100vh;
+        }
+
+        .chat-box {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1.5rem;
+            background: #f8fafc;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .interaction-area {
+            background: white;
+            border-top: 1px solid var(--border);
+            padding: 1rem 1.5rem;
+        }
+
         .drawer-nav {
             display: flex;
             flex-direction: column;
@@ -193,7 +218,7 @@ $modal_campaigns = array_column($all_campaigns, 'baslik');
 <body>
     <!-- Floating Menu Trigger -->
     <div class="floating-menu-btn" onclick="toggleDrawer()">
-        <i class="ph-fill ph-gear" style="font-size: 1.5rem;"></i>
+        <i class="ph-fill ph-gear" style="font-size: 1.1rem;"></i>
     </div>
 
     <!-- Drawer Menu -->
@@ -237,18 +262,10 @@ $modal_campaigns = array_column($all_campaigns, 'baslik');
                 <div class="controls-row">
                     <select class="status-select" id="personnel-filter" onchange="filterByPersonnel(this.value)">
                         <option value="all">Personel</option>
-                        <?php foreach ($all_personnel as $p): ?>
-                            <option value="<?php echo $p['id']; ?>"><?php echo htmlspecialchars($p['username']); ?></option>
-                        <?php endforeach; ?>
                     </select>
 
                     <select class="status-select" id="campaign-filter" onchange="filterByCampaign(this.value)">
                         <option value="all">Kampanya</option>
-                        <?php foreach ($all_campaigns as $c): ?>
-                            <option value="<?php echo htmlspecialchars($c['baslik']); ?>">
-                                <?php echo htmlspecialchars($c['baslik']); ?>
-                            </option>
-                        <?php endforeach; ?>
                     </select>
 
                     <button class="btn-new-record" onclick="openNewRecordModal()" title="Yeni Kayıt Ekle">
@@ -494,337 +511,370 @@ $modal_campaigns = array_column($all_campaigns, 'baslik');
     </div>
 
     <script>
-    // Global Data for Edit Modal
-    const detailData = {
-        campaigns: <?php echo json_encode($modal_campaigns); ?>,
-        requests: <?php echo json_encode($modal_requests); ?>,
-        hospitals: <?php echo json_encode($modal_hospitals); ?>,
-        departments: <?php echo json_encode($modal_departments); ?>,
-        doctors: <?php echo json_encode($modal_doctors); ?>
-    };
-
-    function openEditModal(field, currentValue, label, options = null) {
-        document.getElementById('editDetailModal').style.display = 'flex';
-        document.getElementById('editModalTitle').innerText = label + ' Düzenle';
-        document.getElementById('editLabel').innerText = label;
-        document.getElementById('editField').value = field;
-        // Phone is retrieved from global currentPhone in chat.php
-        document.getElementById('editPhone').value = currentPhone;
-
-        const container = document.getElementById('editInputContainer');
-        container.innerHTML = '';
-
-        let inputHtml = '';
-
-        // Helper to build select
-        const buildSelect = (opts, isRep = false) => {
-            let html = '<select id="editValue" class="form-select">';
-            html += '<option value="">Seçiniz</option>';
-            opts.forEach(opt => {
-                const val = isRep ? opt.id : opt;
-                const text = isRep ? opt.username : opt;
-                const selected = String(val) === String(currentValue) ? 'selected' : '';
-                html += `<option value="${val}" ${selected}>${text}</option>`;
-            });
-            // Keep current if not in list
-            if (currentValue && !opts.some(o => (isRep ? o.id : o) == currentValue)) {
-                 // For reps, we don't have the username if not in list, so just show ID or skip
-                 if(!isRep) html += `<option value="${currentValue}" selected>${currentValue}</option>`;
-            }
-            html += '</select>';
-            return html;
+        // Global Data for Edit Modal (Fetched via AJAX)
+        let detailData = {
+            campaigns: [],
+            requests: [],
+            hospitals: [],
+            departments: [],
+            doctors: [],
+            personnel: []
         };
 
-        if (field === 'kampanya') inputHtml = buildSelect(detailData.campaigns);
-        else if (field === 'talep_icerik') inputHtml = buildSelect(detailData.requests);
-        else if (field === 'hastane') inputHtml = buildSelect(detailData.hospitals);
-        else if (field === 'bolum') inputHtml = buildSelect(detailData.departments);
-        else if (field === 'doktor') inputHtml = buildSelect(detailData.doctors);
-        else if (field === 'user_id' && options) {
-            inputHtml = buildSelect(options, true);
+        // Load Modal Options Content
+        async function loadModalOptions() {
+            try {
+                const response = await fetch('api/get_modal_options.php');
+                const result = await response.json();
+                if (result.success) {
+                    detailData = result.data;
+                    populateSidebarFilters();
+                }
+            } catch (error) {
+                console.error('Error loading options:', error);
+            }
         }
-        else if (field === 'dogum_haftasi') {
-            inputHtml = `<div style="display: flex; align-items: center; gap: 0.5rem;">
+
+        function populateSidebarFilters() {
+            const pSelect = document.getElementById('personnel-filter');
+            const cSelect = document.getElementById('campaign-filter');
+            
+            detailData.personnel.forEach(p => {
+                const opt = new Option(p.username, p.id);
+                pSelect.add(opt);
+            });
+            
+            detailData.campaigns.forEach(c => {
+                const opt = new Option(c, c);
+                cSelect.add(opt);
+            });
+        }
+
+        function openEditModal(field, currentValue, label, options = null) {
+            document.getElementById('editDetailModal').style.display = 'flex';
+            document.getElementById('editModalTitle').innerText = label + ' Düzenle';
+            document.getElementById('editLabel').innerText = label;
+            document.getElementById('editField').value = field;
+            // Phone is retrieved from global currentPhone in chat.php
+            document.getElementById('editPhone').value = currentPhone;
+
+            const container = document.getElementById('editInputContainer');
+            container.innerHTML = '';
+
+            let inputHtml = '';
+
+            // Helper to build select
+            const buildSelect = (opts, isRep = false) => {
+                let html = '<select id="editValue" class="form-select">';
+                html += '<option value="">Seçiniz</option>';
+                opts.forEach(opt => {
+                    const val = isRep ? opt.id : opt;
+                    const text = isRep ? opt.username : opt;
+                    const selected = String(val) === String(currentValue) ? 'selected' : '';
+                    html += `<option value="${val}" ${selected}>${text}</option>`;
+                });
+                // Keep current if not in list
+                if (currentValue && !opts.some(o => (isRep ? o.id : o) == currentValue)) {
+                    // For reps, we don't have the username if not in list, so just show ID or skip
+                    if (!isRep) html += `<option value="${currentValue}" selected>${currentValue}</option>`;
+                }
+                html += '</select>';
+                return html;
+            };
+
+            if (field === 'kampanya') inputHtml = buildSelect(detailData.campaigns);
+            else if (field === 'talep_icerik') inputHtml = buildSelect(detailData.requests);
+            else if (field === 'hastane') inputHtml = buildSelect(detailData.hospitals);
+            else if (field === 'bolum') inputHtml = buildSelect(detailData.departments);
+            else if (field === 'doktor') inputHtml = buildSelect(detailData.doctors);
+            else if (field === 'user_id' && options) {
+                inputHtml = buildSelect(options, true);
+            }
+            else if (field === 'dogum_haftasi') {
+                inputHtml = `<div style="display: flex; align-items: center; gap: 0.5rem;">
                     <input type="number" id="editValue" class="form-input" value="${currentValue}" placeholder="Örn: 11" style="flex: 1;">
                     <span style="font-size: 0.8rem; color: var(--text-muted);">Hafta</span>
                 </div>`;
+            }
+
+            container.innerHTML = inputHtml;
         }
 
-        container.innerHTML = inputHtml;
-    }
+        function closeEditModal() {
+            document.getElementById('editDetailModal').style.display = 'none';
+        }
 
-    function closeEditModal() {
-        document.getElementById('editDetailModal').style.display = 'none';
-    }
+        function saveDetailChange() {
+            const phone = document.getElementById('editPhone').value;
+            const field = document.getElementById('editField').value;
+            const value = document.getElementById('editValue').value;
 
-    function saveDetailChange() {
-        const phone = document.getElementById('editPhone').value;
-        const field = document.getElementById('editField').value;
-        const value = document.getElementById('editValue').value;
+            const formData = new FormData();
+            formData.append('phone', phone);
+            formData.append('field', field);
+            formData.append('value', value);
 
-        const formData = new FormData();
-        formData.append('phone', phone);
-        formData.append('field', field);
-        formData.append('value', value);
-
-        fetch('api/update_detail.php', {
-            method: 'POST',
-            body: formData
-        })
-            .then(r => r.json())
-            .then(data => {
-                if (data.success) {
-                    alert('Başarıyla güncellendi.');
-                    closeEditModal();
-                    // Reload details
-                    loadConversation(phone, document.querySelector('.contact-item.active'));
-                } else {
-                    alert('Hata: ' + data.message);
-                }
+            fetch('api/update_detail.php', {
+                method: 'POST',
+                body: formData
             })
-            .catch(err => alert('Bir hata oluştu.'));
-    }
-
-    let currentPhone = '';
-
-    function toggleComplaintFields(val) {
-        const fields = document.querySelectorAll('.complaint-field');
-        const showList = ['Teşekkür', 'Şikayet', 'Öneri'];
-        // Check if selected value contains any of the showList keywords
-        const shouldShow = showList.some(keyword => val.includes(keyword));
-
-        if (shouldShow) {
-            fields.forEach(f => f.classList.remove('hidden'));
-        } else {
-            fields.forEach(f => f.classList.add('hidden'));
-        }
-    }
-
-    function loadConversation(phone, element) {
-        currentPhone = phone;
-        document.querySelectorAll('.contact-item').forEach(el => el.classList.remove('active'));
-        element.classList.add('active');
-        document.getElementById('chat-title').innerText = phone;
-        document.getElementById('input-area').style.display = 'flex';
-        document.getElementById('interaction-area').style.display = 'block';
-        document.getElementById('form-phone').value = phone;
-
-        // Reset form and hide complaint fields
-        const form = document.getElementById('interaction-form');
-        form.reset();
-        toggleComplaintFields('');
-
-        fetch('api/get_messages.php?phone=' + phone)
-            .then(response => response.text())
-            .then(html => {
-                const box = document.getElementById('chat-box');
-                box.innerHTML = html;
-                box.scrollTop = box.scrollHeight;
-            });
-
-        fetch('api/get_details.php?phone=' + phone)
-            .then(response => response.text())
-            .then(html => {
-                document.getElementById('detail-box').innerHTML = html;
-            });
-    }
-
-    function sendMessage() {
-        const textInput = document.getElementById('message-text');
-        const text = textInput.value.trim();
-        if (!text || !currentPhone) return;
-
-        const formData = new FormData();
-        formData.append('phone', currentPhone);
-        formData.append('message', text);
-
-        fetch('api/send_message.php', {
-            method: 'POST',
-            body: formData
-        })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    textInput.value = '';
-                    const activeItem = document.querySelector('.contact-item.active');
-                    loadConversation(currentPhone, activeItem);
-                } else {
-                    alert('Hata: ' + data.message);
-                }
-            });
-    }
-
-    function saveInteraction(type) {
-        const form = document.getElementById('interaction-form');
-        const formData = new FormData(form);
-        formData.append('type', type);
-
-        fetch('api/save_interaction.php', {
-            method: 'POST',
-            body: formData
-        })
-            .then(r => r.json())
-            .then(data => {
-                if (data.success) {
-                    alert('Bilgiler başarıyla kaydedildi.');
-                } else {
-                    alert('Hata: ' + data.message);
-                }
-            });
-    }
-
-    document.getElementById('message-text').addEventListener('keypress', function (e) {
-        if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            sendMessage();
-        }
-    });
-    let currentPage = 1;
-    let currentStatus = '<?php echo $status_filter; ?>';
-    let currentPersonnel = 'all';
-    let currentCampaign = 'all';
-
-    function loadCustomers(page = 1, status = currentStatus, personnel = currentPersonnel, campaign = currentCampaign) {
-        currentPage = page;
-        currentStatus = status;
-        currentPersonnel = personnel;
-        currentCampaign = campaign;
-        const container = document.getElementById('contact-list-container');
-        const spinner = document.getElementById('list-spinner');
-        const pagination = document.getElementById('pagination-container');
-        const info = document.getElementById('pagination-info');
-
-        if (spinner) spinner.style.display = 'flex';
-
-        fetch(`api/get_customers.php?page=${page}&status=${encodeURIComponent(status)}&personnel=${personnel}&campaign=${encodeURIComponent(campaign)}`)
-            .then(r => r.json())
-            .then(data => {
-                if (spinner) spinner.style.display = 'none';
-                if (data.success) {
-                    container.innerHTML = data.html;
-                    pagination.innerHTML = data.pagination_html;
-                    info.innerText = `Sayfa ${data.page} / ${data.total_pages}`;
-                    document.getElementById('record-info').innerText = `${data.start}...${data.end} arası kayıtlar gösteriliyor (Toplam: ${data.total_records})`;
-                }
-            });
-    }
-
-    function filterByStatus(status) {
-        // Remove active state from main tabs if a specific result status is selected
-        if (status !== 'all' && status !== 'empty') {
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-        }
-        loadCustomers(1, status, currentPersonnel, currentCampaign);
-    }
-
-    function setMainFilter(status) {
-        // Update Tab UI
-        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-        if (status === 'all') document.getElementById('tab-all').classList.add('active');
-        if (status === 'empty') document.getElementById('tab-empty').classList.add('active');
-
-        // Reset status dropdown to default
-        document.getElementById('status-filter').value = 'all';
-
-        filterByStatus(status);
-    }
-
-    function filterByPersonnel(personnel) {
-        loadCustomers(1, currentStatus, personnel, currentCampaign);
-    }
-
-    function filterByCampaign(campaign) {
-        loadCustomers(1, currentStatus, currentPersonnel, campaign);
-    }
-
-    function switchDetailTab(tabId, btn) {
-        // Hide all panes
-        document.querySelectorAll('.detail-tab-pane').forEach(pane => pane.classList.remove('active'));
-        // Remove active class from all buttons
-        document.querySelectorAll('.detail-tab-btn').forEach(b => b.classList.remove('active'));
-
-        // Show target pane
-        const target = document.getElementById('detail-pane-' + tabId);
-        if (target) target.classList.add('active');
-
-        // Add active class to clicked button
-        if (btn) btn.classList.add('active');
-    }
-
-    function copyLeadLink(elementId) {
-        const copyText = document.getElementById(elementId);
-        copyText.select();
-        copyText.setSelectionRange(0, 99999); /* For mobile devices */
-        navigator.clipboard.writeText(copyText.value).then(() => {
-            alert("Link kopyalandı: " + copyText.value);
-        });
-    }
-
-    function saveAppointment() {
-        const form = document.getElementById('appointment-form');
-        const formData = new FormData(form);
-
-        fetch('api/save_appointment.php', {
-            method: 'POST',
-            body: formData
-        })
-            .then(response => response.json())
-            .then(data => {
-                alert(data.message);
-                if (data.success) {
-                    // Reset, switch to list or refresh
-                    loadConversation(currentCustomerId);
-                    // Optional: Switch to cancel tab to see it
-                    if (document.querySelector("button[onclick*='iptal']")) {
-                        document.querySelector("button[onclick*='iptal']").click();
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Başarıyla güncellendi.');
+                        closeEditModal();
+                        // Reload details
+                        loadConversation(phone, document.querySelector('.contact-item.active'));
+                    } else {
+                        alert('Hata: ' + data.message);
                     }
-                }
+                })
+                .catch(err => alert('Bir hata oluştu.'));
+        }
+
+        let currentPhone = '';
+
+        function toggleComplaintFields(val) {
+            const fields = document.querySelectorAll('.complaint-field');
+            const showList = ['Teşekkür', 'Şikayet', 'Öneri'];
+            // Check if selected value contains any of the showList keywords
+            const shouldShow = showList.some(keyword => val.includes(keyword));
+
+            if (shouldShow) {
+                fields.forEach(f => f.classList.remove('hidden'));
+            } else {
+                fields.forEach(f => f.classList.add('hidden'));
+            }
+        }
+
+        function loadConversation(phone, element) {
+            currentPhone = phone;
+            document.querySelectorAll('.contact-item').forEach(el => el.classList.remove('active'));
+            element.classList.add('active');
+            document.getElementById('chat-title').innerText = phone;
+            document.getElementById('input-area').style.display = 'flex';
+            document.getElementById('interaction-area').style.display = 'block';
+            document.getElementById('form-phone').value = phone;
+
+            // Reset form and hide complaint fields
+            const form = document.getElementById('interaction-form');
+            form.reset();
+            toggleComplaintFields('');
+
+            fetch('api/get_messages.php?phone=' + phone)
+                .then(response => response.text())
+                .then(html => {
+                    const box = document.getElementById('chat-box');
+                    box.innerHTML = html;
+                    box.scrollTop = box.scrollHeight;
+                });
+
+            fetch('api/get_details.php?phone=' + phone)
+                .then(response => response.text())
+                .then(html => {
+                    document.getElementById('detail-box').innerHTML = html;
+                });
+        }
+
+        function sendMessage() {
+            const textInput = document.getElementById('message-text');
+            const text = textInput.value.trim();
+            if (!text || !currentPhone) return;
+
+            const formData = new FormData();
+            formData.append('phone', currentPhone);
+            formData.append('message', text);
+
+            fetch('api/send_message.php', {
+                method: 'POST',
+                body: formData
             })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Bir hata oluştu.');
-            });
-    }
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        textInput.value = '';
+                        const activeItem = document.querySelector('.contact-item.active');
+                        loadConversation(currentPhone, activeItem);
+                    } else {
+                        alert('Hata: ' + data.message);
+                    }
+                });
+        }
 
-    function cancelAppointment(id) {
-        if (!confirm('Randevuyu iptal etmek istediğinize emin misiniz?')) return;
+        function saveInteraction(type) {
+            const form = document.getElementById('interaction-form');
+            const formData = new FormData(form);
+            formData.append('type', type);
 
-        const formData = new FormData();
-        formData.append('id', id);
-
-        fetch('api/cancel_appointment.php', {
-            method: 'POST',
-            body: formData
-        })
-            .then(response => response.json())
-            .then(data => {
-                alert(data.message);
-                if (data.success) {
-                    // Refresh details to update list
-                    loadConversation(currentCustomerId);
-                }
+            fetch('api/save_interaction.php', {
+                method: 'POST',
+                body: formData
             })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Bir hata oluştu.');
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Bilgiler başarıyla kaydedildi.');
+                    } else {
+                        alert('Hata: ' + data.message);
+                    }
+                });
+        }
+
+        document.getElementById('message-text').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+        let currentPage = 1;
+        let currentStatus = '<?php echo $status_filter; ?>';
+        let currentPersonnel = 'all';
+        let currentCampaign = 'all';
+
+        function loadCustomers(page = 1, status = currentStatus, personnel = currentPersonnel, campaign = currentCampaign) {
+            currentPage = page;
+            currentStatus = status;
+            currentPersonnel = personnel;
+            currentCampaign = campaign;
+            const container = document.getElementById('contact-list-container');
+            const spinner = document.getElementById('list-spinner');
+            const pagination = document.getElementById('pagination-container');
+            const info = document.getElementById('pagination-info');
+
+            if (spinner) spinner.style.display = 'flex';
+
+            fetch(`api/get_customers.php?page=${page}&status=${encodeURIComponent(status)}&personnel=${personnel}&campaign=${encodeURIComponent(campaign)}`)
+                .then(r => r.json())
+                .then(data => {
+                    if (spinner) spinner.style.display = 'none';
+                    if (data.success) {
+                        container.innerHTML = data.html;
+                        pagination.innerHTML = data.pagination_html;
+                        info.innerText = `Sayfa ${data.page} / ${data.total_pages}`;
+                        document.getElementById('record-info').innerText = `${data.start}...${data.end} arası kayıtlar gösteriliyor (Toplam: ${data.total_records})`;
+                    }
+                });
+        }
+
+        function filterByStatus(status) {
+            // Remove active state from main tabs if a specific result status is selected
+            if (status !== 'all' && status !== 'empty') {
+                document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            }
+            loadCustomers(1, status, currentPersonnel, currentCampaign);
+        }
+
+        function setMainFilter(status) {
+            // Update Tab UI
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            if (status === 'all') document.getElementById('tab-all').classList.add('active');
+            if (status === 'empty') document.getElementById('tab-empty').classList.add('active');
+
+            // Reset status dropdown to default
+            document.getElementById('status-filter').value = 'all';
+
+            filterByStatus(status);
+        }
+
+        function filterByPersonnel(personnel) {
+            loadCustomers(1, currentStatus, personnel, currentCampaign);
+        }
+
+        function filterByCampaign(campaign) {
+            loadCustomers(1, currentStatus, currentPersonnel, campaign);
+        }
+
+        function switchDetailTab(tabId, btn) {
+            // Hide all panes
+            document.querySelectorAll('.detail-tab-pane').forEach(pane => pane.classList.remove('active'));
+            // Remove active class from all buttons
+            document.querySelectorAll('.detail-tab-btn').forEach(b => b.classList.remove('active'));
+
+            // Show target pane
+            const target = document.getElementById('detail-pane-' + tabId);
+            if (target) target.classList.add('active');
+
+            // Add active class to clicked button
+            if (btn) btn.classList.add('active');
+        }
+
+        function copyLeadLink(elementId) {
+            const copyText = document.getElementById(elementId);
+            copyText.select();
+            copyText.setSelectionRange(0, 99999); /* For mobile devices */
+            navigator.clipboard.writeText(copyText.value).then(() => {
+                alert("Link kopyalandı: " + copyText.value);
             });
-    }
+        }
 
-    function goToPage(page) {
-        loadCustomers(page, currentStatus, currentPersonnel, currentCampaign);
-    }
+        function saveAppointment() {
+            const form = document.getElementById('appointment-form');
+            const formData = new FormData(form);
 
-    function openNewRecordModal() {
-        document.getElementById('newRecordModal').style.display = 'flex';
-    }
+            fetch('api/save_appointment.php', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message);
+                    if (data.success) {
+                        // Reset, switch to list or refresh
+                        loadConversation(currentCustomerId);
+                        // Optional: Switch to cancel tab to see it
+                        if (document.querySelector("button[onclick*='iptal']")) {
+                            document.querySelector("button[onclick*='iptal']").click();
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Bir hata oluştu.');
+                });
+        }
 
-    function closeNewRecordModal() {
-        document.getElementById('newRecordModal').style.display = 'none';
-    }
+        function cancelAppointment(id) {
+            if (!confirm('Randevuyu iptal etmek istediğinize emin misiniz?')) return;
 
-    // Initial load
-    window.onload = () => loadCustomers(1, currentStatus, currentPersonnel, currentCampaign);
-    </script>
+            const formData = new FormData();
+            formData.append('id', id);
+
+            fetch('api/cancel_appointment.php', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message);
+                    if (data.success) {
+                        // Refresh details to update list
+                        loadConversation(currentCustomerId);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Bir hata oluştu.');
+                });
+        }
+
+        function goToPage(page) {
+            loadCustomers(page, currentStatus, currentPersonnel, currentCampaign);
+        }
+
+        function openNewRecordModal() {
+            document.getElementById('newRecordModal').style.display = 'flex';
+        }
+
+        function closeNewRecordModal() {
+            document.getElementById('newRecordModal').style.display = 'none';
+        }
+
+        // Initial load
+    window.onload = () => {
+        loadModalOptions();
+        loadCustomers(1, currentStatus, currentPersonnel, currentCampaign);
+    };
+</script>
     <script>
         function toggleDrawer() {
             document.getElementById('menuDrawer').classList.toggle('active');
