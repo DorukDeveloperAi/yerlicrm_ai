@@ -93,11 +93,13 @@ ob_start();
             return $ts ? date('d/m/Y H:i', $ts) : '-';
         };
         $getInitials = function ($name) {
-            if (!$name) return '?';
+            if (!$name)
+                return '?';
             $parts = explode(' ', $name);
             $initials = '';
             foreach ($parts as $p) {
-                if (!empty($p)) $initials .= mb_substr($p, 0, 1, 'UTF-8');
+                if (!empty($p))
+                    $initials .= mb_substr($p, 0, 1, 'UTF-8');
             }
             return mb_strtoupper(mb_substr($initials, 0, 2, 'UTF-8'), 'UTF-8');
         };
@@ -125,13 +127,13 @@ ob_start();
             </div>
             <div class="col-meta">
                 <span class="meta-date" title="İşlem Tarihi">
-                    <i class="ph ph-clock-counter-clockwise"></i> <?php echo $last_date; ?>
+                    <?php echo $last_date; ?>
                 </span>
                 <span class="meta-date" title="Başvuru Tarihi">
-                    <i class="ph ph-calendar-plus"></i> <?php echo $first_date; ?>
+                    <?php echo $first_date; ?>
                 </span>
                 <span class="meta-date" title="İlk Erişim Tarihi">
-                    <i class="ph ph-eye"></i> <?php echo $access_date; ?>
+                    <?php echo $access_date; ?>
                 </span>
                 <span class="meta-campaign">
                     <?php echo htmlspecialchars($c['kampanya'] ?: 'Genel'); ?>

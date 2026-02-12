@@ -628,7 +628,7 @@ body {
     cursor: pointer;
     transition: all 0.2s;
     display: grid;
-    grid-template-columns: 150px 1fr 120px;
+    grid-template-columns: 140px 1fr 130px;
     gap: 0;
     align-items: center;
     min-height: 100px;
@@ -669,21 +669,21 @@ body {
 }
 
 .profile-circle {
-    width: 44px;
-    height: 44px;
+    width: 36px;
+    height: 36px;
     background: #f1f5f9;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     color: #475569;
-    font-size: 0.9rem;
+    font-size: 0.8rem;
     font-weight: 700;
 }
 
 .contact-name {
     font-weight: 600;
-    font-size: 0.85rem;
+    font-size: 0.75rem;
     color: #0f172a;
     line-height: 1.2;
     white-space: nowrap;
@@ -694,7 +694,7 @@ body {
 }
 
 .rep-name {
-    font-size: 0.75rem;
+    font-size: 0.65rem;
     color: var(--text-muted);
     display: block;
     margin-top: 2px;
@@ -703,22 +703,26 @@ body {
 /* Col 2: Message Snippet */
 .col-msg {
     padding: 0 1rem;
-    border-left: 1px solid #e2e8f0;
-    color: #334155;
-    font-size: 0.8rem;
+    border-left: 2px solid #f1f5f9;
+    /* Stronger divider */
+    color: #0f172a;
+    /* Darker for better visibility */
+    font-size: 0.9rem;
+    /* Larger as requested */
+    font-weight: 500;
     display: -webkit-box;
     -webkit-line-clamp: 3;
     line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
     text-overflow: ellipsis;
-    /* Removed display: flex to allow line-clamp to work */
 }
 
 /* Col 3: Dates & Campaign */
 .col-meta {
     padding-left: 0.5rem;
-    border-left: 1px solid #e2e8f0;
+    border-left: 2px solid #f1f5f9;
+    /* Stronger divider */
     display: flex;
     flex-direction: column;
     align-items: flex-end;
@@ -728,9 +732,7 @@ body {
 
 .meta-date {
     font-size: 0.7rem;
-    /* Increased from 0.6rem */
     color: #64748b;
-    /* Slightly darker for better contrast */
     white-space: nowrap;
     display: flex;
     align-items: center;
