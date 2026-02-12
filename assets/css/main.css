@@ -1281,8 +1281,10 @@ body {
     padding: 1rem;
 }
 
-.callback-field {
-    grid-column: span 3;
+.field-group-stacked {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
 }
 
 .interaction-grid-single-row textarea {

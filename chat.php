@@ -424,17 +424,23 @@ $statuses = $pdo->query("SELECT * FROM tbl_ayarlar_gorusme_sonucu_bilgileri ORDE
                             <textarea name="note" id="form-note" placeholder="Not..." rows="3"></textarea>
                         </div>
 
-                        <!-- Görüşme Sonucu -->
-                        <div class="field-group">
-                            <label>Görüşme Sonucu</label>
-                            <select name="status_id" onchange="toggleComplaintFields(this.value)">
-                                <option value="">Sonuç Seçiniz</option>
-                                <?php foreach ($statuses as $s): ?>
-                                    <option value="<?php echo $s['baslik']; ?>">
-                                        <?php echo htmlspecialchars($s['baslik']); ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
+                        <!-- Görüşme Sonucu + Tekrar Arama (stacked) -->
+                        <div class="field-group-stacked">
+                            <div class="field-group">
+                                <label>Görüşme Sonucu</label>
+                                <select name="status_id" onchange="toggleComplaintFields(this.value)">
+                                    <option value="">Sonuç Seçiniz</option>
+                                      <?php foreach ($statuses as $s): ?>
+                                        <option value="<?php echo $s['baslik']; ?>">
+                                              <?php echo htmlspecialchars($s['baslik']); ?>
+                                        </option>
+                                      <?php endforeach; ?>
+                                </select>
+                            </div>
+                            <div class="field-group">
+                                <label>Tekrar Arama</label>
+                                <input type="date" name="callback_date">
+                            </div>
                         </div>
 
                         <!-- Lead Puanlama -->
@@ -448,12 +454,6 @@ $statuses = $pdo->query("SELECT * FROM tbl_ayarlar_gorusme_sonucu_bilgileri ORDE
                                 <option value="4">4 Yıldız</option>
                                 <option value="5">5 Yıldız</option>
                             </select>
-                        </div>
-
-                        <!-- Tekrar Arama (below, full width) -->
-                        <div class="field-group callback-field">
-                            <label>Tekrar Arama</label>
-                            <input type="date" name="callback_date">
                         </div>
                     </div>
 
