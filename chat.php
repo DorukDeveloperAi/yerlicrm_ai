@@ -243,9 +243,9 @@ $statuses = $pdo->query("SELECT * FROM tbl_ayarlar_gorusme_sonucu_bilgileri ORDE
             animation: spin 1s linear infinite;
         }
 
-            100% {
-                transform: rotate(360deg);
-            }
+        100% {
+            transform: rotate(360deg);
+        }
         }
 
         /* User Profile Widget - Icon Only */
@@ -263,14 +263,14 @@ $statuses = $pdo->query("SELECT * FROM tbl_ayarlar_gorusme_sonucu_bilgileri ORDE
             border-radius: 50%;
             transition: all 0.2s;
             background: white;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
             color: var(--text-muted);
         }
 
         .user-profile-widget:hover {
             color: var(--primary);
             transform: scale(1.1);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
         }
 
         .user-profile-icon {
@@ -282,10 +282,7 @@ $statuses = $pdo->query("SELECT * FROM tbl_ayarlar_gorusme_sonucu_bilgileri ORDE
 <body>
 
 
-    <!-- Top Right Settings (Moved from bottom-left) -->
-    <div class="user-profile-widget" onclick="toggleDrawer()" title="Menü ve Ayarlar">
-        <i class="ph-fill ph-gear user-profile-icon"></i>
-    </div>
+
 
     <!-- Drawer Menu -->
     <div class="drawer-overlay" id="drawerOverlay" onclick="toggleDrawer()"></div>
