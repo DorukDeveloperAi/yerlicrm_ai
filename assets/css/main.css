@@ -1174,6 +1174,51 @@ body {
     fill: currentColor;
 }
 
+#templates-container {
+    background: #f8fafc;
+    border-top: 1px solid var(--border);
+    padding: 1.5rem;
+    display: none;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.template-selector-title {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 1rem;
+}
+
+.btn-template {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 1rem 1.25rem;
+    background: white;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 12px;
+    margin-bottom: 0.75rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #334155;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-template:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+    background: #f5f3ff;
+    transform: translateX(4px);
+}
+
+.btn-template i {
+    font-size: 1.25rem;
+}
+
 /* Right Sidebar: Details */
 .chat-details {
     border-left: 1px solid #f3f4f6;
