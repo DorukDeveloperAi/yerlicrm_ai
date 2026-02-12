@@ -1080,7 +1080,8 @@ $statuses = $pdo->query("SELECT * FROM tbl_ayarlar_gorusme_sonucu_bilgileri ORDE
 
         function toggleTemplates() {
             const container = document.getElementById('templates-container');
-            const isHidden = container.style.display === 'none';
+            // If display is empty or none, show it. Otherwise hide it.
+            const isHidden = !container.style.display || container.style.display === 'none';
             container.style.display = isHidden ? 'block' : 'none';
             
             if (isHidden) {
@@ -1115,9 +1116,8 @@ $statuses = $pdo->query("SELECT * FROM tbl_ayarlar_gorusme_sonucu_bilgileri ORDE
                                 ${t.title}
                             </button>
                         `).join('');
-                        container.style.display = 'block';
-                    } else {
-                        container.style.display = 'none';
+                    } else if (!data.success) {
+                        console.error('Template loading failed:', data.message);
                     }
                 });
         }
