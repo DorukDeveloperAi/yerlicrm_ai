@@ -80,17 +80,7 @@ for ($i = 1; $i <= 10; $i++) {
     }
 }
 ?>
-<div class="detail-header">
-    <div class="profile-img"></div>
-    <div class="profile-info">
-        <h3><?php echo htmlspecialchars($detail['musteri_adi_soyadi'] ?: 'İsimsiz Müşteri'); ?></h3>
-        <p><?php echo htmlspecialchars($detail['email_adresi'] ?: 'E-posta Yok'); ?></p>
-        <p class="phone-row">
-            <i class="ph-phone"></i>
-            <?php echo htmlspecialchars($detail['telefon_numarasi']); ?>
-        </p>
-    </div>
-</div>
+
 
 <div class="detail-tabs">
     <button class="detail-tab-btn active" onclick="switchDetailTab('genel', this)">Detay</button>
