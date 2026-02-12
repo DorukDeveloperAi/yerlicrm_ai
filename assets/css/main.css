@@ -673,6 +673,8 @@ body {
     align-items: center;
     justify-content: center;
     color: #475569;
+    font-size: 0.9rem;
+    font-weight: 700;
 }
 
 .contact-name {

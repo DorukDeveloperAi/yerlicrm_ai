@@ -92,6 +92,15 @@ ob_start();
             $ts = strtotime($val);
             return $ts ? date('d/m/Y H:i', $ts) : '-';
         };
+        $getInitials = function ($name) {
+            if (!$name) return '?';
+            $parts = explode(' ', $name);
+            $initials = '';
+            foreach ($parts as $p) {
+                if (!empty($p)) $initials .= mb_substr($p, 0, 1, 'UTF-8');
+            }
+            return mb_strtoupper(mb_substr($initials, 0, 2, 'UTF-8'), 'UTF-8');
+        };
         $snippet = !empty($c['musteri_mesaji']) ? $c['musteri_mesaji'] : $c['personel_mesaji'];
         $last_date = $formatDate($c['date']);
         $first_date = $formatDate($c['first_date']);
@@ -100,9 +109,7 @@ ob_start();
         <div class="contact-item" onclick="loadConversation('<?php echo $c['telefon_numarasi']; ?>', this)">
             <div class="col-info">
                 <div class="profile-circle">
-                    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
-                        <path d="M12 2l1.5 6.5L20 10l-6.5 1.5L12 18l-1.5-6.5L4 10l6.5-1.5L12 2z" />
-                    </svg>
+                    <?php echo $getInitials($c['musteri_adi_soyadi']); ?>
                 </div>
                 <div class="contact-details-wrapper">
                     <span class="contact-name">
