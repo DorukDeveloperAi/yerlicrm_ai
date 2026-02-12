@@ -112,35 +112,26 @@ ob_start();
             <?php echo $getInitials($c['musteri_adi_soyadi']); ?>
         </div>
         <div class="col-info">
-            <div class="contact-details-wrapper">
-                <span class="contact-name">
-                    <?php echo htmlspecialchars($c['musteri_adi_soyadi'] ?: 'İsimsiz Müşteri'); ?>
-                </span>
-                <span class="rep-name">
-                    <?php echo htmlspecialchars($c['rep_name'] ?: 'Atanmamış'); ?>
-                </span>
+            <div class="contact-name">
+                <?php echo htmlspecialchars($c['musteri_adi_soyadi'] ?: 'İsimsiz Müşteri'); ?>
             </div>
             <div class="col-msg">
                 <?php echo htmlspecialchars($snippet); ?>
             </div>
         </div>
         <div class="col-meta">
-            <div class="meta-row">
-                <span class="meta-date" title="Son İşlem">
-                    <?php echo $last_date; ?>
-                </span>
+            <span class="meta-date">
+                <?php echo $last_date; ?>
+            </span>
+            <span class="meta-date">
+                <?php echo $first_date; ?>
+            </span>
+        </div>
+        <div class="col-status">
+            <div class="status-indicator <?php echo !empty($c['musteri_mesaji']) ? 'status-active' : ''; ?>"
+                title="<?php echo !empty($c['musteri_mesaji']) ? 'Yeni Mesaj' : 'Doğum'; ?>">
+                <i class="ph-fill ph-check"></i>
             </div>
-            <div class="meta-row">
-                <span class="meta-campaign">
-                    <?php echo htmlspecialchars($c['kampanya'] ?: '-'); ?>
-                </span>
-            </div>
-            <?php if (!empty($c['musteri_mesaji'])): ?>
-                <div class="status-icon" title="Yeni Müşteri Mesajı">
-
-                    <i class="ph ph-chat-circle-dots"></i>
-                </div>
-            <?php endif; ?>
         </div>
     </div>
 <?php endforeach; ?>

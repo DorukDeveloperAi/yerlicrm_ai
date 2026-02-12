@@ -634,7 +634,7 @@ body {
 
 .contact-item {
     display: grid;
-    grid-template-columns: auto 1fr auto;
+    grid-template-columns: auto 1fr auto auto;
     gap: 0.75rem;
     padding: 1rem;
     border-bottom: 1px solid #f1f5f9;
@@ -677,14 +677,16 @@ body {
     flex-direction: column;
     justify-content: center;
     min-width: 0;
-    gap: 0.2rem;
+    gap: 0.25rem;
 }
 
-.contact-details-wrapper {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    flex-wrap: wrap;
+.contact-name {
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: #0f172a;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .col-msg {
@@ -707,11 +709,33 @@ body {
     white-space: nowrap;
 }
 
-.meta-row {
+.meta-date {
+    display: block;
+}
+
+.col-status {
     display: flex;
     align-items: center;
-    gap: 0.25rem;
+    justify-content: center;
 }
+
+.status-indicator {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #e2e8f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #94a3b8;
+    font-size: 0.75rem;
+}
+
+.status-indicator.status-active {
+    background: #10b981;
+    color: white;
+}
+
 
 .profile-circle {
     width: 24px;
@@ -725,18 +749,6 @@ body {
     color: #475569;
     font-size: 0.65rem;
     font-weight: 700;
-}
-
-.contact-name {
-    font-weight: 700;
-    font-size: 0.85rem;
-    color: #0f172a;
-    line-height: 1.2;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    display: block;
-    width: 100%;
 }
 
 .rep-name {
