@@ -73,7 +73,7 @@ body {
     width: 100%;
     padding: 0.75rem 1rem;
     border-radius: 10px;
-    border: 1px solid #e5e7eb;
+    border: 1.5px solid #cbd5e1;
     font-size: 1rem;
     transition: all 0.2s;
 }
@@ -294,7 +294,7 @@ body {
 .form-input {
     width: 100%;
     padding: 0.45rem 0.6rem;
-    border: 1px solid #e2e8f0;
+    border: 1.5px solid #cbd5e1;
     border-radius: 6px;
     font-size: 0.8rem;
     color: var(--text-main);
@@ -524,7 +524,7 @@ body {
     padding: 0.6rem 0.75rem;
     font-size: 0.85rem;
     font-weight: 500;
-    border: 1px solid #e2e8f0;
+    border: 1.5px solid #cbd5e1;
     background-color: #fff;
     color: var(--text-main);
 }
@@ -860,7 +860,7 @@ body {
 
 .btn-template {
     background: #f8fafc;
-    border: 1px solid #e2e8f0;
+    border: 1.5px solid #cbd5e1;
     color: #475569;
     padding: 0.4rem 0.75rem;
     border-radius: 8px;
@@ -1016,7 +1016,7 @@ body {
 .field-group select,
 .field-group textarea {
     padding: 0.6rem;
-    border: 1px solid #e2e8f0;
+    border: 1.5px solid #cbd5e1;
     border-radius: 6px;
     font-size: 0.85rem;
     outline: none;
@@ -1071,7 +1071,7 @@ body {
 
 .chat-input-area textarea {
     flex: 1;
-    border: 1px solid #e5e7eb;
+    border: 1.5px solid #cbd5e1;
     border-radius: 12px;
     padding: 0.7rem 1rem;
     /* Adjusted padding */
@@ -1281,7 +1281,7 @@ body {
 .field-group textarea {
     width: 100%;
     padding: 0.875rem 1rem;
-    border: 1px solid #e2e8f0;
+    border: 1.5px solid #cbd5e1;
     border-radius: 12px;
     font-size: 0.95rem;
     outline: none;

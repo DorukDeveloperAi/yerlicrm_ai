@@ -744,6 +744,8 @@ $statuses = $pdo->query("SELECT * FROM tbl_ayarlar_gorusme_sonucu_bilgileri ORDE
 
             document.getElementById('input-area').style.display = 'flex';
             document.getElementById('interaction-area').style.display = 'block';
+            loadTemplates();
+            scrollToBottom();
             document.getElementById('form-phone').value = phone;
 
             // Reset form and hide complaint fields
@@ -1080,6 +1082,32 @@ $statuses = $pdo->query("SELECT * FROM tbl_ayarlar_gorusme_sonucu_bilgileri ORDE
                 el.style.color = 'white';
                 el.style.textShadow = '0 1px 2px rgba(0,0,0,0.1)';
             });
+        }
+
+        function loadTemplates() {
+            fetch('api/get_templates.php')
+                .then(r => r.json())
+                .then(data => {
+                    const container = document.getElementById('templates-container');
+                    if (data.success && data.templates.length > 0) {
+                        container.innerHTML = `<div class="template-selector-title">Hazır Şablonlar</div>` +
+                            data.templates.map(t => `
+                            <button class="btn-template" onclick="applyTemplate(\`${t.content.replace(/`/g, '\\`').replace(/\n/g, '\\n')}\`)">
+                                ${t.title}
+                            </button>
+                        `).join('');
+                        container.style.display = 'block';
+                    } else {
+                        container.style.display = 'none';
+                    }
+                });
+        }
+
+        function applyTemplate(content) {
+            const textarea = document.getElementById('message-text');
+            textarea.value = content;
+            textarea.focus();
+            // Optional: Auto-resize textarea if you have that logic
         }
 
         // Initial load
