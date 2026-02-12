@@ -138,7 +138,11 @@ ob_start();
                 <span class="meta-campaign">
                     <?php echo htmlspecialchars($c['kampanya'] ?: 'Genel'); ?>
                 </span>
-                <div class="status-icon">!</div>
+                <?php if (!empty($c['musteri_mesaji'])): ?>
+                    <div class="status-icon" title="Yeni Müşteri Mesajı">
+                        <i class="ph ph-chat-circle-dots"></i>
+                    </div>
+                <?php endif; ?>
             </div>
         </div>
     <?php endforeach; ?>
