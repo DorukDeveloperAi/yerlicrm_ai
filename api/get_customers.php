@@ -136,12 +136,11 @@ ob_start();
                     <span class="meta-date" title="İlk Etkileşim">
                         <?php echo $access_date; ?>
                     </span>
-                    <div class="status-indicator <?php echo !empty($c['musteri_mesaji']) ? 'status-active' : ''; ?>"
-                        title="<?php echo !empty($c['musteri_mesaji']) ? 'Yeni Mesaj' : ''; ?>">
-                        <?php if (!empty($c['musteri_mesaji'])): ?>
+                    <?php if (!empty($c['musteri_mesaji'])): ?>
+                        <div class="status-indicator status-active" title="Yeni Mesaj">
                             <i class="ph-fill ph-check"></i>
-                        <?php endif; ?>
-                    </div>
+                        </div>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
