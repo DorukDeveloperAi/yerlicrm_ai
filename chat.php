@@ -278,46 +278,33 @@ $statuses = $pdo->query("SELECT * FROM tbl_ayarlar_gorusme_sonucu_bilgileri ORDE
             }
         }
 
-        /* User Profile Widget */
+        /* User Profile Widget - Icon Only */
         .user-profile-widget {
             position: fixed;
-            top: 1rem;
-            right: 1.5rem;
+            top: 1.25rem;
+            right: 1.25rem;
             z-index: 1002;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
             display: flex;
             align-items: center;
-            gap: 0.75rem;
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(8px);
-            padding: 0.5rem 1rem;
-            border-radius: 9999px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-            border: 1px solid var(--border);
+            justify-content: center;
+            border-radius: 50%;
             transition: all 0.2s;
-            cursor: pointer;
+            background: white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            color: var(--text-muted);
         }
 
         .user-profile-widget:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
-            background: white;
-        }
-
-        .user-profile-name {
-            font-size: 0.875rem;
-            font-weight: 600;
-            color: var(--text-main);
+            color: var(--primary);
+            transform: scale(1.1);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
         }
 
         .user-profile-icon {
-            color: var(--text-muted);
-            font-size: 1.25rem;
-            transition: color 0.2s;
-        }
-
-        .user-profile-widget:hover .user-profile-icon {
-            color: var(--primary);
-            animation: spin 3s linear infinite;
+            font-size: 1.5rem;
         }
     </style>
 </head>
@@ -328,12 +315,9 @@ $statuses = $pdo->query("SELECT * FROM tbl_ayarlar_gorusme_sonucu_bilgileri ORDE
         <i class="ph-fill ph-gear" style="font-size: 1.1rem;"></i>
     </div>
 
-    <!-- Top Right User Profile -->
-    <div class="user-profile-widget" onclick="toggleDrawer()" title="Ayarlar">
-        <span class="user-profile-name">
-            <?php echo htmlspecialchars($_SESSION['username'] ?? 'Kullanıcı'); ?>
-        </span>
-        <i class="ph-fill ph-gear user-profile-icon"></i>
+    <!-- Top Right User Profile (Icon Only) -->
+    <div class="user-profile-widget" onclick="toggleDrawer()" title="Ayarlar ve Profil">
+        <i class="ph-fill ph-user-gear user-profile-icon"></i>
     </div>
 
     <!-- Drawer Menu -->
