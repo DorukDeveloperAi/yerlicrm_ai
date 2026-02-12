@@ -288,6 +288,13 @@ $statuses = $pdo->query("SELECT * FROM tbl_ayarlar_gorusme_sonucu_bilgileri ORDE
 
             <div class="sidebar-controls">
                 <div class="controls-row">
+                    <div style="position: relative; flex: 1;">
+                        <input type="text" id="sidebar-search" class="status-select" placeholder="Müşteri Ara (Ad-Soyad / Tel)" 
+                               onkeyup="debounceSearch(this.value)" style="padding-left: 2.5rem; background-image: none;">
+                        <i class="ph ph-magnifying-glass" style="position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 1.1rem;"></i>
+                    </div>
+                </div>
+                <div class="controls-row">
                     <select class="status-select" id="personnel-filter" onchange="filterByPersonnel(this.value)">
                         <option value="all">Personel</option>
                     </select>
@@ -770,12 +777,23 @@ $statuses = $pdo->query("SELECT * FROM tbl_ayarlar_gorusme_sonucu_bilgileri ORDE
         let currentStatus = 'empty';
         let currentPersonnel = 'all';
         let currentCampaign = 'all';
+        let currentSearch = '';
 
-        function loadCustomers(page = 1, status = currentStatus, personnel = currentPersonnel, campaign = currentCampaign) {
+        let searchTimeout;
+        function debounceSearch(val) {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                currentSearch = val;
+                loadCustomers(1, currentStatus, currentPersonnel, currentCampaign, val);
+            }, 500);
+        }
+
+        function loadCustomers(page = 1, status = currentStatus, personnel = currentPersonnel, campaign = currentCampaign, search = currentSearch) {
             currentPage = page;
             currentStatus = status;
             currentPersonnel = personnel;
             currentCampaign = campaign;
+            currentSearch = search;
             const container = document.getElementById('contact-list-container');
             const spinner = document.getElementById('list-spinner');
             const pagination = document.getElementById('pagination-container');
@@ -783,7 +801,7 @@ $statuses = $pdo->query("SELECT * FROM tbl_ayarlar_gorusme_sonucu_bilgileri ORDE
 
             if (spinner) spinner.style.display = 'flex';
 
-            fetch(`api/get_customers.php?page=${page}&status=${encodeURIComponent(status)}&personnel=${personnel}&campaign=${encodeURIComponent(campaign)}`)
+            fetch(`api/get_customers.php?page=${page}&status=${encodeURIComponent(status)}&personnel=${personnel}&campaign=${encodeURIComponent(campaign)}&search=${encodeURIComponent(search)}`)
                 .then(r => r.json())
                 .then(data => {
                     if (spinner) spinner.style.display = 'none';
@@ -801,7 +819,7 @@ $statuses = $pdo->query("SELECT * FROM tbl_ayarlar_gorusme_sonucu_bilgileri ORDE
             if (status !== 'all' && status !== 'empty') {
                 document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             }
-            loadCustomers(1, status, currentPersonnel, currentCampaign);
+            loadCustomers(1, status, currentPersonnel, currentCampaign, currentSearch);
         }
 
         function setMainFilter(status) {
@@ -810,18 +828,20 @@ $statuses = $pdo->query("SELECT * FROM tbl_ayarlar_gorusme_sonucu_bilgileri ORDE
             if (status === 'all') document.getElementById('tab-all').classList.add('active');
             if (status === 'empty') document.getElementById('tab-empty').classList.add('active');
 
-            // Reset status dropdown to default
+            // Reset search when switching tabs if needed, or keep it? User said "tüm müşteri listesinde arayıp getirecek"
+            // Let's keep the search term but apply the filter
+            loadCustomers(1, status, currentPersonnel, currentCampaign, currentSearch);
             document.getElementById('status-filter').value = 'all';
 
             filterByStatus(status);
         }
 
         function filterByPersonnel(personnel) {
-            loadCustomers(1, currentStatus, personnel, currentCampaign);
+            loadCustomers(1, currentStatus, personnel, currentCampaign, currentSearch);
         }
 
         function filterByCampaign(campaign) {
-            loadCustomers(1, currentStatus, currentPersonnel, campaign);
+            loadCustomers(1, currentStatus, currentPersonnel, campaign, currentSearch);
         }
 
         function switchDetailTab(tabId, btn) {
@@ -898,7 +918,7 @@ $statuses = $pdo->query("SELECT * FROM tbl_ayarlar_gorusme_sonucu_bilgileri ORDE
         }
 
         function goToPage(page) {
-            loadCustomers(page, currentStatus, currentPersonnel, currentCampaign);
+            loadCustomers(page, currentStatus, currentPersonnel, currentCampaign, currentSearch);
         }
 
         function openNewRecordModal() {
@@ -912,7 +932,7 @@ $statuses = $pdo->query("SELECT * FROM tbl_ayarlar_gorusme_sonucu_bilgileri ORDE
         // Initial load
         window.onload = () => {
             loadModalOptions();
-            loadCustomers(1, currentStatus, currentPersonnel, currentCampaign);
+            loadCustomers(1, currentStatus, currentPersonnel, currentCampaign, currentSearch);
         };
     </script>
     <script>

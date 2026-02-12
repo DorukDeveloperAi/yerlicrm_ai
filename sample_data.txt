@@ -1,0 +1,4 @@
+Sample Data from tbl_icerik_bilgileri_ai (Latest 3):
+ID: 753276 | Phone: 905317626327 | Date: '1753992198' | Callback: '0' | Source: '' | Channel: ''
+ID: 753275 | Phone: 905543322368 | Date: '1753952198' | Callback: '0' | Source: '' | Channel: ''
+ID: 753274 | Phone: 905010809849 | Date: '1754051291' | Callback: '0' | Source: '' | Channel: ''

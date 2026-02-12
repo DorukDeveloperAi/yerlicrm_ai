@@ -20,6 +20,11 @@ if (!$detail) {
     exit;
 }
 
+// Also get the first contact date
+$stmt_first = $pdo->prepare("SELECT MIN(date) FROM tbl_icerik_bilgileri_ai WHERE telefon_numarasi = ?");
+$stmt_first->execute([$phone]);
+$first_date_val = $stmt_first->fetchColumn();
+
 // Ensure appointments table exists
 try {
     $pdo->exec("CREATE TABLE IF NOT EXISTS tbl_randevular (
@@ -127,6 +132,28 @@ if ($detail['user_id']) {
     $stmt_rep->execute([$detail['user_id']]);
     $current_rep_name = $stmt_rep->fetchColumn() ?: '-';
 }
+
+// Helper to format dates correctly regardless of string or timestamp
+function formatDetailDate($val)
+{
+    if (!$val)
+        return '-';
+    if (is_numeric($val))
+        return date('d/m/Y H:i', $val);
+    $ts = strtotime($val);
+    return ($ts && $ts > 0) ? date('d/m/Y H:i', $ts) : '-';
+}
+
+// Fetch all Q&A pairs
+$qa_pairs = [];
+for ($i = 1; $i <= 10; $i++) {
+    if (!empty($detail["soru_$i"]) || !empty($detail["cevap_$i"])) {
+        $qa_pairs[] = [
+            'q' => $detail["soru_$i"] ?: "Soru $i",
+            'a' => $detail["cevap_$i"] ?: '-'
+        ];
+    }
+}
 ?>
 <div class="detail-header">
     <div class="profile-img"></div>
@@ -214,6 +241,16 @@ if ($detail['user_id']) {
             </div>
         </div>
 
+        <!-- Branch (Branş) if different or extra -->
+        <?php if (!empty($detail['brans']) && $detail['brans'] !== $detail['bolum']): ?>
+            <div class="detail-form-group">
+                <label class="detail-label-sm">Branş</label>
+                <div class="detail-value-row">
+                    <span class="detail-value-text"><?php echo htmlspecialchars($detail['brans']); ?></span>
+                </div>
+            </div>
+        <?php endif; ?>
+
         <hr class="detail-divider">
 
         <!-- Birth Week -->
@@ -247,26 +284,43 @@ if ($detail['user_id']) {
         <hr class="detail-divider">
 
         <!-- Dates -->
-        <div class="detail-info-row">
-            <strong>Başvuru Tarihi :</strong> <?php echo date('d/m/Y H:i', strtotime($detail['date'])); ?>
+        <div class="detail-info-row" style="margin-bottom: 0.75rem;">
+            <strong>Başvuru Tarihi :</strong> <?php echo formatDetailDate($first_date_val); ?>
+            <div style="font-size: 0.7rem; color: #94a3b8; font-weight: 500;">ilk etkileşim tarihi</div>
         </div>
         <div class="detail-info-row">
-            <strong>Son Güncelleme Tarihi :</strong> <?php echo date('d/m/Y H:i'); // Placeholder for update time ?>
+            <strong>Son Güncelleme Tarihi :</strong> <?php echo formatDetailDate($detail['date']); ?>
         </div>
-        <div class="detail-info-row">
-            <strong>Tekrar Arama Tarihi :</strong>
-            <?php echo $detail['tekrar_arama_tarihi'] ? date('d/m/Y H:i', strtotime($detail['tekrar_arama_tarihi'])) : '-'; ?>
+
+        <div class="detail-info-row" style="margin-top: 0.5rem;">
+            <strong>IP Adresi :</strong> <?php echo htmlspecialchars($detail['ip_adresi'] ?: '-'); ?>
         </div>
 
         <hr class="detail-divider">
 
-        <!-- Application Channels -->
+        <!-- Application Channels -> Geldiği Yer -->
         <div class="detail-form-group">
-            <label class="detail-label-sm">Başvuru Kanalları</label>
+            <label class="detail-label-sm">Geldiği Yer</label>
             <div class="channel-list">
-                <div><?php echo htmlspecialchars($detail['geldigi_yer'] ?: 'Form'); ?></div>
+                <div style="font-weight: 600; color: var(--primary);">
+                    <?php echo htmlspecialchars($detail['geldigi_yer'] ?: '-'); ?>
+                </div>
             </div>
         </div>
+
+        <?php if (!empty($qa_pairs)): ?>
+            <hr class="detail-divider">
+            <label class="detail-label-sm">Form Soruları</label>
+            <?php foreach ($qa_pairs as $pair): ?>
+                <div class="detail-info-row"
+                    style="margin-bottom: 0.5rem; padding-left: 0.5rem; border-left: 2px solid #e2e8f0;">
+                    <div style="font-weight: 600; font-size: 0.7rem; color: #64748b; margin-bottom: 2px;">
+                        <?php echo htmlspecialchars($pair['q']); ?>
+                    </div>
+                    <div style="font-size: 0.75rem;"><?php echo htmlspecialchars($pair['a']); ?></div>
+                </div>
+            <?php endforeach; ?>
+        <?php endif; ?>
 
         <hr class="detail-divider">
 

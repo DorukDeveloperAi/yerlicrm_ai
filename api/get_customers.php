@@ -10,6 +10,7 @@ $offset = ($page - 1) * $limit;
 $status_filter = $_GET['status'] ?? 'all';
 $personnel_filter = $_GET['personnel'] ?? 'all';
 $campaign_filter = $_GET['campaign'] ?? 'all';
+$search_query = $_GET['search'] ?? '';
 
 $where_clauses = ["1=1"];
 $params = [];
@@ -29,6 +30,12 @@ if ($personnel_filter !== 'all') {
 if ($campaign_filter !== 'all') {
     $where_clauses[] = "kampanya = ?";
     $params[] = $campaign_filter;
+}
+
+if (!empty($search_query)) {
+    $where_clauses[] = "(musteri_adi_soyadi LIKE ? OR telefon_numarasi LIKE ?)";
+    $params[] = "%$search_query%";
+    $params[] = "%$search_query%";
 }
 
 $where_sql = implode(" AND ", $where_clauses);
@@ -74,9 +81,17 @@ ob_start();
 <div class="contact-list-inner">
     <?php foreach ($customers as $c): ?>
         <?php
+        $formatDate = function ($val) {
+            if (!$val)
+                return '-';
+            if (is_numeric($val))
+                return date('d/m/Y H:i', $val);
+            $ts = strtotime($val);
+            return $ts ? date('d/m/Y H:i', $ts) : '-';
+        };
         $snippet = !empty($c['musteri_mesaji']) ? $c['musteri_mesaji'] : $c['personel_mesaji'];
-        $last_date = date('d/m/Y H:i', $c['date']);
-        $first_date = date('d/m/Y H:i', $c['first_date']);
+        $last_date = $formatDate($c['date']);
+        $first_date = $formatDate($c['first_date']);
         ?>
         <div class="contact-item" onclick="loadConversation('<?php echo $c['telefon_numarasi']; ?>', this)">
             <div class="col-info">
