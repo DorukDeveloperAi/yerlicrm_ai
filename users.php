@@ -1,5 +1,5 @@
-<?php
 require_once 'config.php';
+require_once 'auth.php';
 requireLogin();
 
 // Fetch summary statsers
@@ -9,45 +9,48 @@ $users = $pdo->query("SELECT * FROM users WHERE status = 1 ORDER BY id ASC")->fe
 // 1. User Groups (tbl_ayarlar_kullanici_grup_bilgileri)
 $user_groups = [];
 try {
-    $stmt = $pdo->query("SELECT baslik FROM tbl_ayarlar_kullanici_grup_bilgileri ORDER BY baslik ASC");
-    if ($stmt)
-        $user_groups = $stmt->fetchAll(PDO::FETCH_COLUMN);
+$stmt = $pdo->query("SELECT baslik FROM tbl_ayarlar_kullanici_grup_bilgileri ORDER BY baslik ASC");
+if ($stmt)
+$user_groups = $stmt->fetchAll(PDO::FETCH_COLUMN);
 } catch (PDOException $e) { /* Ignore if table missing */
 }
 
 // 2. Hospitals (tbl_icerik_bilgileri_ai)
 $hospitals = [];
 try {
-    $stmt = $pdo->query("SELECT DISTINCT hastane FROM tbl_icerik_bilgileri_ai WHERE hastane IS NOT NULL AND hastane != '' ORDER BY hastane ASC");
-    if ($stmt)
-        $hospitals = $stmt->fetchAll(PDO::FETCH_COLUMN);
+$stmt = $pdo->query("SELECT DISTINCT hastane FROM tbl_icerik_bilgileri_ai WHERE hastane IS NOT NULL AND hastane != ''
+ORDER BY hastane ASC");
+if ($stmt)
+$hospitals = $stmt->fetchAll(PDO::FETCH_COLUMN);
 } catch (PDOException $e) {
 }
 
 // 3. Doctors (tbl_icerik_bilgileri_ai)
 $doctors = [];
 try {
-    $stmt = $pdo->query("SELECT DISTINCT doktor FROM tbl_icerik_bilgileri_ai WHERE doktor IS NOT NULL AND doktor != '' ORDER BY doktor ASC");
-    if ($stmt)
-        $doctors = $stmt->fetchAll(PDO::FETCH_COLUMN);
+$stmt = $pdo->query("SELECT DISTINCT doktor FROM tbl_icerik_bilgileri_ai WHERE doktor IS NOT NULL AND doktor != '' ORDER
+BY doktor ASC");
+if ($stmt)
+$doctors = $stmt->fetchAll(PDO::FETCH_COLUMN);
 } catch (PDOException $e) {
 }
 
 // 4. Campaigns (tbl_icerik_bilgileri_ai)
 $campaigns = [];
 try {
-    $stmt = $pdo->query("SELECT DISTINCT kampanya FROM tbl_icerik_bilgileri_ai WHERE kampanya IS NOT NULL AND kampanya != '' ORDER BY kampanya ASC");
-    if ($stmt)
-        $campaigns = $stmt->fetchAll(PDO::FETCH_COLUMN);
+$stmt = $pdo->query("SELECT DISTINCT kampanya FROM tbl_icerik_bilgileri_ai WHERE kampanya IS NOT NULL AND kampanya != ''
+ORDER BY kampanya ASC");
+if ($stmt)
+$campaigns = $stmt->fetchAll(PDO::FETCH_COLUMN);
 } catch (PDOException $e) {
 }
 
 // 5. Complaint Topics (tbl_ayarlar_sikayet_konusu_bilgileri)
 $complaint_topics = [];
 try {
-    $stmt = $pdo->query("SELECT baslik FROM tbl_ayarlar_sikayet_konusu_bilgileri ORDER BY baslik ASC");
-    if ($stmt)
-        $complaint_topics = $stmt->fetchAll(PDO::FETCH_COLUMN);
+$stmt = $pdo->query("SELECT baslik FROM tbl_ayarlar_sikayet_konusu_bilgileri ORDER BY baslik ASC");
+if ($stmt)
+$complaint_topics = $stmt->fetchAll(PDO::FETCH_COLUMN);
 } catch (PDOException $e) {
 }
 ?>
