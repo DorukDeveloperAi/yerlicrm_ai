@@ -2,6 +2,7 @@
 require_once 'config.php';
 require_once 'auth.php';
 requireLogin();
+include 'fix_schema.php';
 
 // Fetch summary stats
 $total_records = $pdo->query("SELECT count(DISTINCT telefon_numarasi) FROM tbl_icerik_bilgileri_ai")->fetchColumn();
