@@ -628,7 +628,7 @@ body {
     cursor: pointer;
     transition: all 0.2s;
     display: grid;
-    grid-template-columns: 140px 1fr 100px;
+    grid-template-columns: 150px 1fr 120px;
     gap: 0;
     align-items: center;
     min-height: 100px;
