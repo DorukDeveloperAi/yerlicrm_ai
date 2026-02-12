@@ -409,9 +409,14 @@ $statuses = $pdo->query("SELECT * FROM tbl_ayarlar_gorusme_sonucu_bilgileri ORDE
             </div>
             <div class="chat-input-area" id="input-area" style="display: none;">
                 <textarea id="message-text" placeholder="WhatsApp mesajınızı yazın..."></textarea>
-                <button class="btn-send" onclick="sendMessage()" title="Mesaj Gönder">
-                    <i class="ph ph-envelope-simple"></i>
-                </button>
+                <div class="input-actions flex items-center gap-2">
+                    <button type="button" class="btn-templates-toggle" onclick="toggleTemplates()" title="Şablonlar">
+                        <i class="ph ph-envelope-simple"></i>
+                    </button>
+                    <button class="btn-send" onclick="sendMessage()" title="Mesaj Gönder">
+                        <i class="ph ph-paper-plane-right"></i>
+                    </button>
+                </div>
             </div>
 
             <div class="interaction-container" id="interaction-area" style="display: none;">
@@ -745,6 +750,7 @@ $statuses = $pdo->query("SELECT * FROM tbl_ayarlar_gorusme_sonucu_bilgileri ORDE
             document.getElementById('input-area').style.display = 'flex';
             document.getElementById('interaction-area').style.display = 'block';
             loadTemplates();
+            document.getElementById('templates-container').style.display = 'none'; // Hide by default
             scrollToBottom();
             document.getElementById('form-phone').value = phone;
 
@@ -771,15 +777,12 @@ $statuses = $pdo->query("SELECT * FROM tbl_ayarlar_gorusme_sonucu_bilgileri ORDE
 
                     if (lastCustomerDate > 0 && hoursPassed > 24) {
                         messageInput.disabled = true;
-                        messageInput.placeholder = "Template mesaj gönderiniz";
-                        templateContainer.style.display = 'block';
-                        sendBtn.innerHTML = '<i class="ph ph-envelope-simple"></i>';
-                        loadWhatsAppTemplates();
+                        messageInput.placeholder = "24 saat kuralı: Sadece şablon mesajı gönderilebilir";
+                        document.querySelector('.btn-templates-toggle').classList.add('pulse-primary');
                     } else {
                         messageInput.disabled = false;
                         messageInput.placeholder = "WhatsApp mesajınızı yazın...";
-                        templateContainer.style.display = 'none';
-                        sendBtn.innerHTML = '<i class="ph ph-paper-plane-right"></i>';
+                        document.querySelector('.btn-templates-toggle').classList.remove('pulse-primary');
                     }
                 });
 
@@ -1073,6 +1076,16 @@ $statuses = $pdo->query("SELECT * FROM tbl_ayarlar_gorusme_sonucu_bilgileri ORDE
             }
             const index = Math.abs(hash) % colors.length;
             return colors[index];
+        }
+
+        function toggleTemplates() {
+            const container = document.getElementById('templates-container');
+            const isHidden = container.style.display === 'none';
+            container.style.display = isHidden ? 'block' : 'none';
+            
+            if (isHidden) {
+                container.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
         }
 
         function scrollToBottom() {
