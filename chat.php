@@ -210,6 +210,36 @@ $statuses = $pdo->query("SELECT * FROM tbl_ayarlar_gorusme_sonucu_bilgileri ORDE
             border-top: 1px solid var(--border);
             padding-top: 1.5rem;
         }
+
+        .spinner-container {
+            position: absolute;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.7);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .spinner {
+            width: 30px;
+            height: 30px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
     </style>
 </head>
 
@@ -309,7 +339,11 @@ $statuses = $pdo->query("SELECT * FROM tbl_ayarlar_gorusme_sonucu_bilgileri ORDE
         </aside>
 
         <!-- Orta: Yazışmalar -->
-        <main class="chat-main">
+        <main class="chat-main" style="position: relative;">
+            <div class="spinner-container" id="convo-spinner" style="display: none;">
+                <div class="spinner"></div>
+                <p style="margin-top: 1rem; color: var(--primary); font-weight: 500;">Yükleniyor...</p>
+            </div>
             <header class="sidebar-header" style="background: white;">
                 <h3 id="chat-title">Müşteri Seçin</h3>
             </header>
@@ -648,7 +682,11 @@ $statuses = $pdo->query("SELECT * FROM tbl_ayarlar_gorusme_sonucu_bilgileri ORDE
         function loadConversation(phone, element) {
             currentPhone = phone;
             document.querySelectorAll('.contact-item').forEach(el => el.classList.remove('active'));
-            element.classList.add('active');
+            if (element) element.classList.add('active');
+
+            const spinner = document.getElementById('convo-spinner');
+            if (spinner) spinner.style.display = 'flex';
+
             document.getElementById('chat-title').innerText = phone;
             document.getElementById('input-area').style.display = 'flex';
             document.getElementById('interaction-area').style.display = 'block';
@@ -659,7 +697,7 @@ $statuses = $pdo->query("SELECT * FROM tbl_ayarlar_gorusme_sonucu_bilgileri ORDE
             form.reset();
             toggleComplaintFields('');
 
-            fetch('api/get_messages.php?phone=' + phone)
+            const fetchMessages = fetch('api/get_messages.php?phone=' + phone)
                 .then(response => response.text())
                 .then(html => {
                     const box = document.getElementById('chat-box');
@@ -667,11 +705,15 @@ $statuses = $pdo->query("SELECT * FROM tbl_ayarlar_gorusme_sonucu_bilgileri ORDE
                     box.scrollTop = box.scrollHeight;
                 });
 
-            fetch('api/get_details.php?phone=' + phone)
+            const fetchDetails = fetch('api/get_details.php?phone=' + phone)
                 .then(response => response.text())
                 .then(html => {
                     document.getElementById('detail-box').innerHTML = html;
                 });
+
+            Promise.all([fetchMessages, fetchDetails]).finally(() => {
+                if (spinner) spinner.style.display = 'none';
+            });
         }
 
         function sendMessage() {
