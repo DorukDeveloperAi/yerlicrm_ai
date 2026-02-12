@@ -1273,21 +1273,21 @@ body {
 }
 
 
-/* Interaction Form - New 2-Column Layout */
-.interaction-grid-new {
+/* Interaction Form - Single Row Layout */
+.interaction-grid-single-row {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr;
     gap: 1rem;
     padding: 1rem;
 }
 
-.note-field-large {
-    grid-row: span 2;
+.callback-field {
+    grid-column: span 3;
 }
 
-.note-field-large textarea {
+.interaction-grid-single-row textarea {
     width: 100%;
-    min-height: 120px;
+    min-height: 80px;
     padding: 0.75rem;
     border: 1px solid #e2e8f0;
     border-radius: 0.5rem;
@@ -1298,14 +1298,8 @@ body {
     transition: border-color 0.2s;
 }
 
-.note-field-large textarea:focus {
+.interaction-grid-single-row textarea:focus {
     border-color: var(--primary);
-}
-
-.field-group-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
 }
 
 .field-group label {
@@ -1317,7 +1311,8 @@ body {
 }
 
 .field-group select,
-.field-group input[type="date"] {
+.field-group input[type="date"],
+.field-group textarea {
     width: 100%;
     padding: 0.625rem;
     border: 1px solid #e2e8f0;
