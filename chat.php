@@ -177,6 +177,48 @@ $statuses = $pdo->query("SELECT * FROM tbl_ayarlar_gorusme_sonucu_bilgileri ORDE
             padding: 1rem 1.5rem;
         }
 
+        .sidebar-footer {
+            padding: 1rem;
+            border-top: 1px solid var(--border);
+            background: #f8fafc;
+        }
+
+        .sidebar-search-footer {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .sidebar-search-footer input {
+            flex: 1;
+            padding: 0.5rem 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .sidebar-search-footer input:focus {
+            border-color: var(--primary);
+        }
+
+        .btn-search-bul {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .btn-search-bul:hover {
+            opacity: 0.9;
+        }
+
         .drawer-nav {
             display: flex;
             flex-direction: column;
@@ -288,13 +330,6 @@ $statuses = $pdo->query("SELECT * FROM tbl_ayarlar_gorusme_sonucu_bilgileri ORDE
 
             <div class="sidebar-controls">
                 <div class="controls-row">
-                    <div style="position: relative; flex: 1;">
-                        <input type="text" id="sidebar-search" class="status-select" placeholder="Müşteri Ara (Ad-Soyad / Tel)" 
-                               onkeyup="debounceSearch(this.value)" style="padding-left: 2.5rem; background-image: none;">
-                        <i class="ph ph-magnifying-glass" style="position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 1.1rem;"></i>
-                    </div>
-                </div>
-                <div class="controls-row">
                     <select class="status-select" id="personnel-filter" onchange="filterByPersonnel(this.value)">
                         <option value="all">Personel</option>
                     </select>
@@ -332,6 +367,11 @@ $statuses = $pdo->query("SELECT * FROM tbl_ayarlar_gorusme_sonucu_bilgileri ORDE
             </div>
 
             <div class="sidebar-footer">
+                <div class="sidebar-search-footer">
+                    <input type="text" id="sidebar-search" placeholder="Müşteri Ara (İsim / Tel)" 
+                           onkeyup="if(event.key==='Enter') performSearch()">
+                    <button class="btn-search-bul" onclick="performSearch()">Bul</button>
+                </div>
                 <div class="contact-pagination" id="pagination-container">
                 </div>
                 <div id="record-info"
@@ -780,12 +820,10 @@ $statuses = $pdo->query("SELECT * FROM tbl_ayarlar_gorusme_sonucu_bilgileri ORDE
         let currentSearch = '';
 
         let searchTimeout;
-        function debounceSearch(val) {
-            clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(() => {
-                currentSearch = val;
-                loadCustomers(1, currentStatus, currentPersonnel, currentCampaign, val);
-            }, 500);
+        function performSearch() {
+            const val = document.getElementById('sidebar-search').value;
+            currentSearch = val;
+            loadCustomers(1, currentStatus, currentPersonnel, currentCampaign, val);
         }
 
         function loadCustomers(page = 1, status = currentStatus, personnel = currentPersonnel, campaign = currentCampaign, search = currentSearch) {
