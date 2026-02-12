@@ -119,22 +119,27 @@ ob_start();
                 <div class="contact-name">
                     <?php echo htmlspecialchars($c['musteri_adi_soyadi'] ?: 'İsimsiz Müşteri'); ?>
                 </div>
+                <div class="rep-name">
+                    <?php echo htmlspecialchars($c['rep_name'] ?: 'Atanmamış'); ?>
+                </div>
                 <div class="col-msg">
                     <?php echo htmlspecialchars($snippet); ?>
                 </div>
             </div>
             <div class="col-meta">
-                <span class="meta-date">
-                    <?php echo $last_date; ?>
-                </span>
-                <span class="meta-date">
+                <span class="meta-date" title="Başvuru Tarihi">
                     <?php echo $first_date; ?>
+                </span>
+                <span class="meta-date" title="İlk Etkileşim">
+                    <?php echo $access_date; ?>
                 </span>
             </div>
             <div class="col-status">
                 <div class="status-indicator <?php echo !empty($c['musteri_mesaji']) ? 'status-active' : ''; ?>"
-                    title="<?php echo !empty($c['musteri_mesaji']) ? 'Yeni Mesaj' : 'Doğum'; ?>">
-                    <i class="ph-fill ph-check"></i>
+                    title="<?php echo !empty($c['musteri_mesaji']) ? 'Yeni Mesaj' : ''; ?>">
+                    <?php if (!empty($c['musteri_mesaji'])): ?>
+                        <i class="ph-fill ph-check"></i>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
