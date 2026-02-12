@@ -417,37 +417,41 @@ $statuses = $pdo->query("SELECT * FROM tbl_ayarlar_gorusme_sonucu_bilgileri ORDE
             <div class="interaction-container" id="interaction-area" style="display: none;">
                 <form id="interaction-form" enctype="multipart/form-data">
                     <input type="hidden" name="phone" id="form-phone">
-                    <div class="interaction-grid">
-                        <!-- Top left: Note -->
-                        <div class="field-group note-field">
+                    <div class="interaction-grid-new">
+                        <!-- Left: Görüşme Notu (spans 2 rows) -->
+                        <div class="field-group note-field-large">
                             <label>Görüşme Notu</label>
-                            <textarea name="note" id="form-note" placeholder="Not..."></textarea>
+                            <textarea name="note" id="form-note" placeholder="Not..." rows="4"></textarea>
                         </div>
 
-                        <div class="field-group">
-                            <label>Görüşme Sonucu</label>
-                            <select name="status_id" onchange="toggleComplaintFields(this.value)">
-                                <option value="">Sonuç Seçiniz</option>
-                                <?php foreach ($statuses as $s): ?>
-                                    <option value="<?php echo $s['baslik']; ?>">
-                                        <?php echo htmlspecialchars($s['baslik']); ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
+                        <!-- Right Top: Görüşme Sonucu and Lead Puanlama side by side -->
+                        <div class="field-group-row">
+                            <div class="field-group">
+                                <label>Görüşme Sonucu</label>
+                                <select name="status_id" onchange="toggleComplaintFields(this.value)">
+                                    <option value="">Sonuç Seçiniz</option>
+                                       <?php foreach ($statuses as $s): ?>
+                                        <option value="<?php echo $s['baslik']; ?>">
+                                              <?php echo htmlspecialchars($s['baslik']); ?>
+                                        </option>
+                                     <?php endforeach; ?>
+                                </select>
+                            </div>
+
+                            <div class="field-group">
+                                <label>Lead Puanlama</label>
+                                <select name="lead_score">
+                                    <option value="">Puan</option>
+                                    <option value="1">1 Yıldız</option>
+                                    <option value="2">2 Yıldız</option>
+                                    <option value="3">3 Yıldız</option>
+                                    <option value="4">4 Yıldız</option>
+                                    <option value="5">5 Yıldız</option>
+                                </select>
+                            </div>
                         </div>
 
-                        <div class="field-group">
-                            <label>Lead Puanlama</label>
-                            <select name="lead_score">
-                                <option value="">Puan</option>
-                                <option value="1">1 Yıldız</option>
-                                <option value="2">2 Yıldız</option>
-                                <option value="3">3 Yıldız</option>
-                                <option value="4">4 Yıldız</option>
-                                <option value="5">5 Yıldız</option>
-                            </select>
-                        </div>
-
+                        <!-- Right Bottom: Tekrar Arama -->
                         <div class="field-group">
                             <label>Tekrar Arama</label>
                             <input type="date" name="callback_date">
