@@ -745,10 +745,10 @@ $statuses = $pdo->query("SELECT * FROM tbl_ayarlar_gorusme_sonucu_bilgileri ORDE
             toggleComplaintFields('');
 
             const fetchMessages = fetch('api/get_messages.php?phone=' + phone)
-                .then(response => response.text())
-                .then(html => {
+                .then(response => response.json())
+                .then(data => {
                     const box = document.getElementById('chat-box');
-                    box.innerHTML = html;
+                    box.innerHTML = data.html;
                     box.scrollTop = box.scrollHeight;
                 });
 

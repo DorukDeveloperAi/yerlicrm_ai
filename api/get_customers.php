@@ -41,31 +41,36 @@ if (!empty($search_query)) {
 $where_sql = implode(" AND ", $where_clauses);
 
 // Count total unique customers satisfying filters on their LATEST record
-// Using NOT EXISTS for better performance with filters
+// Using JOIN with GROUP BY for better general performance on 750k+ records
 $count_query = "
     SELECT COUNT(*) 
     FROM tbl_icerik_bilgileri_ai t1
-    WHERE NOT EXISTS (
-        SELECT 1 FROM tbl_icerik_bilgileri_ai t2 
-        WHERE t2.telefon_numarasi = t1.telefon_numarasi AND t2.id > t1.id
-    ) AND $where_sql";
+    JOIN (
+        SELECT MAX(id) as last_id 
+        FROM tbl_icerik_bilgileri_ai 
+        GROUP BY telefon_numarasi
+    ) t2 ON t1.id = t2.last_id
+    WHERE $where_sql";
 $stmt_count = $pdo->prepare($count_query);
 $stmt_count->execute($params);
 $total_unique = $stmt_count->fetchColumn();
 
 $total_pages = ceil($total_unique / $limit);
 
-// Data Query using NOT EXISTS
+// Data Query using JOIN with GROUP BY
+// This fetches first_date and last_id in one scan
 $query = "
     SELECT t1.*, 
-           (SELECT MIN(date) FROM tbl_icerik_bilgileri_ai WHERE telefon_numarasi = t1.telefon_numarasi) as first_date,
+           t2.first_date,
            u.username as rep_name
     FROM tbl_icerik_bilgileri_ai t1
+    JOIN (
+        SELECT MIN(date) as first_date, MAX(id) as last_id 
+        FROM tbl_icerik_bilgileri_ai 
+        GROUP BY telefon_numarasi
+    ) t2 ON t1.id = t2.last_id
     LEFT JOIN users u ON t1.user_id = u.id
-    WHERE NOT EXISTS (
-        SELECT 1 FROM tbl_icerik_bilgileri_ai t2 
-        WHERE t2.telefon_numarasi = t1.telefon_numarasi AND t2.id > t1.id
-    ) AND $where_sql";
+    WHERE $where_sql";
 
 $query .= " ORDER BY t1.date DESC LIMIT $limit OFFSET $offset";
 

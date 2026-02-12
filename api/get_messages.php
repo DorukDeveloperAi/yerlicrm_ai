@@ -44,4 +44,7 @@ foreach ($messages as $msg) {
     $html .= '</div>';
 }
 
-echo $html;
+// Return as JSON for chat.php
+header('Content-Type: application/json');
+echo json_encode(['success' => true, 'html' => $html]);
+?>
