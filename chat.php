@@ -368,8 +368,8 @@ $statuses = $pdo->query("SELECT * FROM tbl_ayarlar_gorusme_sonucu_bilgileri ORDE
 
             <div class="sidebar-footer">
                 <div class="sidebar-search-footer">
-                    <input type="text" id="sidebar-search" placeholder="Müşteri Ara (İsim / Tel)" 
-                           onkeyup="if(event.key==='Enter') performSearch()">
+                    <input type="text" id="sidebar-search" placeholder="Müşteri Ara (İsim / Tel)"
+                        onkeyup="if(event.key==='Enter') performSearch()">
                     <button class="btn-search-bul" onclick="performSearch()">Bul</button>
                 </div>
                 <div class="contact-pagination" id="pagination-container">
@@ -424,7 +424,8 @@ $statuses = $pdo->query("SELECT * FROM tbl_ayarlar_gorusme_sonucu_bilgileri ORDE
                         <div class="field-group">
                             <label style="display: flex; justify-content: space-between; align-items: center;">
                                 Görüşme Sonucu
-                                <span onclick="toggleComplaintFields('Teşekkür, Şikayet, Öneri')" style="font-size: 0.7rem; color: var(--primary); font-weight: 500; cursor: pointer;">
+                                <span onclick="toggleComplaintFields('Teşekkür, Şikayet, Öneri')"
+                                    style="font-size: 0.7rem; color: var(--primary); font-weight: 500; cursor: pointer;">
                                     <i class="ph ph-warning-circle"></i> Şikayet/Teşekkür
                                 </span>
                             </label>
@@ -747,7 +748,14 @@ $statuses = $pdo->query("SELECT * FROM tbl_ayarlar_gorusme_sonucu_bilgileri ORDE
             const fetchDetails = fetch('api/get_details.php?phone=' + phone)
                 .then(response => response.text())
                 .then(html => {
-                    document.getElementById('detail-box').innerHTML = html;
+                    const detailBox = document.getElementById('detail-box');
+                    detailBox.innerHTML = html;
+
+                    // Auto-open complaint fields if campaign matches
+                    const campaignVal = detailBox.querySelector('#current-campaign-val')?.innerText.trim();
+                    if (campaignVal === 'Teşekkür, Şikayet, Öneri') {
+                        toggleComplaintFields('Teşekkür, Şikayet, Öneri');
+                    }
                 });
 
             Promise.all([fetchMessages, fetchDetails]).finally(() => {
