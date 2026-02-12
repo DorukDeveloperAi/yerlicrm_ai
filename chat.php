@@ -310,10 +310,7 @@ $statuses = $pdo->query("SELECT * FROM tbl_ayarlar_gorusme_sonucu_bilgileri ORDE
 </head>
 
 <body>
-    <!-- Floating Menu Trigger -->
-    <div class="floating-menu-btn" onclick="toggleDrawer()">
-        <i class="ph-fill ph-gear" style="font-size: 1.1rem;"></i>
-    </div>
+
 
     <!-- Top Right User Profile (Icon Only) -->
     <div class="user-profile-widget" onclick="toggleDrawer()" title="Ayarlar ve Profil">
