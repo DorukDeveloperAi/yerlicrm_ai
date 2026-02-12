@@ -109,7 +109,9 @@ ob_start();
         $access_date = $formatDate($c['ilk_erisim_tarihi']);
         ?>
         <div class="col-avatar">
-            <?php echo $getInitials($c['musteri_adi_soyadi']); ?>
+            <div class="profile-circle">
+                <?php echo $getInitials($c['musteri_adi_soyadi']); ?>
+            </div>
         </div>
         <div class="col-info">
             <div class="contact-name">
