@@ -757,11 +757,13 @@ $statuses = $pdo->query("SELECT * FROM tbl_ayarlar_gorusme_sonucu_bilgileri ORDE
                         messageInput.disabled = true;
                         messageInput.placeholder = "Template mesaj gönderiniz";
                         templateContainer.style.display = 'block';
+                        sendBtn.innerHTML = '<i class="ph ph-envelope-simple"></i>';
                         loadWhatsAppTemplates();
                     } else {
                         messageInput.disabled = false;
                         messageInput.placeholder = "WhatsApp mesajınızı yazın...";
                         templateContainer.style.display = 'none';
+                        sendBtn.innerHTML = '<i class="ph ph-paper-plane-right"></i>';
                     }
                 });
 
