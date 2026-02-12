@@ -1276,7 +1276,7 @@ body {
 /* Interaction Form - Single Row Layout */
 .interaction-grid-single-row {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-columns: 2fr 1fr 1fr;
     gap: 1rem;
     padding: 1rem;
 }
@@ -1289,7 +1289,7 @@ body {
 
 .interaction-grid-single-row textarea {
     width: 100%;
-    min-height: 80px;
+    min-height: 100px;
     padding: 0.75rem;
     border: 1px solid #e2e8f0;
     border-radius: 0.5rem;
