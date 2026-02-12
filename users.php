@@ -2,6 +2,7 @@
 require_once 'config.php';
 require_once 'auth.php';
 requireLogin();
+include 'fix_schema.php';
 
 // Fetch summary statsers
 $users = $pdo->query("SELECT * FROM users WHERE status = 1 ORDER BY id ASC")->fetchAll();
