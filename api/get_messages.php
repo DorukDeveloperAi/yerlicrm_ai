@@ -44,7 +44,21 @@ foreach ($messages as $msg) {
     $html .= '</div>';
 }
 
+// Find last customer message timestamp
+$lastCustomerDate = 0;
+foreach (array_reverse($messages) as $msg) {
+    if (!empty($msg['musteri_mesaji'])) {
+        $lastCustomerDate = (int) $msg['date'];
+        break;
+    }
+}
+
 // Return as JSON for chat.php
 header('Content-Type: application/json');
-echo json_encode(['success' => true, 'html' => $html]);
+echo json_encode([
+    'success' => true,
+    'html' => $html,
+    'last_customer_date' => $lastCustomerDate,
+    'now' => time()
+]);
 ?>

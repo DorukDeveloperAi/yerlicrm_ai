@@ -795,6 +795,45 @@ body {
     border-color: var(--primary);
 }
 
+.chat-input-area textarea:disabled {
+    background: #f1f5f9;
+    cursor: not-allowed;
+    border-color: #e2e8f0;
+}
+
+#templates-container {
+    width: 100%;
+    margin-bottom: 0.5rem;
+}
+
+.template-selector-title {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-bottom: 0.4rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.btn-template {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    color: #475569;
+    padding: 0.4rem 0.75rem;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    margin-right: 0.5rem;
+    margin-bottom: 0.5rem;
+    transition: all 0.2s;
+}
+
+.btn-template:hover {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+}
+
 .btn-page.disabled {
     opacity: 0.4;
     cursor: not-allowed;
@@ -1011,6 +1050,10 @@ body {
     justify-content: center;
     cursor: pointer;
     transition: background 0.2s;
+}
+
+.btn-send i {
+    font-size: 1.4rem;
 }
 
 .btn-send:hover {

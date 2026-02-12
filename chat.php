@@ -311,6 +311,9 @@ $statuses = $pdo->query("SELECT * FROM tbl_ayarlar_gorusme_sonucu_bilgileri ORDE
             <a href="users.php" class="drawer-link">
                 <i class="ph ph-users"></i> Personeller
             </a>
+            <a href="whatsapp_templates.php" class="drawer-link">
+                <i class="ph ph-whatsapp-logo"></i> WhatsApp Şablonları
+            </a>
             <a href="#" class="drawer-link">
                 <i class="ph ph-chart-line"></i> Raporlar
             </a>
@@ -402,11 +405,12 @@ $statuses = $pdo->query("SELECT * FROM tbl_ayarlar_gorusme_sonucu_bilgileri ORDE
             </div>
 
             <div class="chat-input-area" id="input-area" style="display: none;">
-                <textarea id="message-text" placeholder="Mesajınızı yazın..."></textarea>
-                <button class="btn-send" onclick="sendMessage()">
-                    <svg viewBox="0 0 24 24">
-                        <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
-                    </svg>
+                <textarea id="message-text" placeholder="WhatsApp mesajınızı yazın..."></textarea>
+                <div id="templates-container" style="display: none;">
+                    <!-- Template buttons will be injected here -->
+                </div>
+                <button class="btn-send" onclick="sendMessage()" title="Mesaj Gönder">
+                    <i class="ph ph-envelope-simple"></i>
                 </button>
             </div>
 
@@ -739,7 +743,67 @@ $statuses = $pdo->query("SELECT * FROM tbl_ayarlar_gorusme_sonucu_bilgileri ORDE
                     const box = document.getElementById('chat-box');
                     box.innerHTML = data.html;
                     box.scrollTop = box.scrollHeight;
+
+                    // 24-Hour Rule Implementation
+                    const messageInput = document.getElementById('message-text');
+                    const templateContainer = document.getElementById('templates-container');
+                    const sendBtn = document.querySelector('.btn-send');
+
+                    const now = data.now;
+                    const lastCustomerDate = data.last_customer_date;
+                    const hoursPassed = (now - lastCustomerDate) / 3600;
+
+                    if (lastCustomerDate > 0 && hoursPassed > 24) {
+                        messageInput.disabled = true;
+                        messageInput.placeholder = "Template mesaj gönderiniz";
+                        templateContainer.style.display = 'block';
+                        loadWhatsAppTemplates();
+                    } else {
+                        messageInput.disabled = false;
+                        messageInput.placeholder = "WhatsApp mesajınızı yazın...";
+                        templateContainer.style.display = 'none';
+                    }
                 });
+
+            function loadWhatsAppTemplates() {
+                fetch('api/get_templates.php')
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data.success) {
+                            const container = document.getElementById('templates-container');
+                            container.innerHTML = '<div class="template-selector-title">Şablon Seçiniz:</div>';
+                            data.templates.forEach(t => {
+                                const btn = document.createElement('button');
+                                btn.className = 'btn-template';
+                                btn.innerText = t.title;
+                                btn.onclick = () => sendWhatsAppTemplate(t.id);
+                                container.appendChild(btn);
+                            });
+                        }
+                    });
+            }
+
+            function sendWhatsAppTemplate(templateId) {
+                if (!confirm('Bu şablon mesajı gönderilsin mi?')) return;
+
+                const formData = new FormData();
+                formData.append('phone', currentPhone);
+                formData.append('template_id', templateId);
+                formData.append('type', 'template');
+
+                fetch('api/send_message.php', {
+                    method: 'POST',
+                    body: formData
+                })
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data.success) {
+                            loadConversation(currentPhone);
+                        } else {
+                            alert('Hata: ' + data.message);
+                        }
+                    });
+            }
 
             const fetchDetails = fetch('api/get_details.php?phone=' + phone)
                 .then(response => response.text())
