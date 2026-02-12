@@ -15,6 +15,12 @@ $messages = $stmt->fetchAll();
 
 $html = '';
 foreach ($messages as $msg) {
+    // Check for system message (change log)
+    if (!empty($msg['yapilan_degisiklik_notu'])) {
+        $html .= '<div class="system-message"><span>' . htmlspecialchars($msg['yapilan_degisiklik_notu']) . '</span></div>';
+        continue;
+    }
+
     $isInfo = (!empty($msg['personel_mesaji']) && !empty($msg['gorusme_sonucu_text']));
 
     if ($isInfo) {
@@ -24,7 +30,13 @@ foreach ($messages as $msg) {
     }
 
     $content = !empty($msg['musteri_mesaji']) ? $msg['musteri_mesaji'] : $msg['personel_mesaji'];
-    $date = date('d.m.Y H:i', $msg['date']);
+
+    // Skip if no content (e.g., empty rows from other logic), though system msg handles one type of empty row
+    if (empty($content) && empty($msg['gorusme_sonucu_text']))
+        continue;
+
+    // Reverting to original behavior for timestamp (assuming date is int)
+    $date = date('d.m.Y H:i', (int) $msg['date']);
 
     $html .= '<div class="msg ' . $type . '">';
     $html .= htmlspecialchars($content);

@@ -2,6 +2,8 @@
 require_once 'config.php';
 require_once 'auth.php';
 requireLogin();
+include 'check_users_data.php';
+requireLogin();
 
 // Fetch summary stats
 $total_records = $pdo->query("SELECT count(DISTINCT telefon_numarasi) FROM tbl_icerik_bilgileri_ai")->fetchColumn();
@@ -26,11 +28,11 @@ $total_records = $pdo->query("SELECT count(DISTINCT telefon_numarasi) FROM tbl_i
         <header class="navbar">
             <div style="display: flex; align-items: center; gap: 2rem;">
                 <h2>YerliCRM</h2>
-                <nav style="display: flex; gap: 1rem;">
-                    <a href="index.php"
-                        style="text-decoration: none; color: var(--primary); font-weight: 600;">Panel</a>
-                    <a href="chat.php" style="text-decoration: none; color: var(--text-muted); font-weight: 600;">Chat
-                        Ekranı</a>
+                <a href="index.php" style="text-decoration: none; color: var(--primary); font-weight: 600;">Panel</a>
+                <a href="chat.php" style="text-decoration: none; color: var(--text-muted); font-weight: 600;">Chat
+                    Ekranı</a>
+                <a href="users.php" style="text-decoration: none; color: var(--text-muted); font-weight: 600;">Kullanıcı
+                    Yönetimi</a>
                 </nav>
             </div>
             <div style="display: flex; align-items: center; gap: 1.5rem;">

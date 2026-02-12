@@ -15,14 +15,22 @@ $status_filter = isset($_GET['status']) ? $_GET['status'] : 'empty'; // Default 
 $statuses = $pdo->query("SELECT * FROM tbl_ayarlar_gorusme_sonucu_bilgileri ORDER BY id ASC")->fetchAll();
 
 // Fetch form data
-$hospitals = $pdo->query("SELECT id, baslik FROM tbl_ayarlar_hastane_bilgileri ORDER BY baslik ASC")->fetchAll();
-$departments = $pdo->query("SELECT id, baslik, ayarlar_hastane_bilgileri_id FROM tbl_ayarlar_bolum_bilgileri ORDER BY baslik ASC")->fetchAll();
-$doctors = $pdo->query("SELECT id, baslik, ayarlar_hastane_bilgileri_id, ayarlar_bolum_bilgileri_id FROM tbl_ayarlar_doktor_bilgileri ORDER BY baslik ASC")->fetchAll();
-$complaint_topics = $pdo->query("SELECT id, baslik FROM tbl_ayarlar_sikayet_konusu_bilgileri ORDER BY baslik ASC")->fetchAll();
+// Fetch form data (Commented out as tables do not exist and variables appear unused)
+// $hospitals = $pdo->query("SELECT id, baslik FROM tbl_ayarlar_hastane_bilgileri ORDER BY baslik ASC")->fetchAll();
+// $departments = $pdo->query("SELECT id, baslik, ayarlar_hastane_bilgileri_id FROM tbl_ayarlar_bolum_bilgileri ORDER BY baslik ASC")->fetchAll();
+// $doctors = $pdo->query("SELECT id, baslik, ayarlar_hastane_bilgileri_id, ayarlar_bolum_bilgileri_id FROM tbl_ayarlar_doktor_bilgileri ORDER BY baslik ASC")->fetchAll();
+// $complaint_topics = $pdo->query("SELECT id, baslik FROM tbl_ayarlar_sikayet_konusu_bilgileri ORDER BY baslik ASC")->fetchAll();
 
 // Fetch personnel and campaigns for sidebar filters
 $all_personnel = $pdo->query("SELECT id, username FROM users ORDER BY username ASC")->fetchAll();
-$all_campaigns = $pdo->query("SELECT id, baslik FROM tbl_ayarlar_kampanya_bilgileri ORDER BY baslik ASC")->fetchAll();
+$all_campaigns = $pdo->query("SELECT DISTINCT kampanya as baslik FROM tbl_icerik_bilgileri_ai WHERE kampanya IS NOT NULL AND kampanya != '' ORDER BY kampanya ASC")->fetchAll();
+
+// Fetch data for Edit Modal (Global Scope)
+$modal_hospitals = $pdo->query("SELECT DISTINCT hastane FROM tbl_icerik_bilgileri_ai WHERE hastane IS NOT NULL AND hastane != '' ORDER BY hastane ASC")->fetchAll(PDO::FETCH_COLUMN);
+$modal_departments = $pdo->query("SELECT DISTINCT bolum FROM tbl_icerik_bilgileri_ai WHERE bolum IS NOT NULL AND bolum != '' ORDER BY bolum ASC")->fetchAll(PDO::FETCH_COLUMN);
+$modal_doctors = $pdo->query("SELECT DISTINCT doktor FROM tbl_icerik_bilgileri_ai WHERE doktor IS NOT NULL AND doktor != '' ORDER BY doktor ASC")->fetchAll(PDO::FETCH_COLUMN);
+$modal_requests = $pdo->query("SELECT DISTINCT talep_icerik FROM tbl_icerik_bilgileri_ai WHERE talep_icerik IS NOT NULL AND talep_icerik != '' ORDER BY talep_icerik ASC")->fetchAll(PDO::FETCH_COLUMN);
+$modal_campaigns = array_column($all_campaigns, 'baslik');
 ?>
 <!DOCTYPE html>
 <html lang="tr">
@@ -33,6 +41,7 @@ $all_campaigns = $pdo->query("SELECT id, baslik FROM tbl_ayarlar_kampanya_bilgil
     <title>Chat Ekranı - YerliCRM</title>
     <link rel="icon" href="assets/images/favicon.ico" type="image/x-icon">
     <link rel="stylesheet" href="assets/css/main.css">
+    <script src="https://unpkg.com/phosphor-icons"></script>
 </head>
 
 <body
@@ -273,7 +282,120 @@ $all_campaigns = $pdo->query("SELECT id, baslik FROM tbl_ayarlar_kampanya_bilgil
         </div>
     </div>
 
+    <!-- Edit Modal -->
+    <div id="editDetailModal" class="modal-overlay" style="display: none;">
+        <div class="modal-content" style="width: 350px;">
+            <div class="modal-header">
+                <h3 id="editModalTitle">Düzenle</h3>
+                <button class="modal-close" onclick="closeEditModal()">&times;</button>
+            </div>
+            <div class="modal-body" style="padding: 1.5rem; text-align: left;">
+                <input type="hidden" id="editPhone">
+                <input type="hidden" id="editField">
+
+                <div class="detail-form-group">
+                    <label class="detail-label-sm" id="editLabel">Değer</label>
+                    <div id="editInputContainer">
+                        <!-- Dynamic Input -->
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 0.5rem; margin-top: 1.5rem;">
+                    <button onclick="closeEditModal()" class="btn-change"
+                        style="flex: 1; background: #f1f5f9; color: #64748b; justify-content: center;">İptal</button>
+                    <button onclick="saveDetailChange()" class="btn-change"
+                        style="flex: 1; justify-content: center;">Kaydet</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
+        // Global Data for Edit Modal
+        const detailData = {
+            campaigns: <?php echo json_encode($modal_campaigns); ?>,
+            requests: <?php echo json_encode($modal_requests); ?>,
+            hospitals: <?php echo json_encode($modal_hospitals); ?>,
+            departments: <?php echo json_encode($modal_departments); ?>,
+            doctors: <?php echo json_encode($modal_doctors); ?>
+        };
+
+        function openEditModal(field, currentValue, label) {
+            document.getElementById('editDetailModal').style.display = 'flex';
+            document.getElementById('editModalTitle').innerText = label + ' Düzenle';
+            document.getElementById('editLabel').innerText = label;
+            document.getElementById('editField').value = field;
+            // Phone is retrieved from global currentPhone in chat.php
+            document.getElementById('editPhone').value = currentPhone;
+
+            const container = document.getElementById('editInputContainer');
+            container.innerHTML = '';
+
+            let inputHtml = '';
+
+            // Helper to build select
+            const buildSelect = (options) => {
+                let html = '<select id="editValue" class="form-select">';
+                html += '<option value="">Seçiniz</option>';
+                options.forEach(opt => {
+                    const selected = opt === currentValue ? 'selected' : '';
+                    html += `<option value="${opt}" ${selected}>${opt}</option>`;
+                });
+                // Keep current if not in list
+                if (currentValue && !options.includes(currentValue)) {
+                    html += `<option value="${currentValue}" selected>${currentValue}</option>`;
+                }
+                html += '</select>';
+                return html;
+            };
+
+            if (field === 'kampanya') inputHtml = buildSelect(detailData.campaigns);
+            else if (field === 'talep_icerik') inputHtml = buildSelect(detailData.requests);
+            else if (field === 'hastane') inputHtml = buildSelect(detailData.hospitals);
+            else if (field === 'bolum') inputHtml = buildSelect(detailData.departments);
+            else if (field === 'doktor') inputHtml = buildSelect(detailData.doctors);
+            else if (field === 'dogum_haftasi') {
+                inputHtml = `<div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <input type="number" id="editValue" class="form-input" value="${currentValue}" placeholder="Örn: 11" style="flex: 1;">
+                    <span style="font-size: 0.8rem; color: var(--text-muted);">Hafta</span>
+                </div>`;
+            }
+
+            container.innerHTML = inputHtml;
+        }
+
+        function closeEditModal() {
+            document.getElementById('editDetailModal').style.display = 'none';
+        }
+
+        function saveDetailChange() {
+            const phone = document.getElementById('editPhone').value;
+            const field = document.getElementById('editField').value;
+            const value = document.getElementById('editValue').value;
+
+            const formData = new FormData();
+            formData.append('phone', phone);
+            formData.append('field', field);
+            formData.append('value', value);
+
+            fetch('api/update_detail.php', {
+                method: 'POST',
+                body: formData
+            })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Başarıyla güncellendi.');
+                        closeEditModal();
+                        // Reload details
+                        loadConversation(phone, document.querySelector('.contact-item.active'));
+                    } else {
+                        alert('Hata: ' + data.message);
+                    }
+                })
+                .catch(err => alert('Bir hata oluştu.'));
+        }
+
         let currentPhone = '';
 
         function toggleComplaintFields(val) {
@@ -457,22 +579,22 @@ $all_campaigns = $pdo->query("SELECT id, baslik FROM tbl_ayarlar_kampanya_bilgil
                 method: 'POST',
                 body: formData
             })
-            .then(response => response.json())
-            .then(data => {
-                alert(data.message);
-                if (data.success) {
-                    // Reset, switch to list or refresh
-                    loadConversation(currentCustomerId);
-                    // Optional: Switch to cancel tab to see it
-                    if(document.querySelector("button[onclick*='iptal']")) {
-                         document.querySelector("button[onclick*='iptal']").click();
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message);
+                    if (data.success) {
+                        // Reset, switch to list or refresh
+                        loadConversation(currentCustomerId);
+                        // Optional: Switch to cancel tab to see it
+                        if (document.querySelector("button[onclick*='iptal']")) {
+                            document.querySelector("button[onclick*='iptal']").click();
+                        }
                     }
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Bir hata oluştu.');
-            });
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Bir hata oluştu.');
+                });
         }
 
         function cancelAppointment(id) {
@@ -485,18 +607,18 @@ $all_campaigns = $pdo->query("SELECT id, baslik FROM tbl_ayarlar_kampanya_bilgil
                 method: 'POST',
                 body: formData
             })
-            .then(response => response.json())
-            .then(data => {
-                alert(data.message);
-                if (data.success) {
-                    // Refresh details to update list
-                    loadConversation(currentCustomerId);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Bir hata oluştu.');
-            });
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message);
+                    if (data.success) {
+                        // Refresh details to update list
+                        loadConversation(currentCustomerId);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Bir hata oluştu.');
+                });
         }
 
         function goToPage(page) {

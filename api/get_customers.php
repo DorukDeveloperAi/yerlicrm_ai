@@ -15,7 +15,7 @@ $where_clauses = ["1=1"];
 $params = [];
 
 if ($status_filter === 'empty') {
-    $where_clauses[] = "(gorusme_sonucu_text IS NULL OR gorusme_sonucu_text = '')";
+    $where_clauses[] = "(gorusme_sonucu_text IS NULL OR gorusme_sonucu_text = '' OR gorusme_sonucu_text = 'Yönlendirildi')";
 } elseif ($status_filter !== 'all') {
     $where_clauses[] = "gorusme_sonucu_text = ?";
     $params[] = $status_filter;
