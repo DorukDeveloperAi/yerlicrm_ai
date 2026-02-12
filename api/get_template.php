@@ -9,7 +9,7 @@ if (!$id) {
 }
 
 try {
-    $stmt = $pdo->prepare("SELECT * FROM tbl_whatsapp_templates WHERE id = ? AND status = 1");
+    $stmt = $pdo->prepare("SELECT * FROM whatsapp_gupshup_templates WHERE id = ? AND status = 1");
     $stmt->execute([$id]);
     $template = $stmt->fetch();
 

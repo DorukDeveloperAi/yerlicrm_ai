@@ -13,7 +13,7 @@ if (!$id) {
 }
 
 try {
-    $stmt = $pdo->prepare("UPDATE tbl_whatsapp_templates SET status = 0 WHERE id = ?");
+    $stmt = $pdo->prepare("UPDATE whatsapp_gupshup_templates SET status = 0 WHERE id = ?");
     $stmt->execute([$id]);
     echo json_encode(['success' => true]);
 } catch (PDOException $e) {

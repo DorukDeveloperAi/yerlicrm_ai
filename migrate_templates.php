@@ -2,7 +2,7 @@
 require_once 'config.php';
 
 try {
-    $pdo->exec("CREATE TABLE IF NOT EXISTS tbl_whatsapp_templates (
+    $pdo->exec("CREATE TABLE IF NOT EXISTS whatsapp_gupshup_templates (
         id INT AUTO_INCREMENT PRIMARY KEY, 
         title VARCHAR(255) NOT NULL, 
         content TEXT NOT NULL, 
@@ -12,7 +12,7 @@ try {
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
 
     // Add some sample templates
-    $pdo->exec("INSERT INTO tbl_whatsapp_templates (title, content) VALUES 
+    $pdo->exec("INSERT INTO whatsapp_gupshup_templates (title, content) VALUES 
         ('Selamlama', 'Merhaba, size nasıl yardımcı olabilirim?'),
         ('Bilgi Talebi', 'İstediğiniz bilgileri hazırlıyoruz, en kısa sürede döneceğiz.')
     ON DUPLICATE KEY UPDATE title=title;");

@@ -6,7 +6,7 @@ $type = $_POST['type'] ?? 'text';
 $templateId = $_POST['template_id'] ?? null;
 
 if ($type === 'template' && $templateId) {
-    $stmt = $pdo->prepare("SELECT content FROM tbl_whatsapp_templates WHERE id = ?");
+    $stmt = $pdo->prepare("SELECT content FROM whatsapp_gupshup_templates WHERE id = ?");
     $stmt->execute([$templateId]);
     $template = $stmt->fetch();
     if ($template) {

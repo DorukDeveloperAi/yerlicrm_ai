@@ -16,10 +16,10 @@ if (empty($title) || empty($content)) {
 
 try {
     if ($id) {
-        $stmt = $pdo->prepare("UPDATE tbl_whatsapp_templates SET title = ?, content = ? WHERE id = ?");
+        $stmt = $pdo->prepare("UPDATE whatsapp_gupshup_templates SET title = ?, content = ? WHERE id = ?");
         $stmt->execute([$title, $content, $id]);
     } else {
-        $stmt = $pdo->prepare("INSERT INTO tbl_whatsapp_templates (title, content) VALUES (?, ?)");
+        $stmt = $pdo->prepare("INSERT INTO whatsapp_gupshup_templates (title, content) VALUES (?, ?)");
         $stmt->execute([$title, $content]);
     }
     echo json_encode(['success' => true]);

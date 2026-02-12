@@ -13,12 +13,12 @@ $current_page = isset($_GET['page']) ? max(1, (int) $_GET['page']) : 1;
 $offset = ($current_page - 1) * $records_per_page;
 
 // Fetch total records for pagination
-$total_stmt = $pdo->query("SELECT COUNT(*) FROM tbl_whatsapp_templates WHERE status = 1");
+$total_stmt = $pdo->query("SELECT COUNT(*) FROM whatsapp_gupshup_templates WHERE status = 1");
 $total_records = $total_stmt->fetchColumn();
 $total_pages = ceil($total_records / $records_per_page);
 
 // Fetch templates for current page
-$stmt = $pdo->prepare("SELECT * FROM tbl_whatsapp_templates WHERE status = 1 ORDER BY title ASC LIMIT :limit OFFSET :offset");
+$stmt = $pdo->prepare("SELECT * FROM whatsapp_gupshup_templates WHERE status = 1 ORDER BY title ASC LIMIT :limit OFFSET :offset");
 $stmt->bindValue(':limit', $records_per_page, PDO::PARAM_INT);
 $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
 $stmt->execute();
