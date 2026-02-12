@@ -337,7 +337,7 @@ $statuses = $pdo->query("SELECT * FROM tbl_ayarlar_gorusme_sonucu_bilgileri ORDE
                     <select class="status-select" id="status-filter" onchange="filterByStatus(this.value)">
                         <option value="all">Sonuç</option>
                         <?php foreach ($statuses as $s): ?>
-                            <option value="<?php echo htmlspecialchars($s['baslik']); ?>" <?php echo $status_filter === $s['baslik'] ? 'selected' : ''; ?>>
+                            <option value="<?php echo htmlspecialchars($s['baslik']); ?>" <?php echo (isset($status_filter) && $status_filter === $s['baslik']) ? 'selected' : ''; ?>>
                                 <?php echo htmlspecialchars($s['baslik']); ?>
                             </option>
                         <?php endforeach; ?>
