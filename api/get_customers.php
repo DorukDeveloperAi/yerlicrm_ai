@@ -108,41 +108,39 @@ ob_start();
         $first_date = $formatDate($c['first_date']);
         $access_date = $formatDate($c['ilk_erisim_tarihi']);
         ?>
-        <div class="contact-item"
+        <div class="contact-item <?php echo !empty($c['musteri_mesaji']) ? 'has-unread' : ''; ?>"
             onclick="loadConversation('<?php echo $c['telefon_numarasi']; ?>', '<?php echo addslashes($c['musteri_adi_soyadi'] ?: 'İsimsiz'); ?>', '<?php echo addslashes($c['kampanya'] ?: 'Kampanya Yok'); ?>', this)">
-            <div class="col-left">
-                <div class="profile-circle">
+            <div class="contact-item-main">
+                <div class="profile-circle" data-name="<?php echo htmlspecialchars($c['musteri_adi_soyadi']); ?>">
                     <?php echo $getInitials($c['musteri_adi_soyadi']); ?>
                 </div>
-                <div class="customer-info">
-                    <div class="contact-name">
-                        <?php echo htmlspecialchars($c['musteri_adi_soyadi'] ?: 'İsimsiz Müşteri'); ?>
+                <div class="contact-details">
+                    <div class="contact-top-row">
+                        <span class="contact-name">
+                            <?php echo htmlspecialchars($c['musteri_adi_soyadi'] ?: 'İsimsiz Müşteri'); ?>
+                        </span>
+                        <span class="contact-time" title="Son Etkileşim">
+                            <?php echo $last_date; ?>
+                        </span>
                     </div>
-                    <div class="rep-name">
-                        <?php echo htmlspecialchars($c['rep_name'] ?: 'Atanmamış'); ?>
+                    <div class="contact-mid-row">
+                        <span class="contact-snippet">
+                            <?php echo htmlspecialchars($snippet); ?>
+                        </span>
+                    </div>
+                    <div class="contact-bottom-row">
+                        <span class="contact-rep">
+                            <i class="ph ph-user"></i> <?php echo htmlspecialchars($c['rep_name'] ?: 'Atanmamış'); ?>
+                        </span>
+                        <span class="contact-campaign">
+                            <i class="ph ph-tag"></i> <?php echo htmlspecialchars($c['kampanya'] ?: 'Genel'); ?>
+                        </span>
                     </div>
                 </div>
             </div>
-            <div class="col-middle">
-                <div class="col-msg">
-                    <?php echo htmlspecialchars($snippet); ?>
-                </div>
-            </div>
-            <div class="col-right">
-                <div class="dates-status">
-                    <span class="meta-date" title="Başvuru Tarihi">
-                        <?php echo $first_date; ?>
-                    </span>
-                    <span class="meta-date" title="İlk Etkileşim">
-                        <?php echo $access_date; ?>
-                    </span>
-                    <?php if (!empty($c['musteri_mesaji'])): ?>
-                        <div class="status-indicator status-active" title="Yeni Mesaj">
-                            <i class="ph-fill ph-check"></i>
-                        </div>
-                    <?php endif; ?>
-                </div>
-            </div>
+            <?php if (!empty($c['musteri_mesaji'])): ?>
+                <div class="unread-badge"></div>
+            <?php endif; ?>
         </div>
     <?php endforeach; ?>
 </div>

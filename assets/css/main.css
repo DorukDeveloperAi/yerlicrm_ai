@@ -413,7 +413,22 @@ body {
     flex: 1;
     overflow-y: auto;
     position: relative;
-    border-bottom: 1px solid #f3f4f6;
+    background: #fff;
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 transparent;
+}
+
+.contact-list::-webkit-scrollbar {
+    width: 5px;
+}
+
+.contact-list::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.contact-list::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
 }
 
 .sidebar-footer {
@@ -632,15 +647,17 @@ body {
     }
 }
 
+/* --- REDESIGNED CONTACT ITEM --- */
+
 .contact-item {
-    display: grid;
-    grid-template-columns: auto 1fr auto;
-    gap: 0.75rem;
-    padding: 1rem;
+    padding: 1rem 1.25rem;
     border-bottom: 1px solid #f1f5f9;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    display: flex;
     align-items: center;
+    overflow: hidden;
 }
 
 .contact-item:last-child {
@@ -652,196 +669,141 @@ body {
 }
 
 .contact-item.active {
-    background: #eff6ff;
-    position: relative;
+    background: #f0f7ff;
 }
 
-.contact-item.active::before {
+.contact-item.active::after {
     content: '';
     position: absolute;
     left: 0;
-    top: 0;
-    bottom: 0;
-    width: 3px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 70%;
     background: var(--primary);
+    border-radius: 0 4px 4px 0;
 }
 
-.col-left {
+.contact-item-main {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
-    min-width: 0;
-}
-
-.customer-info {
-    display: flex;
-    flex-direction: column;
-    gap: 0.15rem;
-    min-width: 0;
+    gap: 1rem;
     flex: 1;
-}
-
-.col-middle {
-    display: flex;
-    align-items: center;
-    min-width: 0;
-    flex: 1;
-}
-
-.col-right {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
     min-width: 0;
 }
 
-.dates-status {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 0.25rem;
-}
-
-.contact-name {
-    font-weight: 700;
-    font-size: 0.8rem;
-    color: #0f172a;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    line-height: 1.3;
-}
-
-.rep-name {
-    font-size: 0.75rem;
-    color: #64748b;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    line-height: 1.3;
-}
-
-.col-msg {
-    font-size: 0.85rem;
-    color: #64748b;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    line-height: 1.3;
-    width: 100%;
-}
-
-.meta-date {
-    display: block;
-    font-size: 0.75rem;
-    color: #94a3b8;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    line-height: 1.3;
-}
-
-.status-indicator {
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    background: #e2e8f0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #94a3b8;
-    font-size: 0.75rem;
-    margin-top: 0.25rem;
-    flex-shrink: 0;
-}
-
-.status-indicator.status-active {
-    background: #10b981;
-    color: white;
-}
-
-
+/* Profile Circle Enhancements */
 .profile-circle {
-    width: 24px;
-    /* Even smaller as requested */
-    height: 24px;
-    background: #f1f5f9;
-    border-radius: 50%;
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+    border-radius: 14px;
+    /* More modern than 50% */
     display: flex;
     align-items: center;
     justify-content: center;
     color: #475569;
-    font-size: 0.65rem;
+    font-size: 1rem;
     font-weight: 700;
+    flex-shrink: 0;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s;
 }
 
-.rep-name {
-    font-size: 0.65rem;
-    color: var(--text-muted);
-    display: block;
-    margin-top: 2px;
+.contact-item:hover .profile-circle {
+    transform: scale(1.05);
 }
 
-/* Col 2: Message Snippet */
-.col-msg {
-    padding: 0 0.5rem;
-    border-left: 2px solid #e2e8f0;
-    /* Darker/More distinct divider */
-    color: #0f172a;
-    font-size: 0.75rem;
-    /* Smaller as requested */
-    font-weight: 500;
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    line-clamp: 3;
-    -webkit-box-orient: vertical;
+.contact-details {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.contact-top-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.contact-name {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #1e293b;
+    white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
-/* Col 3: Dates & Campaign */
-.col-meta {
-    padding-left: 0.4rem;
-    border-left: 2px solid #e2e8f0;
-    /* Darker/More distinct divider */
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 1px;
-    text-align: right;
+.contact-time {
+    font-size: 0.7rem;
+    color: #94a3b8;
+    white-space: nowrap;
+    font-weight: 500;
 }
 
-.meta-date {
-    font-size: 0.5rem;
-    /* Micro font size */
+.contact-mid-row {
+    display: flex;
+    align-items: center;
+}
+
+.contact-snippet {
+    font-size: 0.8rem;
     color: #64748b;
     white-space: nowrap;
-    display: flex;
-    align-items: center;
-    gap: 0.2rem;
-    justify-content: flex-end;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.4;
+    width: 100%;
 }
 
-.meta-campaign {
-    font-weight: 600;
-    font-size: 0.6rem;
+.contact-bottom-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 4px;
+}
+
+.contact-rep,
+.contact-campaign {
+    font-size: 0.65rem;
+    color: #94a3b8;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    font-weight: 500;
+}
+
+.contact-rep i,
+.contact-campaign i {
+    font-size: 0.8rem;
+}
+
+/* Unread State */
+.contact-item.has-unread .contact-name {
     color: #0f172a;
-    margin-top: 0.15rem;
 }
 
-.status-icon {
-    width: 20px;
-    height: 20px;
-    background: #ef4444;
-    /* Premium Red */
-    color: white;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.7rem;
-    margin-top: 0.4rem;
+.contact-item.has-unread .contact-snippet {
+    color: #334155;
+    font-weight: 600;
 }
+
+.unread-badge {
+    position: absolute;
+    right: 1.25rem;
+    bottom: 1.25rem;
+    width: 8px;
+    height: 8px;
+    background: var(--primary);
+    border-radius: 50%;
+    box-shadow: 0 0 0 2px #fff;
+}
+
+/* --- REMOVED OBSOLETE META STYLES --- */
 
 /* Pagination */
 .contact-pagination {
@@ -1284,54 +1246,64 @@ body {
 }
 
 
-/* Interaction Form - Two Row Layout */
+/* Interaction Form - Premium Design according to reference image */
 .interaction-grid-two-rows {
     display: grid;
     grid-template-columns: 2fr 1fr 1fr;
     grid-template-rows: auto auto;
-    gap: 1rem;
-    padding: 1rem;
+    gap: 1.5rem;
+    padding: 1.5rem;
+    background: #fff;
 }
 
-.interaction-grid-two-rows textarea {
-    width: 100%;
-    min-height: 100px;
-    padding: 0.75rem;
-    border: 1px solid #e2e8f0;
-    border-radius: 0.5rem;
-    font-size: 0.875rem;
-    font-family: inherit;
-    resize: vertical;
-    outline: none;
-    transition: border-color 0.2s;
+.note-field-group {
+    grid-row: span 2;
+    display: flex;
+    flex-direction: column;
 }
 
-.interaction-grid-two-rows textarea:focus {
-    border-color: var(--primary);
+.note-field-group textarea {
+    flex: 1;
+    min-height: 120px;
+    resize: none;
 }
 
 .field-group label {
     display: block;
-    font-size: 0.875rem;
+    font-size: 0.95rem;
     font-weight: 600;
     color: #334155;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.75rem;
 }
 
 .field-group select,
 .field-group input[type="date"],
 .field-group textarea {
     width: 100%;
-    padding: 0.75rem;
+    padding: 0.875rem 1rem;
     border: 1px solid #e2e8f0;
-    border-radius: 0.5rem;
-    font-size: 0.875rem;
+    border-radius: 12px;
+    font-size: 0.95rem;
     outline: none;
-    transition: border-color 0.2s;
-    min-height: 44px;
+    transition: all 0.2s;
+    background-color: #f8fafc;
+    /* Light blue-ish tint in image */
+    color: #1e293b;
 }
 
 .field-group select:focus,
-.field-group input[type="date"]:focus {
+.field-group input[type="date"]:focus,
+.field-group textarea:focus {
     border-color: var(--primary);
+    background-color: #fff;
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+}
+
+.field-group select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    background-size: 1.25rem;
+    padding-right: 2.5rem;
 }

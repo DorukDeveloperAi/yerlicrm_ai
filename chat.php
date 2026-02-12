@@ -418,13 +418,13 @@ $statuses = $pdo->query("SELECT * FROM tbl_ayarlar_gorusme_sonucu_bilgileri ORDE
                 <form id="interaction-form" enctype="multipart/form-data">
                     <input type="hidden" name="phone" id="form-phone">
                     <div class="interaction-grid-two-rows">
-                        <!-- Row 1: Görüşme Notu -->
-                        <div class="field-group">
+                        <!-- Left Pillar: Görüşme Notu (Row span 2) -->
+                        <div class="field-group note-field-group">
                             <label>Görüşme Notu</label>
-                            <textarea name="note" id="form-note" placeholder="Not..." rows="3"></textarea>
+                            <textarea name="note" id="form-note" placeholder="Not..." rows="5"></textarea>
                         </div>
 
-                        <!-- Row 1: Görüşme Sonucu -->
+                        <!-- Mid Pillar: Görüşme Sonucu -->
                         <div class="field-group">
                             <label>Görüşme Sonucu</label>
                             <select name="status_id" onchange="toggleComplaintFields(this.value)">
@@ -437,7 +437,7 @@ $statuses = $pdo->query("SELECT * FROM tbl_ayarlar_gorusme_sonucu_bilgileri ORDE
                             </select>
                         </div>
 
-                        <!-- Row 1: Lead Puanlama -->
+                        <!-- Right Pillar: Lead Puanlama -->
                         <div class="field-group">
                             <label>Lead Puanlama</label>
                             <select name="lead_score">
@@ -450,17 +450,11 @@ $statuses = $pdo->query("SELECT * FROM tbl_ayarlar_gorusme_sonucu_bilgileri ORDE
                             </select>
                         </div>
 
-                        <!-- Row 2: Empty space -->
-                        <div></div>
-
-                        <!-- Row 2: Tekrar Arama (under Görüşme Sonucu) -->
+                        <!-- Mid Pillar: Tekrar Arama (Row 2) -->
                         <div class="field-group">
                             <label>Tekrar Arama</label>
                             <input type="date" name="callback_date">
                         </div>
-
-                        <!-- Row 2: Empty space -->
-                        <div></div>
                     </div>
 
                     <!-- Complaint Section (Separate below grid) -->
@@ -939,6 +933,7 @@ $statuses = $pdo->query("SELECT * FROM tbl_ayarlar_gorusme_sonucu_bilgileri ORDE
                         pagination.innerHTML = data.pagination_html;
                         info.innerText = `Sayfa ${data.page} / ${data.total_pages}`;
                         document.getElementById('record-info').innerText = `${data.start}...${data.end} arası kayıtlar gösteriliyor (Toplam: ${data.total_records})`;
+                        applyProfileColors();
                     }
                 });
         }
@@ -1056,6 +1051,35 @@ $statuses = $pdo->query("SELECT * FROM tbl_ayarlar_gorusme_sonucu_bilgileri ORDE
 
         function closeNewRecordModal() {
             document.getElementById('newRecordModal').style.display = 'none';
+        }
+
+        // Generate a deterministic color based on string
+        function getProfileColor(name) {
+            if (!name) return 'linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%)';
+            const colors = [
+                'linear-gradient(135deg, #6366f1 0%, #818cf8 100%)', // Indigo
+                'linear-gradient(135deg, #ec4899 0%, #f472b6 100%)', // Pink
+                'linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%)', // Violet
+                'linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%)', // Amber
+                'linear-gradient(135deg, #10b981 0%, #34d399 100%)', // Emerald
+                'linear-gradient(135deg, #ef4444 0%, #f87171 100%)', // Red
+                'linear-gradient(135deg, #0ea5e9 0%, #38bdf8 100%)'  // Sky
+            ];
+            let hash = 0;
+            for (let i = 0; i < name.length; i++) {
+                hash = name.charCodeAt(i) + ((hash << 5) - hash);
+            }
+            const index = Math.abs(hash) % colors.length;
+            return colors[index];
+        }
+
+        function applyProfileColors() {
+            document.querySelectorAll('.profile-circle').forEach(el => {
+                const name = el.getAttribute('data-name');
+                el.style.background = getProfileColor(name);
+                el.style.color = 'white';
+                el.style.textShadow = '0 1px 2px rgba(0,0,0,0.1)';
+            });
         }
 
         // Initial load
