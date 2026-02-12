@@ -939,8 +939,7 @@ body {
 
 .interaction-grid {
     display: grid;
-    grid-template-columns: 2fr 1fr 1fr 1fr;
-    /* Note is wider */
+    grid-template-columns: 1fr 1fr;
     gap: 0.5rem;
     align-items: end;
     /* Align labels and inputs to bottom */
@@ -956,6 +955,7 @@ body {
     resize: none;
     line-height: 1.2;
     padding: 0.5rem;
+    width: 100%;
 }
 
 .complaint-grid {
