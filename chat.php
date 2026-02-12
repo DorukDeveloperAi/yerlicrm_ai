@@ -2,10 +2,6 @@
 require_once 'auth.php';
 requireLogin();
 
-<?php
-require_once 'auth.php';
-requireLogin();
-
 // Pagination Settings (Basics only, specific lists handled via AJAX)
 $limit = 50;
 $page = isset($_GET['page']) ? (int) $_GET['page'] : 1;
@@ -13,7 +9,6 @@ $page = $page < 1 ? 1 : $page;
 
 // Basic Statuses for sidebar (These are small/fast, can stay or move, keeping for now as they are core to sidebar UI)
 $statuses = $pdo->query("SELECT * FROM tbl_ayarlar_gorusme_sonucu_bilgileri ORDER BY id ASC")->fetchAll();
-?>
 ?>
 <!DOCTYPE html>
 <html lang="tr">
@@ -541,12 +536,12 @@ $statuses = $pdo->query("SELECT * FROM tbl_ayarlar_gorusme_sonucu_bilgileri ORDE
         function populateSidebarFilters() {
             const pSelect = document.getElementById('personnel-filter');
             const cSelect = document.getElementById('campaign-filter');
-            
+
             detailData.personnel.forEach(p => {
                 const opt = new Option(p.username, p.id);
                 pSelect.add(opt);
             });
-            
+
             detailData.campaigns.forEach(c => {
                 const opt = new Option(c, c);
                 cSelect.add(opt);
@@ -873,11 +868,11 @@ $statuses = $pdo->query("SELECT * FROM tbl_ayarlar_gorusme_sonucu_bilgileri ORDE
         }
 
         // Initial load
-    window.onload = () => {
-        loadModalOptions();
-        loadCustomers(1, currentStatus, currentPersonnel, currentCampaign);
-    };
-</script>
+        window.onload = () => {
+            loadModalOptions();
+            loadCustomers(1, currentStatus, currentPersonnel, currentCampaign);
+        };
+    </script>
     <script>
         function toggleDrawer() {
             document.getElementById('menuDrawer').classList.toggle('active');
