@@ -415,7 +415,7 @@ $statuses = $pdo->query("SELECT * FROM tbl_ayarlar_gorusme_sonucu_bilgileri ORDE
                     <input type="hidden" name="phone" id="form-phone">
                     <div class="interaction-grid">
                         <!-- Top left: Note -->
-                        <div class="field-group full-height" style="grid-row: span 4;">
+                        <div class="field-group full-height" style="grid-row: span 3;">
                             <label>Görüşme Notu</label>
                             <textarea name="note" id="form-note"
                                 placeholder="Görüşme notunu buraya yazın..."></textarea>
@@ -432,102 +432,103 @@ $statuses = $pdo->query("SELECT * FROM tbl_ayarlar_gorusme_sonucu_bilgileri ORDE
                                 <?php endforeach; ?>
                             </select>
                         </div>
+
+
+                        <div class="field-group">
+                            <label>Tekrar Arama Tarihi</label>
+                            <input type="date" name="callback_date">
+                        </div>
+
+                        <div class="field-group">
+                            <label>Lead Puanlama</label>
+                            <select name="lead_score">
+                                <option value="">Puanlama</option>
+                                <option value="1">1 Yıldız</option>
+                                <option value="2">2 Yıldız</option>
+                                <option value="3">3 Yıldız</option>
+                                <option value="4">4 Yıldız</option>
+                                <option value="5">5 Yıldız</option>
+                            </select>
+                        </div>
+
+                        <!-- Şikayet fields - initially hidden -->
+                        <div class="field-group complaint-field hidden">
+                            <label>Şikayet Şube</label>
+                            <select name="complaint_hospital" id="comp-hosp">
+                                <option value="">Şube Seçiniz</option>
+                                <?php foreach ($hospitals as $h): ?>
+                                    <option value="<?php echo $h['baslik']; ?>">
+                                        <?php echo htmlspecialchars($h['baslik']); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+
+                        <div class="field-group complaint-field hidden">
+                            <label>Şikayet Bölüm</label>
+                            <select name="complaint_dept">
+                                <option value="">Bölüm Seçiniz</option>
+                                <?php foreach ($departments as $d): ?>
+                                    <option value="<?php echo $d['baslik']; ?>">
+                                        <?php echo htmlspecialchars($d['baslik']); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+
+                        <div class="field-group complaint-field hidden">
+                            <label>Şikayet Doktor</label>
+                            <select name="complaint_doctor">
+                                <option value="">Doktor Seçiniz</option>
+                                <?php foreach ($doctors as $doc): ?>
+                                    <option value="<?php echo $doc['baslik']; ?>">
+                                        <?php echo htmlspecialchars($doc['baslik']); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+
+                        <!-- Bottom row: Topic, Detail, File -->
+                        <div class="field-group complaint-field hidden">
+                            <label>Şikayet Konusu</label>
+                            <select name="complaint_topic">
+                                <option value="">Konu Seçiniz</option>
+                                <?php foreach ($complaint_topics as $ct): ?>
+                                    <option value="<?php echo $ct['baslik']; ?>">
+                                        <?php echo htmlspecialchars($ct['baslik']); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+
+                        <div class="field-group complaint-field hidden" style="grid-column: span 2;">
+                            <label>Şikayet Detayı</label>
+                            <input type="text" name="complaint_detail" placeholder="Şikayet detayı...">
+                        </div>
+
+                        <div class="field-group complaint-field hidden">
+                            <label>Şikayet Görseli</label>
+                            <input type="file" name="complaint_image">
+                        </div>
+
                     </div>
 
-                    <div class="field-group">
-                        <label>Tekrar Arama Tarihi</label>
-                        <input type="date" name="callback_date">
+                    <div class="interaction-footer">
+                        <button type="button" class="btn-inspector" onclick="saveInteraction('inspector')">Denetçi
+                            Mesajı</button>
+                        <button type="button" class="btn-update" onclick="saveInteraction('update')">Bilgileri
+                            Düzenle</button>
                     </div>
-
-                    <div class="field-group">
-                        <label>Lead Puanlama</label>
-                        <select name="lead_score">
-                            <option value="">Puanlama</option>
-                            <option value="1">1 Yıldız</option>
-                            <option value="2">2 Yıldız</option>
-                            <option value="3">3 Yıldız</option>
-                            <option value="4">4 Yıldız</option>
-                            <option value="5">5 Yıldız</option>
-                        </select>
-                    </div>
-
-                    <!-- Şikayet fields - initially hidden -->
-                    <div class="field-group complaint-field hidden">
-                        <label>Şikayet Şube</label>
-                        <select name="complaint_hospital" id="comp-hosp">
-                            <option value="">Şube Seçiniz</option>
-                            <?php foreach ($hospitals as $h): ?>
-                                <option value="<?php echo $h['baslik']; ?>">
-                                    <?php echo htmlspecialchars($h['baslik']); ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-
-                    <div class="field-group complaint-field hidden">
-                        <label>Şikayet Bölüm</label>
-                        <select name="complaint_dept">
-                            <option value="">Bölüm Seçiniz</option>
-                            <?php foreach ($departments as $d): ?>
-                                <option value="<?php echo $d['baslik']; ?>">
-                                    <?php echo htmlspecialchars($d['baslik']); ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-
-                    <div class="field-group complaint-field hidden">
-                        <label>Şikayet Doktor</label>
-                        <select name="complaint_doctor">
-                            <option value="">Doktor Seçiniz</option>
-                            <?php foreach ($doctors as $doc): ?>
-                                <option value="<?php echo $doc['baslik']; ?>">
-                                    <?php echo htmlspecialchars($doc['baslik']); ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-
-                    <!-- Bottom row: Topic, Detail, File -->
-                    <div class="field-group complaint-field hidden">
-                        <label>Şikayet Konusu</label>
-                        <select name="complaint_topic">
-                            <option value="">Konu Seçiniz</option>
-                            <?php foreach ($complaint_topics as $ct): ?>
-                                <option value="<?php echo $ct['baslik']; ?>">
-                                    <?php echo htmlspecialchars($ct['baslik']); ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-
-                    <div class="field-group complaint-field hidden" style="grid-column: span 2;">
-                        <label>Şikayet Detayı</label>
-                        <input type="text" name="complaint_detail" placeholder="Şikayet detayı...">
-                    </div>
-
-                    <div class="field-group complaint-field hidden">
-                        <label>Şikayet Görseli</label>
-                        <input type="file" name="complaint_image">
-                    </div>
+                </form>
             </div>
+        </main>
 
-            <div class="interaction-footer">
-                <button type="button" class="btn-inspector" onclick="saveInteraction('inspector')">Denetçi
-                    Mesajı</button>
-                <button type="button" class="btn-update" onclick="saveInteraction('update')">Bilgileri
-                    Düzenle</button>
+        <!-- Sağ: Detaylar -->
+        <aside class="chat-details" id="detail-box">
+            <div style="text-align: center; color: var(--text-muted); margin-top: 5rem;">
+                Detaylar burada görünecek.
             </div>
-            </form>
-    </div>
-    </main>
-
-    <!-- Sağ: Detaylar -->
-    <aside class="chat-details" id="detail-box">
-        <div style="text-align: center; color: var(--text-muted); margin-top: 5rem;">
-            Detaylar burada görünecek.
-        </div>
-    </aside>
+        </aside>
     </div>
 
     <!-- Yeni Kayıt Modal -->
