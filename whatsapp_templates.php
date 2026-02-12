@@ -42,14 +42,13 @@ $templates = $stmt->fetchAll();
             <thead>
                 <tr class="bg-gray-50/50 border-b border-gray-100">
                     <th class="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-widest">ID</th>
+                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-widest">Görsel</th>
                     <th class="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-widest">GupShup ID
                     </th>
                     <th class="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-widest">Kaynak No
                     </th>
                     <th class="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-widest">Şablon
                         Başlığı</th>
-                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-widest">İçerik
-                        Özeti</th>
                     <th class="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-widest">Oluşturma
                     </th>
                     <th class="px-6 py-4 text-right text-xs font-bold text-gray-400 uppercase tracking-widest">İşlemler
@@ -69,6 +68,15 @@ $templates = $stmt->fetchAll();
                     <tr class="hover:bg-gray-50/50 transition-colors">
                         <td class="px-6 py-4 text-sm text-gray-500 font-medium">#<?php echo $t['id']; ?></td>
                         <td class="px-6 py-4">
+                            <?php if ($t['image_url']): ?>
+                                <img src="<?php echo htmlspecialchars($t['image_url']); ?>" class="w-10 h-10 rounded object-cover border border-gray-200" onerror="this.src='https://placehold.co/40?text=%3F'">
+                            <?php else: ?>
+                                <div class="w-10 h-10 rounded bg-gray-100 flex items-center justify-center text-gray-400">
+                                    <i class="ph ph-image-square"></i>
+                                </div>
+                            <?php endif; ?>
+                        </td>
+                        <td class="px-6 py-4">
                             <span class="text-xs font-mono bg-indigo-50 text-indigo-700 px-2 py-1 rounded">
                                 <?php echo htmlspecialchars($t['gupshup_id'] ?: '-'); ?>
                             </span>
@@ -77,13 +85,8 @@ $templates = $stmt->fetchAll();
                             <?php echo htmlspecialchars($t['source_number'] ?: '-'); ?>
                         </td>
                         <td class="px-6 py-4">
-                            <span
-                                class="text-sm font-semibold text-gray-900"><?php echo htmlspecialchars($t['title']); ?></span>
-                        </td>
-                        <td class="px-6 py-4">
-                            <p class="text-sm text-gray-600 line-clamp-1 max-w-md">
-                                <?php echo htmlspecialchars($t['content']); ?>
-                            </p>
+                            <div class="text-sm font-semibold text-gray-900"><?php echo htmlspecialchars($t['title']); ?></div>
+                            <div class="text-xs text-gray-400 truncate max-w-xs"><?php echo htmlspecialchars($t['content']); ?></div>
                         </td>
                         <td class="px-6 py-4 text-sm text-gray-500">
                             <?php echo date('d.m.Y H:i', strtotime($t['created_at'])); ?>
@@ -178,6 +181,13 @@ $templates = $stmt->fetchAll();
                 kaynak numara.</p>
 
             <div class="space-y-2">
+                <label class="text-sm font-bold text-gray-700">Görsel URL (Opsiyonel)</label>
+                <input type="text" name="image_url" id="templateImageUrl" placeholder="https://domain.com/image.jpg"
+                    class="w-full border-1.5 border-gray-300 rounded-xl px-4 py-3 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-600 outline-none transition-all">
+                <p class="text-xs text-gray-400">Media şablonları için başlık görseli URL'ini buraya yazın.</p>
+            </div>
+
+            <div class="space-y-2">
                 <label class="text-sm font-bold text-gray-700">Şablon Başlığı</label>
                 <input type="text" name="title" id="templateTitle" required placeholder="Örn: Selamlama Mesajı"
                     class="w-full border-1.5 border-gray-300 rounded-xl px-4 py-3 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-600 outline-none transition-all">
@@ -226,6 +236,7 @@ $templates = $stmt->fetchAll();
                     document.getElementById('templateId').value = t.id;
                     document.getElementById('templateGupShupId').value = t.gupshup_id || '';
                     document.getElementById('templateSourceNumber').value = t.source_number || '';
+                    document.getElementById('templateImageUrl').value = t.image_url || '';
                     document.getElementById('templateTitle').value = t.title;
                     document.getElementById('templateContent').value = t.content;
                     document.getElementById('modalTitle').innerText = 'Şablonu Düzenle';

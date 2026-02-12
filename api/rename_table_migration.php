@@ -7,16 +7,18 @@ try {
         id INT AUTO_INCREMENT PRIMARY KEY, 
         gupshup_id VARCHAR(255) NULL,
         source_number VARCHAR(50) NULL,
+        image_url TEXT NULL,
         title VARCHAR(255) NOT NULL, 
         content TEXT NOT NULL, 
         status TINYINT DEFAULT 1,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
 
-    // If it was renamed but lacks gupshup_id or source_number, add them
+    // If it was renamed but lacks gupshup_id, source_number, or image_url add them
     try {
         $pdo->exec("ALTER TABLE whatsapp_gupshup_templates ADD COLUMN IF NOT EXISTS gupshup_id VARCHAR(255) NULL AFTER id;");
         $pdo->exec("ALTER TABLE whatsapp_gupshup_templates ADD COLUMN IF NOT EXISTS source_number VARCHAR(50) NULL AFTER gupshup_id;");
+        $pdo->exec("ALTER TABLE whatsapp_gupshup_templates ADD COLUMN IF NOT EXISTS image_url TEXT NULL AFTER source_number;");
     } catch (PDOException $e) {
         // Support older DB versions without IF NOT EXISTS for ADD COLUMN
         try {
@@ -25,6 +27,10 @@ try {
         }
         try {
             $pdo->exec("ALTER TABLE whatsapp_gupshup_templates ADD COLUMN source_number VARCHAR(50) NULL AFTER gupshup_id;");
+        } catch (Exception $e2) {
+        }
+        try {
+            $pdo->exec("ALTER TABLE whatsapp_gupshup_templates ADD COLUMN image_url TEXT NULL AFTER source_number;");
         } catch (Exception $e2) {
         }
     }

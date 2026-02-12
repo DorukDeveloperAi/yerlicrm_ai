@@ -1097,7 +1097,8 @@ $statuses = $pdo->query("SELECT * FROM tbl_ayarlar_gorusme_sonucu_bilgileri ORDE
                     if (data.success && data.templates.length > 0) {
                         container.innerHTML = `<div class="template-selector-title">Hazır Şablonlar</div>` +
                             data.templates.map(t => `
-                            <button class="btn-template" onclick="applyTemplate(\`${t.content.replace(/`/g, '\\`').replace(/\n/g, '\\n')}\`)">
+                            <button class="btn-template flex items-center gap-2" onclick="applyTemplate(\`${t.content.replace(/`/g, '\\`').replace(/\n/g, '\\n')}\`)">
+                                ${t.image_url ? '<i class="ph ph-image-square text-indigo-500"></i>' : ''}
                                 ${t.title}
                             </button>
                         `).join('');

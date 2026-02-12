@@ -12,6 +12,7 @@ $content = isset($_POST['content']) ? trim($_POST['content']) : '';
 
 $gupshup_id = isset($_POST['gupshup_id']) ? trim($_POST['gupshup_id']) : '';
 $source_number = isset($_POST['source_number']) ? trim($_POST['source_number']) : '';
+$image_url = isset($_POST['image_url']) ? trim($_POST['image_url']) : '';
 
 if (empty($title) || empty($content)) {
     die(json_encode(['success' => false, 'message' => 'Başlık ve içerik gereklidir.']));
@@ -19,11 +20,11 @@ if (empty($title) || empty($content)) {
 
 try {
     if ($id) {
-        $stmt = $pdo->prepare("UPDATE whatsapp_gupshup_templates SET title = ?, content = ?, gupshup_id = ?, source_number = ? WHERE id = ?");
-        $stmt->execute([$title, $content, $gupshup_id, $source_number, $id]);
+        $stmt = $pdo->prepare("UPDATE whatsapp_gupshup_templates SET title = ?, content = ?, gupshup_id = ?, source_number = ?, image_url = ? WHERE id = ?");
+        $stmt->execute([$title, $content, $gupshup_id, $source_number, $image_url, $id]);
     } else {
-        $stmt = $pdo->prepare("INSERT INTO whatsapp_gupshup_templates (title, content, gupshup_id, source_number) VALUES (?, ?, ?, ?)");
-        $stmt->execute([$title, $content, $gupshup_id, $source_number]);
+        $stmt = $pdo->prepare("INSERT INTO whatsapp_gupshup_templates (title, content, gupshup_id, source_number, image_url) VALUES (?, ?, ?, ?, ?)");
+        $stmt->execute([$title, $content, $gupshup_id, $source_number, $image_url]);
     }
     echo json_encode(['success' => true]);
 } catch (PDOException $e) {

@@ -6,6 +6,7 @@ try {
         id INT AUTO_INCREMENT PRIMARY KEY, 
         gupshup_id VARCHAR(255) NULL,
         source_number VARCHAR(50) NULL,
+        image_url TEXT NULL,
         title VARCHAR(255) NOT NULL, 
         content TEXT NOT NULL, 
         status TINYINT DEFAULT 1,

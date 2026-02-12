@@ -6,13 +6,14 @@ $type = $_POST['type'] ?? 'text';
 $templateId = $_POST['template_id'] ?? null;
 
 if ($type === 'template' && $templateId) {
-    $stmt = $pdo->prepare("SELECT content, gupshup_id, source_number FROM whatsapp_gupshup_templates WHERE id = ?");
+    $stmt = $pdo->prepare("SELECT content, gupshup_id, source_number, image_url FROM whatsapp_gupshup_templates WHERE id = ?");
     $stmt->execute([$templateId]);
     $template = $stmt->fetch();
     if ($template) {
         $message = $template['content'];
         $gupshup_template_id = $template['gupshup_id'];
         $source_number = $template['source_number'];
+        $image_url = $template['image_url'];
     } else {
         echo json_encode(['success' => false, 'message' => 'Şablon bulunamadı.']);
         exit;
