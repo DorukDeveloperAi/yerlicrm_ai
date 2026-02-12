@@ -273,14 +273,51 @@ $statuses = $pdo->query("SELECT * FROM tbl_ayarlar_gorusme_sonucu_bilgileri ORDE
             animation: spin 1s linear infinite;
         }
 
-        @keyframes spin {
-            0% {
-                transform: rotate(0deg);
-            }
-
             100% {
                 transform: rotate(360deg);
             }
+        }
+
+        /* User Profile Widget */
+        .user-profile-widget {
+            position: fixed;
+            top: 1rem;
+            right: 1.5rem;
+            z-index: 1002;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(8px);
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border);
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .user-profile-widget:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+            background: white;
+        }
+
+        .user-profile-name {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .user-profile-icon {
+            color: var(--text-muted);
+            font-size: 1.25rem;
+            transition: color 0.2s;
+        }
+
+        .user-profile-widget:hover .user-profile-icon {
+            color: var(--primary);
+            animation: spin 3s linear infinite;
         }
     </style>
 </head>
@@ -289,6 +326,14 @@ $statuses = $pdo->query("SELECT * FROM tbl_ayarlar_gorusme_sonucu_bilgileri ORDE
     <!-- Floating Menu Trigger -->
     <div class="floating-menu-btn" onclick="toggleDrawer()">
         <i class="ph-fill ph-gear" style="font-size: 1.1rem;"></i>
+    </div>
+
+    <!-- Top Right User Profile -->
+    <div class="user-profile-widget" onclick="toggleDrawer()" title="Ayarlar">
+        <span class="user-profile-name">
+            <?php echo htmlspecialchars($_SESSION['username'] ?? 'Kullanıcı'); ?>
+        </span>
+        <i class="ph-fill ph-gear user-profile-icon"></i>
     </div>
 
     <!-- Drawer Menu -->
