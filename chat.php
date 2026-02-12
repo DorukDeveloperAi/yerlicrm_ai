@@ -54,37 +54,7 @@ $statuses = $pdo->query("SELECT * FROM tbl_ayarlar_gorusme_sonucu_bilgileri ORDE
             margin: 0;
         }
 
-        /* Floating Menu Button */
-        .floating-menu-btn {
-            position: fixed;
-            bottom: 1.25rem;
-            left: 1.25rem;
-            width: 2rem;
-            height: 2rem;
-            background: var(--primary);
-            color: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            box-shadow: 0 2px 4px rgba(99, 102, 241, 0.4);
-            z-index: 1000;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            opacity: 0.6;
-        }
 
-        .floating-menu-btn:hover {
-            opacity: 1;
-            transform: scale(1.1);
-            background: var(--primary-dark);
-            box-shadow: 0 0 12px rgba(99, 102, 241, 0.6);
-        }
-
-        .floating-menu-btn:hover {
-            transform: scale(1.1) rotate(45deg);
-            background: var(--primary-dark);
-        }
 
         /* Drawer Sidebar */
         .menu-drawer {
@@ -312,9 +282,9 @@ $statuses = $pdo->query("SELECT * FROM tbl_ayarlar_gorusme_sonucu_bilgileri ORDE
 <body>
 
 
-    <!-- Top Right User Profile (Icon Only) -->
-    <div class="user-profile-widget" onclick="toggleDrawer()" title="Ayarlar ve Profil">
-        <i class="ph-fill ph-user-gear user-profile-icon"></i>
+    <!-- Top Right Settings (Moved from bottom-left) -->
+    <div class="user-profile-widget" onclick="toggleDrawer()" title="Menü ve Ayarlar">
+        <i class="ph-fill ph-gear user-profile-icon"></i>
     </div>
 
     <!-- Drawer Menu -->
