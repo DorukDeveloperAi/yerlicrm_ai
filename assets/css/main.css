@@ -435,8 +435,9 @@ body {
 
 .sidebar-filter-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0.5rem;
+    /* 3 selects + 1 button in a single row */
+    grid-template-columns: 1fr 1fr 1fr auto;
+    gap: 0.25rem;
     align-items: center;
 }
 
@@ -445,9 +446,22 @@ body {
     width: 100%;
 }
 
+.sidebar-filter-grid .status-select {
+    font-size: 0.75rem;
+    /* Reduce font size to fit */
+    padding: 0.4rem 0.2rem;
+    /* Reduce padding */
+    height: 36px;
+}
+
 .sidebar-filter-grid .btn-new-record {
-    height: 38px;
-    /* Match select height approx */
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    flex-shrink: 0;
 }
 
 .controls-row .status-select {
