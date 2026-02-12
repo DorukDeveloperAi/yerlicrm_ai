@@ -20,22 +20,22 @@ if (!$detail) {
     exit;
 }
 
-// Track and get the first contact date from tbl_telefon_kontrol
-try {
-    // Insert if not exists
-    $stmt_track = $pdo->prepare("INSERT IGNORE INTO tbl_telefon_kontrol (telefon_numarasi, ilk_etkilesim_tarihi) VALUES (?, NOW())");
-    $stmt_track->execute([$phone]);
+// 1. Get Application Date (very first interaction)
+$stmt_app = $pdo->prepare("SELECT MIN(date) FROM tbl_icerik_bilgileri_ai WHERE telefon_numarasi = ?");
+$stmt_app->execute([$phone]);
+$basvuru_tarihi = $stmt_app->fetchColumn();
 
-    // Fetch the date
-    $stmt_first = $pdo->prepare("SELECT ilk_etkilesim_tarihi FROM tbl_telefon_kontrol WHERE telefon_numarasi = ?");
-    $stmt_first->execute([$phone]);
-    $first_date_val = $stmt_first->fetchColumn();
-} catch (Exception $e) {
-    // Fallback if table issues
-    $first_date_val = $detail['date'] ?? null;
+// 2. Handle First Access Date tracking in the main table
+if (empty($detail['ilk_erisim_tarihi'])) {
+    $now = date('Y-m-d H:i:s');
+    $stmt_upd = $pdo->prepare("UPDATE tbl_icerik_bilgileri_ai SET ilk_erisim_tarihi = ? WHERE telefon_numarasi = ? AND ilk_erisim_tarihi IS NULL");
+    $stmt_upd->execute([$now, $phone]);
+    $ilk_erisim_tarihi = $now;
+} else {
+    $ilk_erisim_tarihi = $detail['ilk_erisim_tarihi'];
 }
 
-// Essential info for the sidebar is fetched above ($detail and $first_date_val)
+// Essential info for the sidebar is fetched above ($detail, $basvuru_tarihi, $ilk_erisim_tarihi)
 
 // Fetch sales representatives filtered by campaign
 $customer_campaign = $detail['kampanya'] ?? '';
@@ -208,18 +208,25 @@ for ($i = 1; $i <= 10; $i++) {
 
         <hr class="detail-divider">
 
-        <!-- Dates -->
+        <!-- Dates Section -->
         <div class="detail-form-group">
-            <label class="detail-label-sm">Başvuru Tarihi (İlk Etkileşim)</label>
+            <label class="detail-label-sm">İşlem Tarihi (Date)</label>
             <div class="detail-value-row">
-                <span class="detail-value-text"><?php echo formatDetailDate($first_date_val); ?></span>
+                <span class="detail-value-text"><?php echo formatDetailDate($detail['date']); ?></span>
             </div>
         </div>
 
         <div class="detail-form-group">
-            <label class="detail-label-sm">Son Güncelleme Tarihi</label>
+            <label class="detail-label-sm">Başvuru Tarihi</label>
             <div class="detail-value-row">
-                <span class="detail-value-text"><?php echo formatDetailDate($detail['date']); ?></span>
+                <span class="detail-value-text"><?php echo formatDetailDate($basvuru_tarihi); ?></span>
+            </div>
+        </div>
+
+        <div class="detail-form-group">
+            <label class="detail-label-sm">İlk Erişim Tarihi</label>
+            <div class="detail-value-row">
+                <span class="detail-value-text"><?php echo formatDetailDate($ilk_erisim_tarihi); ?></span>
             </div>
         </div>
 

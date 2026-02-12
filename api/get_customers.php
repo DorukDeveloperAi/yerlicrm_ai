@@ -95,6 +95,7 @@ ob_start();
         $snippet = !empty($c['musteri_mesaji']) ? $c['musteri_mesaji'] : $c['personel_mesaji'];
         $last_date = $formatDate($c['date']);
         $first_date = $formatDate($c['first_date']);
+        $access_date = $formatDate($c['ilk_erisim_tarihi']);
         ?>
         <div class="contact-item" onclick="loadConversation('<?php echo $c['telefon_numarasi']; ?>', this)">
             <div class="col-info">
@@ -116,11 +117,14 @@ ob_start();
                 <?php echo htmlspecialchars($snippet); ?>
             </div>
             <div class="col-meta">
-                <span class="meta-date">
-                    <?php echo $last_date; ?>
+                <span class="meta-date" title="İşlem Tarihi">
+                    <i class="ph ph-clock-counter-clockwise"></i> <?php echo $last_date; ?>
                 </span>
-                <span class="meta-date">
-                    <?php echo $first_date; ?>
+                <span class="meta-date" title="Başvuru Tarihi">
+                    <i class="ph ph-calendar-plus"></i> <?php echo $first_date; ?>
+                </span>
+                <span class="meta-date" title="İlk Erişim Tarihi">
+                    <i class="ph ph-eye"></i> <?php echo $access_date; ?>
                 </span>
                 <span class="meta-campaign">
                     <?php echo htmlspecialchars($c['kampanya'] ?: 'Genel'); ?>

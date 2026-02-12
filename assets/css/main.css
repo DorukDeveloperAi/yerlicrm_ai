@@ -724,6 +724,10 @@ body {
     font-size: 0.6rem;
     color: #94a3b8;
     white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    justify-content: flex-end;
 }
 
 .meta-campaign {
