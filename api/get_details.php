@@ -106,6 +106,27 @@ try {
 } catch (Exception $e) {
     // Fallback
 }
+
+// Fetch sales representatives filtered by campaign
+$customer_campaign = $detail['kampanya'] ?? '';
+$reps_data = [];
+if ($customer_campaign) {
+    // Fetch users where their responsible campaigns include the customer's campaign
+    $stmt_reps = $pdo->prepare("SELECT id, username FROM users WHERE status = 1 AND sorumlu_oldugu_kampanya LIKE ? ORDER BY username ASC");
+    $stmt_reps->execute(['%' . $customer_campaign . '%']);
+    $reps_data = $stmt_reps->fetchAll(PDO::FETCH_ASSOC);
+} else {
+    // Fallback: fetch all active users if no campaign is set
+    $reps_data = $pdo->query("SELECT id, username FROM users WHERE status = 1 ORDER BY username ASC")->fetchAll(PDO::FETCH_ASSOC);
+}
+
+// Find current rep name
+$current_rep_name = '-';
+if ($detail['user_id']) {
+    $stmt_rep = $pdo->prepare("SELECT username FROM users WHERE id = ?");
+    $stmt_rep->execute([$detail['user_id']]);
+    $current_rep_name = $stmt_rep->fetchColumn() ?: '-';
+}
 ?>
 <div class="detail-header">
     <div class="profile-img"></div>
@@ -214,14 +235,13 @@ try {
         <!-- Sales Rep -->
         <div class="detail-form-group">
             <label class="detail-label-sm">Satış Temsilcisi</label>
-            <select class="form-select">
-                <option value="">Satış Temsilcisi Seçiniz</option>
-                <?php foreach ($reps as $rep): ?>
-                    <option value="<?php echo $rep['id']; ?>" <?php echo $detail['user_id'] == $rep['id'] ? 'selected' : ''; ?>>
-                        <?php echo htmlspecialchars($rep['username']); ?>
-                    </option>
-                <?php endforeach; ?>
-            </select>
+            <div class="detail-value-row">
+                <span class="detail-value-text"><?php echo htmlspecialchars($current_rep_name); ?></span>
+                <button class="btn-edit-icon" title="Değiştir"
+                    onclick='openEditModal("user_id", "<?php echo $detail["user_id"]; ?>", "Satış Temsilcisi", <?php echo json_encode($reps_data); ?>)'>
+                    <i class="ph ph-pencil-simple"></i>
+                </button>
+            </div>
         </div>
 
         <hr class="detail-divider">

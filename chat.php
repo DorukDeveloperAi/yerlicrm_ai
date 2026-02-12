@@ -32,294 +32,468 @@ $modal_doctors = $pdo->query("SELECT DISTINCT doktor FROM tbl_icerik_bilgileri_a
 $modal_requests = $pdo->query("SELECT DISTINCT talep_icerik FROM tbl_icerik_bilgileri_ai WHERE talep_icerik IS NOT NULL AND talep_icerik != '' ORDER BY talep_icerik ASC")->fetchAll(PDO::FETCH_COLUMN);
 $modal_campaigns = array_column($all_campaigns, 'baslik');
 ?>
-<?php
-$pageTitle = 'Chat Ekranı - YerliCRM';
-$activePage = 'chat';
-include 'layout_header.php';
-?>
+<!DOCTYPE html>
+<html lang="tr">
 
-<style>
-    /* Adjust chat page for layout integration */
-    .chat-page {
-        height: calc(100vh - 120px) !important;
-        /* Adjust for header and padding */
-        width: 100% !important;
-        max-width: none !important;
-        margin: 0 !important;
-        box-shadow: none !important;
-        border: 1px solid #e2e8f0;
-        border-radius: 1rem;
-    }
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Ekranı - YerliCRM</title>
+    <link rel="icon" href="assets/images/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="assets/css/main.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <script src="https://unpkg.com/phosphor-icons"></script>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --bg-main: #f8fafc;
+            --sidebar-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+        }
 
-    .main-content {
-        padding: 1.5rem !important;
-        overflow: hidden !important;
-        height: 100vh;
-    }
-</style>
-<div class="chat-page">
-    <!-- Sol: Müşteri Listesi -->
-    <aside class="chat-sidebar">
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-main);
+        }
 
-        <div class="sidebar-controls">
-            <div class="controls-row">
-                <select class="status-select" id="personnel-filter" onchange="filterByPersonnel(this.value)">
-                    <option value="all">Personel</option>
-                    <?php foreach ($all_personnel as $p): ?>
-                        <option value="<?php echo $p['id']; ?>"><?php echo htmlspecialchars($p['username']); ?></option>
-                    <?php endforeach; ?>
-                </select>
+        .chat-page {
+            display: flex;
+            height: 100vh;
+            width: 100vw;
+            background: white;
+            box-shadow: none;
+            border-radius: 0;
+            margin: 0;
+        }
 
-                <select class="status-select" id="campaign-filter" onchange="filterByCampaign(this.value)">
-                    <option value="all">Kampanya</option>
-                    <?php foreach ($all_campaigns as $c): ?>
-                        <option value="<?php echo htmlspecialchars($c['baslik']); ?>">
-                            <?php echo htmlspecialchars($c['baslik']); ?>
+        /* Floating Menu Button */
+        .floating-menu-btn {
+            position: fixed;
+            bottom: 2rem;
+            left: 2rem;
+            width: 3.5rem;
+            height: 3.5rem;
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.3);
+            z-index: 1000;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .floating-menu-btn:hover {
+            transform: scale(1.1) rotate(45deg);
+            background: var(--primary-dark);
+        }
+
+        /* Drawer Sidebar */
+        .menu-drawer {
+            position: fixed;
+            top: 0;
+            left: -280px;
+            width: 280px;
+            height: 100%;
+            background: white;
+            z-index: 1001;
+            box-shadow: 10px 0 30px rgba(0, 0, 0, 0.05);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            padding: 2rem 1.5rem;
+        }
+
+        .menu-drawer.active {
+            left: 0;
+        }
+
+        .drawer-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(4px);
+            z-index: 100;
+            display: none;
+        }
+
+        .drawer-overlay.active {
+            display: block;
+        }
+
+        .drawer-header {
+            margin-bottom: 2.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .drawer-logo {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--primary), #818cf8);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .drawer-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .drawer-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.875rem 1rem;
+            color: var(--text-muted);
+            text-decoration: none;
+            border-radius: 0.75rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .drawer-link:hover,
+        .drawer-link.active {
+            background: #f1f5f9;
+            color: var(--primary);
+        }
+
+        .drawer-link i {
+            font-size: 1.25rem;
+        }
+
+        .drawer-footer {
+            margin-top: auto;
+            border-top: 1px solid var(--border);
+            padding-top: 1.5rem;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Floating Menu Trigger -->
+    <div class="floating-menu-btn" onclick="toggleDrawer()">
+        <i class="ph-fill ph-gear" style="font-size: 1.5rem;"></i>
+    </div>
+
+    <!-- Drawer Menu -->
+    <div class="drawer-overlay" id="drawerOverlay" onclick="toggleDrawer()"></div>
+    <div class="menu-drawer" id="menuDrawer">
+        <div class="drawer-header">
+            <div class="drawer-logo">
+                <i class="ph-bold ph-lightning"></i>
+            </div>
+            <h2 style="font-size: 1.25rem; font-weight: 700; margin: 0;">YerliCRM</h2>
+        </div>
+
+        <nav class="drawer-nav">
+            <a href="index.php" class="drawer-link">
+                <i class="ph ph-house"></i> Dashboard
+            </a>
+            <a href="chat.php" class="drawer-link active">
+                <i class="ph ph-chat-circle"></i> Canlı Destek
+            </a>
+            <a href="users.php" class="drawer-link">
+                <i class="ph ph-users"></i> Personeller
+            </a>
+            <a href="#" class="drawer-link">
+                <i class="ph ph-chart-line"></i> Raporlar
+            </a>
+            <div style="margin: 1rem 0; height: 1px; background: var(--border);"></div>
+            <a href="logout.php" class="drawer-link" style="color: #ef4444;">
+                <i class="ph ph-sign-out"></i> Çıkış Yap
+            </a>
+        </nav>
+
+        <div class="drawer-footer">
+            <p style="font-size: 0.75rem; color: var(--text-muted); margin: 0;">&copy; 2026 YerliCRM v2.0</p>
+        </div>
+    </div>
+    <div class="chat-page">
+        <!-- Sol: Müşteri Listesi -->
+        <aside class="chat-sidebar">
+
+            <div class="sidebar-controls">
+                <div class="controls-row">
+                    <select class="status-select" id="personnel-filter" onchange="filterByPersonnel(this.value)">
+                        <option value="all">Personel</option>
+                        <?php foreach ($all_personnel as $p): ?>
+                            <option value="<?php echo $p['id']; ?>"><?php echo htmlspecialchars($p['username']); ?></option>
+                        <?php endforeach; ?>
+                    </select>
+
+                    <select class="status-select" id="campaign-filter" onchange="filterByCampaign(this.value)">
+                        <option value="all">Kampanya</option>
+                        <?php foreach ($all_campaigns as $c): ?>
+                            <option value="<?php echo htmlspecialchars($c['baslik']); ?>">
+                                <?php echo htmlspecialchars($c['baslik']); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+
+                    <button class="btn-new-record" onclick="openNewRecordModal()" title="Yeni Kayıt Ekle">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                            <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
+                        </svg>
+                    </button>
+                </div>
+
+                <select class="status-select" id="status-filter" onchange="filterByStatus(this.value)">
+                    <option value="all">Sonuç Filtresi</option>
+                    <?php foreach ($statuses as $s): ?>
+                        <option value="<?php echo htmlspecialchars($s['baslik']); ?>" <?php echo $status_filter === $s['baslik'] ? 'selected' : ''; ?>>
+                            <?php echo htmlspecialchars($s['baslik']); ?>
                         </option>
                     <?php endforeach; ?>
                 </select>
 
-                <button class="btn-new-record" onclick="openNewRecordModal()" title="Yeni Kayıt Ekle">
-                    <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
-                        <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
+                <div class="sidebar-tabs">
+                    <button class="tab-btn active" id="tab-empty" onclick="setMainFilter('empty')">Yeni</button>
+                    <button class="tab-btn" id="tab-all" onclick="setMainFilter('all')">Tümü</button>
+                </div>
+            </div>
+
+            <div class="spinner-container" id="list-spinner" style="display: none;">
+                <div class="spinner"></div>
+            </div>
+            <div class="contact-list" id="contact-list-container">
+            </div>
+
+            <div class="sidebar-footer">
+                <div class="contact-pagination" id="pagination-container">
+                </div>
+                <div id="record-info"
+                    style="font-size: 0.8rem; color: #64748b; margin-top: 0.5rem; text-align: center;">
+                    Yükleniyor...
+                </div>
+                <div id="pagination-info"
+                    style="font-size: 0.75rem; color: #94a3b8; margin-top: 0.2rem; text-align: center;">
+                    Sayfa ... / ...
+                </div>
+            </div>
+        </aside>
+
+        <!-- Orta: Yazışmalar -->
+        <main class="chat-main">
+            <header class="sidebar-header" style="background: white;">
+                <h3 id="chat-title">Müşteri Seçin</h3>
+            </header>
+
+            <div class="chat-messages" id="chat-box">
+                <div style="text-align: center; margin-top: 5rem; color: var(--text-muted);">
+                    Yazışmaları görüntülemek için sol taraftan bir müşteri seçin.
+                </div>
+            </div>
+
+            <div class="chat-input-area" id="input-area" style="display: none;">
+                <textarea id="message-text" placeholder="Mesajınızı yazın..."></textarea>
+                <button class="btn-send" onclick="sendMessage()">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
                     </svg>
                 </button>
             </div>
 
-            <select class="status-select" id="status-filter" onchange="filterByStatus(this.value)">
-                <option value="all">Sonuç Filtresi</option>
-                <?php foreach ($statuses as $s): ?>
-                    <option value="<?php echo htmlspecialchars($s['baslik']); ?>" <?php echo $status_filter === $s['baslik'] ? 'selected' : ''; ?>>
-                        <?php echo htmlspecialchars($s['baslik']); ?>
-                    </option>
-                <?php endforeach; ?>
-            </select>
+            <div class="interaction-container" id="interaction-area" style="display: none;">
+                <form id="interaction-form" enctype="multipart/form-data">
+                    <input type="hidden" name="phone" id="form-phone">
+                    <div class="interaction-grid">
+                        <!-- Top left: Note -->
+                        <div class="field-group full-height" style="grid-row: span 4;">
+                            <label>Görüşme Notu</label>
+                            <textarea name="note" id="form-note"
+                                placeholder="Görüşme notunu buraya yazın..."></textarea>
+                        </div>
 
-            <div class="sidebar-tabs">
-                <button class="tab-btn active" id="tab-empty" onclick="setMainFilter('empty')">Yeni</button>
-                <button class="tab-btn" id="tab-all" onclick="setMainFilter('all')">Tümü</button>
+                        <div class="field-group">
+                            <label>Kampanya / Talep Türü</label>
+                            <select name="kampanya" id="form-campaign" onchange="toggleComplaintFields(this.value)">
+                                <option value="">Seçiniz</option>
+                                <option value="Teşekkür, Şikayet, Öneri">Teşekkür, Şikayet, Öneri</option>
+                                <?php foreach ($all_campaigns as $c): ?>
+                                    <option value="<?php echo htmlspecialchars($c['baslik']); ?>">
+                                        <?php echo htmlspecialchars($c['baslik']); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+
+                        <div class="field-group">
+                            <label>Görüşme Sonucu</label>
+                            <select name="status_id">
+                                <option value="">Görüşme Sonucu Seçiniz</option>
+                                <?php foreach ($statuses as $s): ?>
+                                    <option value="<?php echo $s['baslik']; ?>">
+                                        <?php echo htmlspecialchars($s['baslik']); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+
+                        <div class="field-group">
+                            <label>Tekrar Arama Tarihi</label>
+                            <input type="date" name="callback_date">
+                        </div>
+
+                        <div class="field-group">
+                            <label>Lead Puanlama</label>
+                            <select name="lead_score">
+                                <option value="">Puanlama</option>
+                                <option value="1">1 Yıldız</option>
+                                <option value="2">2 Yıldız</option>
+                                <option value="3">3 Yıldız</option>
+                                <option value="4">4 Yıldız</option>
+                                <option value="5">5 Yıldız</option>
+                            </select>
+                        </div>
+
+                        <!-- Şikayet fields - initially hidden -->
+                        <div class="field-group complaint-field hidden">
+                            <label>Şikayet Şube</label>
+                            <select name="complaint_hospital" id="comp-hosp">
+                                <option value="">Şube Seçiniz</option>
+                                <?php foreach ($hospitals as $h): ?>
+                                    <option value="<?php echo $h['baslik']; ?>">
+                                        <?php echo htmlspecialchars($h['baslik']); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+
+                        <div class="field-group complaint-field hidden">
+                            <label>Şikayet Bölüm</label>
+                            <select name="complaint_dept">
+                                <option value="">Bölüm Seçiniz</option>
+                                <?php foreach ($departments as $d): ?>
+                                    <option value="<?php echo $d['baslik']; ?>">
+                                        <?php echo htmlspecialchars($d['baslik']); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+
+                        <div class="field-group complaint-field hidden">
+                            <label>Şikayet Doktor</label>
+                            <select name="complaint_doctor">
+                                <option value="">Doktor Seçiniz</option>
+                                <?php foreach ($doctors as $doc): ?>
+                                    <option value="<?php echo $doc['baslik']; ?>">
+                                        <?php echo htmlspecialchars($doc['baslik']); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+
+                        <!-- Bottom row: Topic, Detail, File -->
+                        <div class="field-group complaint-field hidden">
+                            <label>Şikayet Konusu</label>
+                            <select name="complaint_topic">
+                                <option value="">Konu Seçiniz</option>
+                                <?php foreach ($complaint_topics as $ct): ?>
+                                    <option value="<?php echo $ct['baslik']; ?>">
+                                        <?php echo htmlspecialchars($ct['baslik']); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+
+                        <div class="field-group complaint-field hidden" style="grid-column: span 2;">
+                            <label>Şikayet Detayı</label>
+                            <input type="text" name="complaint_detail" placeholder="Şikayet detayı...">
+                        </div>
+
+                        <div class="field-group complaint-field hidden">
+                            <label>Şikayet Görseli</label>
+                            <input type="file" name="complaint_image">
+                        </div>
+                    </div>
+
+                    <div class="interaction-footer">
+                        <button type="button" class="btn-inspector" onclick="saveInteraction('inspector')">Denetçi
+                            Mesajı</button>
+                        <button type="button" class="btn-update" onclick="saveInteraction('update')">Bilgileri
+                            Düzenle</button>
+                    </div>
+                </form>
             </div>
-        </div>
+        </main>
 
-        <div class="spinner-container" id="list-spinner" style="display: none;">
-            <div class="spinner"></div>
-        </div>
-        <div class="contact-list" id="contact-list-container">
-        </div>
-
-        <div class="sidebar-footer">
-            <div class="contact-pagination" id="pagination-container">
+        <!-- Sağ: Detaylar -->
+        <aside class="chat-details" id="detail-box">
+            <div style="text-align: center; color: var(--text-muted); margin-top: 5rem;">
+                Detaylar burada görünecek.
             </div>
-            <div id="record-info" style="font-size: 0.8rem; color: #64748b; margin-top: 0.5rem; text-align: center;">
-                Yükleniyor...
+        </aside>
+    </div>
+
+    <!-- Yeni Kayıt Modal -->
+    <div id="newRecordModal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Yeni Kayıt Ekle</h3>
+                <button class="modal-close" onclick="closeNewRecordModal()">&times;</button>
             </div>
-            <div id="pagination-info"
-                style="font-size: 0.75rem; color: #94a3b8; margin-top: 0.2rem; text-align: center;">
-                Sayfa ... / ...
-            </div>
-        </div>
-    </aside>
-
-    <!-- Orta: Yazışmalar -->
-    <main class="chat-main">
-        <header class="sidebar-header" style="background: white;">
-            <h3 id="chat-title">Müşteri Seçin</h3>
-        </header>
-
-        <div class="chat-messages" id="chat-box">
-            <div style="text-align: center; margin-top: 5rem; color: var(--text-muted);">
-                Yazışmaları görüntülemek için sol taraftan bir müşteri seçin.
-            </div>
-        </div>
-
-        <div class="chat-input-area" id="input-area" style="display: none;">
-            <textarea id="message-text" placeholder="Mesajınızı yazın..."></textarea>
-            <button class="btn-send" onclick="sendMessage()">
-                <svg viewBox="0 0 24 24">
-                    <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
-                </svg>
-            </button>
-        </div>
-
-        <div class="interaction-container" id="interaction-area" style="display: none;">
-            <form id="interaction-form" enctype="multipart/form-data">
-                <input type="hidden" name="phone" id="form-phone">
-                <div class="interaction-grid">
-                    <!-- Top left: Note -->
-                    <div class="field-group full-height" style="grid-row: span 4;">
-                        <label>Görüşme Notu</label>
-                        <textarea name="note" id="form-note" placeholder="Görüşme notunu buraya yazın..."></textarea>
-                    </div>
-
-                    <div class="field-group">
-                        <label>Kampanya / Talep Türü</label>
-                        <select name="kampanya" id="form-campaign" onchange="toggleComplaintFields(this.value)">
-                            <option value="">Seçiniz</option>
-                            <option value="Teşekkür, Şikayet, Öneri">Teşekkür, Şikayet, Öneri</option>
-                            <?php foreach ($all_campaigns as $c): ?>
-                                <option value="<?php echo htmlspecialchars($c['baslik']); ?>">
-                                    <?php echo htmlspecialchars($c['baslik']); ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-
-                    <div class="field-group">
-                        <label>Görüşme Sonucu</label>
-                        <select name="status_id">
-                            <option value="">Görüşme Sonucu Seçiniz</option>
-                            <?php foreach ($statuses as $s): ?>
-                                <option value="<?php echo $s['baslik']; ?>">
-                                    <?php echo htmlspecialchars($s['baslik']); ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-
-                    <div class="field-group">
-                        <label>Tekrar Arama Tarihi</label>
-                        <input type="date" name="callback_date">
-                    </div>
-
-                    <div class="field-group">
-                        <label>Lead Puanlama</label>
-                        <select name="lead_score">
-                            <option value="">Puanlama</option>
-                            <option value="1">1 Yıldız</option>
-                            <option value="2">2 Yıldız</option>
-                            <option value="3">3 Yıldız</option>
-                            <option value="4">4 Yıldız</option>
-                            <option value="5">5 Yıldız</option>
-                        </select>
-                    </div>
-
-                    <!-- Şikayet fields - initially hidden -->
-                    <div class="field-group complaint-field hidden">
-                        <label>Şikayet Şube</label>
-                        <select name="complaint_hospital" id="comp-hosp">
-                            <option value="">Şube Seçiniz</option>
-                            <?php foreach ($hospitals as $h): ?>
-                                <option value="<?php echo $h['baslik']; ?>">
-                                    <?php echo htmlspecialchars($h['baslik']); ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-
-                    <div class="field-group complaint-field hidden">
-                        <label>Şikayet Bölüm</label>
-                        <select name="complaint_dept">
-                            <option value="">Bölüm Seçiniz</option>
-                            <?php foreach ($departments as $d): ?>
-                                <option value="<?php echo $d['baslik']; ?>">
-                                    <?php echo htmlspecialchars($d['baslik']); ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-
-                    <div class="field-group complaint-field hidden">
-                        <label>Şikayet Doktor</label>
-                        <select name="complaint_doctor">
-                            <option value="">Doktor Seçiniz</option>
-                            <?php foreach ($doctors as $doc): ?>
-                                <option value="<?php echo $doc['baslik']; ?>">
-                                    <?php echo htmlspecialchars($doc['baslik']); ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-
-                    <!-- Bottom row: Topic, Detail, File -->
-                    <div class="field-group complaint-field hidden">
-                        <label>Şikayet Konusu</label>
-                        <select name="complaint_topic">
-                            <option value="">Konu Seçiniz</option>
-                            <?php foreach ($complaint_topics as $ct): ?>
-                                <option value="<?php echo $ct['baslik']; ?>">
-                                    <?php echo htmlspecialchars($ct['baslik']); ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-
-                    <div class="field-group complaint-field hidden" style="grid-column: span 2;">
-                        <label>Şikayet Detayı</label>
-                        <input type="text" name="complaint_detail" placeholder="Şikayet detayı...">
-                    </div>
-
-                    <div class="field-group complaint-field hidden">
-                        <label>Şikayet Görseli</label>
-                        <input type="file" name="complaint_image">
-                    </div>
+            <div class="modal-body">
+                <div class="alert-preparing">
+                    <svg viewBox="0 0 24 24" width="32" height="32" fill="currentColor">
+                        <path
+                            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" />
+                    </svg>
+                    <p>Hazırlanıyor...</p>
                 </div>
-
-                <div class="interaction-footer">
-                    <button type="button" class="btn-inspector" onclick="saveInteraction('inspector')">Denetçi
-                        Mesajı</button>
-                    <button type="button" class="btn-update" onclick="saveInteraction('update')">Bilgileri
-                        Düzenle</button>
-                </div>
-            </form>
-        </div>
-    </main>
-
-    <!-- Sağ: Detaylar -->
-    <aside class="chat-details" id="detail-box">
-        <div style="text-align: center; color: var(--text-muted); margin-top: 5rem;">
-            Detaylar burada görünecek.
-        </div>
-    </aside>
-</div>
-
-<!-- Yeni Kayıt Modal -->
-<div id="newRecordModal" class="modal-overlay" style="display: none;">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h3>Yeni Kayıt Ekle</h3>
-            <button class="modal-close" onclick="closeNewRecordModal()">&times;</button>
-        </div>
-        <div class="modal-body">
-            <div class="alert-preparing">
-                <svg viewBox="0 0 24 24" width="32" height="32" fill="currentColor">
-                    <path
-                        d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" />
-                </svg>
-                <p>Hazırlanıyor...</p>
             </div>
         </div>
     </div>
-</div>
 
-<!-- Edit Modal -->
-<div id="editDetailModal" class="modal-overlay" style="display: none;">
-    <div class="modal-content" style="width: 350px;">
-        <div class="modal-header">
-            <h3 id="editModalTitle">Düzenle</h3>
-            <button class="modal-close" onclick="closeEditModal()">&times;</button>
-        </div>
-        <div class="modal-body" style="padding: 1.5rem; text-align: left;">
-            <input type="hidden" id="editPhone">
-            <input type="hidden" id="editField">
-
-            <div class="detail-form-group">
-                <label class="detail-label-sm" id="editLabel">Değer</label>
-                <div id="editInputContainer">
-                    <!-- Dynamic Input -->
-                </div>
+    <!-- Edit Modal -->
+    <div id="editDetailModal" class="modal-overlay" style="display: none;">
+        <div class="modal-content" style="width: 350px;">
+            <div class="modal-header">
+                <h3 id="editModalTitle">Düzenle</h3>
+                <button class="modal-close" onclick="closeEditModal()">&times;</button>
             </div>
+            <div class="modal-body" style="padding: 1.5rem; text-align: left;">
+                <input type="hidden" id="editPhone">
+                <input type="hidden" id="editField">
 
-            <div style="display: flex; gap: 0.5rem; margin-top: 1.5rem;">
-                <button onclick="closeEditModal()" class="btn-change"
-                    style="flex: 1; background: #f1f5f9; color: #64748b; justify-content: center;">İptal</button>
-                <button onclick="saveDetailChange()" class="btn-change"
-                    style="flex: 1; justify-content: center;">Kaydet</button>
+                <div class="detail-form-group">
+                    <label class="detail-label-sm" id="editLabel">Değer</label>
+                    <div id="editInputContainer">
+                        <!-- Dynamic Input -->
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 0.5rem; margin-top: 1.5rem;">
+                    <button onclick="closeEditModal()" class="btn-change"
+                        style="flex: 1; background: #f1f5f9; color: #64748b; justify-content: center;">İptal</button>
+                    <button onclick="saveDetailChange()" class="btn-change"
+                        style="flex: 1; justify-content: center;">Kaydet</button>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-<script>
+    <script>
     // Global Data for Edit Modal
     const detailData = {
         campaigns: <?php echo json_encode($modal_campaigns); ?>,
@@ -329,7 +503,7 @@ include 'layout_header.php';
         doctors: <?php echo json_encode($modal_doctors); ?>
     };
 
-    function openEditModal(field, currentValue, label) {
+    function openEditModal(field, currentValue, label, options = null) {
         document.getElementById('editDetailModal').style.display = 'flex';
         document.getElementById('editModalTitle').innerText = label + ' Düzenle';
         document.getElementById('editLabel').innerText = label;
@@ -343,16 +517,19 @@ include 'layout_header.php';
         let inputHtml = '';
 
         // Helper to build select
-        const buildSelect = (options) => {
+        const buildSelect = (opts, isRep = false) => {
             let html = '<select id="editValue" class="form-select">';
             html += '<option value="">Seçiniz</option>';
-            options.forEach(opt => {
-                const selected = opt === currentValue ? 'selected' : '';
-                html += `<option value="${opt}" ${selected}>${opt}</option>`;
+            opts.forEach(opt => {
+                const val = isRep ? opt.id : opt;
+                const text = isRep ? opt.username : opt;
+                const selected = String(val) === String(currentValue) ? 'selected' : '';
+                html += `<option value="${val}" ${selected}>${text}</option>`;
             });
             // Keep current if not in list
-            if (currentValue && !options.includes(currentValue)) {
-                html += `<option value="${currentValue}" selected>${currentValue}</option>`;
+            if (currentValue && !opts.some(o => (isRep ? o.id : o) == currentValue)) {
+                 // For reps, we don't have the username if not in list, so just show ID or skip
+                 if(!isRep) html += `<option value="${currentValue}" selected>${currentValue}</option>`;
             }
             html += '</select>';
             return html;
@@ -363,6 +540,9 @@ include 'layout_header.php';
         else if (field === 'hastane') inputHtml = buildSelect(detailData.hospitals);
         else if (field === 'bolum') inputHtml = buildSelect(detailData.departments);
         else if (field === 'doktor') inputHtml = buildSelect(detailData.doctors);
+        else if (field === 'user_id' && options) {
+            inputHtml = buildSelect(options, true);
+        }
         else if (field === 'dogum_haftasi') {
             inputHtml = `<div style="display: flex; align-items: center; gap: 0.5rem;">
                     <input type="number" id="editValue" class="form-input" value="${currentValue}" placeholder="Örn: 11" style="flex: 1;">
@@ -644,5 +824,13 @@ include 'layout_header.php';
 
     // Initial load
     window.onload = () => loadCustomers(1, currentStatus, currentPersonnel, currentCampaign);
-</script>
-<?php include 'layout_footer.php'; ?>
+    </script>
+    <script>
+        function toggleDrawer() {
+            document.getElementById('menuDrawer').classList.toggle('active');
+            document.getElementById('drawerOverlay').classList.toggle('active');
+        }
+    </script>
+</body>
+
+</html>
