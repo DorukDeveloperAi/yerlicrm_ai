@@ -210,13 +210,6 @@ for ($i = 1; $i <= 10; $i++) {
 
         <!-- Dates Section -->
         <div class="detail-form-group">
-            <label class="detail-label-sm">İşlem Tarihi (Date)</label>
-            <div class="detail-value-row">
-                <span class="detail-value-text"><?php echo formatDetailDate($detail['date']); ?></span>
-            </div>
-        </div>
-
-        <div class="detail-form-group">
             <label class="detail-label-sm">Başvuru Tarihi</label>
             <div class="detail-value-row">
                 <span class="detail-value-text"><?php echo formatDetailDate($basvuru_tarihi); ?></span>
@@ -230,8 +223,11 @@ for ($i = 1; $i <= 10; $i++) {
             </div>
         </div>
 
-        <div class="detail-info-row" style="margin-top: 0.5rem;">
-            <strong>IP Adresi :</strong> <?php echo htmlspecialchars($detail['ip_adresi'] ?: '-'); ?>
+        <div class="detail-form-group">
+            <label class="detail-label-sm">Son İşlem Tarihi</label>
+            <div class="detail-value-row">
+                <span class="detail-value-text"><?php echo formatDetailDate($detail['date']); ?></span>
+            </div>
         </div>
 
         <hr class="detail-divider">
