@@ -4,10 +4,10 @@ require_once 'config.php';
 try {
     $pdo->exec("CREATE TABLE IF NOT EXISTS whatsapp_gupshup_templates (
         id INT AUTO_INCREMENT PRIMARY KEY, 
+        gupshup_id VARCHAR(255) NULL,
         title VARCHAR(255) NOT NULL, 
         content TEXT NOT NULL, 
-        gupshup_id VARCHAR(255), 
-        status INT DEFAULT 1, 
+        status TINYINT DEFAULT 1,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
 
