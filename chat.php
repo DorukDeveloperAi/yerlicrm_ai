@@ -725,7 +725,7 @@ $statuses = $pdo->query("SELECT * FROM tbl_ayarlar_gorusme_sonucu_bilgileri ORDE
             }
         });
         let currentPage = 1;
-        let currentStatus = '<?php echo $status_filter; ?>';
+        let currentStatus = 'empty';
         let currentPersonnel = 'all';
         let currentCampaign = 'all';
 
