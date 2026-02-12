@@ -64,8 +64,8 @@ $statuses = $pdo->query("SELECT * FROM tbl_ayarlar_gorusme_sonucu_bilgileri ORDE
             position: fixed;
             bottom: 1.25rem;
             left: 1.25rem;
-            width: 2.25rem;
-            height: 2.25rem;
+            width: 2rem;
+            height: 2rem;
             background: var(--primary);
             color: white;
             border-radius: 50%;
@@ -73,16 +73,17 @@ $statuses = $pdo->query("SELECT * FROM tbl_ayarlar_gorusme_sonucu_bilgileri ORDE
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            box-shadow: 0 2px 8px rgba(99, 102, 241, 0.4);
+            box-shadow: 0 2px 4px rgba(99, 102, 241, 0.4);
             z-index: 1000;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            opacity: 0.8;
+            opacity: 0.6;
         }
 
         .floating-menu-btn:hover {
             opacity: 1;
-            transform: scale(1.05);
+            transform: scale(1.1);
             background: var(--primary-dark);
+            box-shadow: 0 0 12px rgba(99, 102, 241, 0.6);
         }
 
         .floating-menu-btn:hover {
@@ -157,10 +158,12 @@ $statuses = $pdo->query("SELECT * FROM tbl_ayarlar_gorusme_sonucu_bilgileri ORDE
 
         .chat-sidebar {
             width: 380px;
+            flex-shrink: 0;
             display: flex;
             flex-direction: column;
             background: white;
             height: 100vh;
+            border-right: 1px solid var(--border);
         }
 
         .chat-box {
