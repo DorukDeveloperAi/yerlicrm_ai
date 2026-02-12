@@ -42,12 +42,14 @@ $templates = $stmt->fetchAll();
             <thead>
                 <tr class="bg-gray-50/50 border-b border-gray-100">
                     <th class="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-widest">ID</th>
+                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-widest">GupShup ID
+                    </th>
                     <th class="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-widest">Şablon
                         Başlığı</th>
                     <th class="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-widest">İçerik
                         Özeti</th>
                     <th class="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-widest">Oluşturma
-                        Tarihi</th>
+                    </th>
                     <th class="px-6 py-4 text-right text-xs font-bold text-gray-400 uppercase tracking-widest">İşlemler
                     </th>
                 </tr>
@@ -55,7 +57,7 @@ $templates = $stmt->fetchAll();
             <tbody class="divide-y divide-gray-100">
                 <?php if (empty($templates)): ?>
                     <tr>
-                        <td colspan="5" class="px-6 py-12 text-center text-gray-500">
+                        <td colspan="6" class="px-6 py-12 text-center text-gray-500">
                             <i class="ph ph-chat-circle-dots text-4xl mb-3 opacity-20 block"></i>
                             Henüz şablon eklenmemiş.
                         </td>
@@ -64,6 +66,11 @@ $templates = $stmt->fetchAll();
                 <?php foreach ($templates as $t): ?>
                     <tr class="hover:bg-gray-50/50 transition-colors">
                         <td class="px-6 py-4 text-sm text-gray-500 font-medium">#<?php echo $t['id']; ?></td>
+                        <td class="px-6 py-4">
+                            <span class="text-xs font-mono bg-indigo-50 text-indigo-700 px-2 py-1 rounded">
+                                <?php echo htmlspecialchars($t['gupshup_id'] ?: '-'); ?>
+                            </span>
+                        </td>
                         <td class="px-6 py-4">
                             <span
                                 class="text-sm font-semibold text-gray-900"><?php echo htmlspecialchars($t['title']); ?></span>
@@ -151,6 +158,13 @@ $templates = $stmt->fetchAll();
             <input type="hidden" name="id" id="templateId">
 
             <div class="space-y-2">
+                <label class="text-sm font-bold text-gray-700">GupShup Template ID</label>
+                <input type="text" name="gupshup_id" id="templateGupShupId" placeholder="Örn: welcome_msg_01"
+                    class="w-full border-1.5 border-gray-300 rounded-xl px-4 py-3 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-600 outline-none transition-all">
+                <p class="text-xs text-gray-400">GupShup panelindeki benzersiz şablon ismini buraya yazın.</p>
+            </div>
+
+            <div class="space-y-2">
                 <label class="text-sm font-bold text-gray-700">Şablon Başlığı</label>
                 <input type="text" name="title" id="templateTitle" required placeholder="Örn: Selamlama Mesajı"
                     class="w-full border-1.5 border-gray-300 rounded-xl px-4 py-3 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-600 outline-none transition-all">
@@ -197,6 +211,7 @@ $templates = $stmt->fetchAll();
                 if (data.success) {
                     const t = data.template;
                     document.getElementById('templateId').value = t.id;
+                    document.getElementById('templateGupShupId').value = t.gupshup_id || '';
                     document.getElementById('templateTitle').value = t.title;
                     document.getElementById('templateContent').value = t.content;
                     document.getElementById('modalTitle').innerText = 'Şablonu Düzenle';
