@@ -110,36 +110,38 @@ ob_start();
         ?>
         <div class="contact-item"
             onclick="loadConversation('<?php echo $c['telefon_numarasi']; ?>', '<?php echo addslashes($c['musteri_adi_soyadi'] ?: 'İsimsiz'); ?>', '<?php echo addslashes($c['kampanya'] ?: 'Kampanya Yok'); ?>', this)">
-            <div class="col-avatar">
+            <div class="col-left">
                 <div class="profile-circle">
                     <?php echo $getInitials($c['musteri_adi_soyadi']); ?>
                 </div>
+                <div class="customer-info">
+                    <div class="contact-name">
+                        <?php echo htmlspecialchars($c['musteri_adi_soyadi'] ?: 'İsimsiz Müşteri'); ?>
+                    </div>
+                    <div class="rep-name">
+                        <?php echo htmlspecialchars($c['rep_name'] ?: 'Atanmamış'); ?>
+                    </div>
+                </div>
             </div>
-            <div class="col-info">
-                <div class="contact-name">
-                    <?php echo htmlspecialchars($c['musteri_adi_soyadi'] ?: 'İsimsiz Müşteri'); ?>
-                </div>
-                <div class="rep-name">
-                    <?php echo htmlspecialchars($c['rep_name'] ?: 'Atanmamış'); ?>
-                </div>
+            <div class="col-middle">
                 <div class="col-msg">
                     <?php echo htmlspecialchars($snippet); ?>
                 </div>
             </div>
-            <div class="col-meta">
-                <span class="meta-date" title="Başvuru Tarihi">
-                    <?php echo $first_date; ?>
-                </span>
-                <span class="meta-date" title="İlk Etkileşim">
-                    <?php echo $access_date; ?>
-                </span>
-            </div>
-            <div class="col-status">
-                <div class="status-indicator <?php echo !empty($c['musteri_mesaji']) ? 'status-active' : ''; ?>"
-                    title="<?php echo !empty($c['musteri_mesaji']) ? 'Yeni Mesaj' : ''; ?>">
-                    <?php if (!empty($c['musteri_mesaji'])): ?>
-                        <i class="ph-fill ph-check"></i>
-                    <?php endif; ?>
+            <div class="col-right">
+                <div class="dates-status">
+                    <span class="meta-date" title="Başvuru Tarihi">
+                        <?php echo $first_date; ?>
+                    </span>
+                    <span class="meta-date" title="İlk Etkileşim">
+                        <?php echo $access_date; ?>
+                    </span>
+                    <div class="status-indicator <?php echo !empty($c['musteri_mesaji']) ? 'status-active' : ''; ?>"
+                        title="<?php echo !empty($c['musteri_mesaji']) ? 'Yeni Mesaj' : ''; ?>">
+                        <?php if (!empty($c['musteri_mesaji'])): ?>
+                            <i class="ph-fill ph-check"></i>
+                        <?php endif; ?>
+                    </div>
                 </div>
             </div>
         </div>
