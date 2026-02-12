@@ -20,10 +20,20 @@ if (!$detail) {
     exit;
 }
 
-// Also get the first contact date
-$stmt_first = $pdo->prepare("SELECT MIN(date) FROM tbl_icerik_bilgileri_ai WHERE telefon_numarasi = ?");
-$stmt_first->execute([$phone]);
-$first_date_val = $stmt_first->fetchColumn();
+// Track and get the first contact date from tbl_telefon_kontrol
+try {
+    // Insert if not exists
+    $stmt_track = $pdo->prepare("INSERT IGNORE INTO tbl_telefon_kontrol (telefon_numarasi, ilk_etkilesim_tarihi) VALUES (?, NOW())");
+    $stmt_track->execute([$phone]);
+
+    // Fetch the date
+    $stmt_first = $pdo->prepare("SELECT ilk_etkilesim_tarihi FROM tbl_telefon_kontrol WHERE telefon_numarasi = ?");
+    $stmt_first->execute([$phone]);
+    $first_date_val = $stmt_first->fetchColumn();
+} catch (Exception $e) {
+    // Fallback if table issues
+    $first_date_val = $detail['date'] ?? null;
+}
 
 // Essential info for the sidebar is fetched above ($detail and $first_date_val)
 
@@ -199,12 +209,18 @@ for ($i = 1; $i <= 10; $i++) {
         <hr class="detail-divider">
 
         <!-- Dates -->
-        <div class="detail-info-row" style="margin-bottom: 0.75rem;">
-            <strong>Başvuru Tarihi :</strong> <?php echo formatDetailDate($first_date_val); ?>
-            <div style="font-size: 0.7rem; color: #94a3b8; font-weight: 500;">ilk etkileşim tarihi</div>
+        <div class="detail-form-group">
+            <label class="detail-label-sm">Başvuru Tarihi (İlk Etkileşim)</label>
+            <div class="detail-value-row">
+                <span class="detail-value-text"><?php echo formatDetailDate($first_date_val); ?></span>
+            </div>
         </div>
-        <div class="detail-info-row">
-            <strong>Son Güncelleme Tarihi :</strong> <?php echo formatDetailDate($detail['date']); ?>
+
+        <div class="detail-form-group">
+            <label class="detail-label-sm">Son Güncelleme Tarihi</label>
+            <div class="detail-value-row">
+                <span class="detail-value-text"><?php echo formatDetailDate($detail['date']); ?></span>
+            </div>
         </div>
 
         <div class="detail-info-row" style="margin-top: 0.5rem;">
