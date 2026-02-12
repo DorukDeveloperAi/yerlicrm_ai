@@ -527,9 +527,10 @@ $statuses = $pdo->query("SELECT * FROM tbl_ayarlar_gorusme_sonucu_bilgileri ORDE
 
         <!-- Sağ: Detaylar -->
         <aside class="chat-details">
-            <div style="padding: 0.5rem 1rem; display: flex; justify-content: flex-end; align-items: center; border-bottom: 1px solid #f3f4f6; background: white;">
+            <div
+                style="padding: 0.25rem; display: flex; justify-content: flex-end; align-items: center; border-bottom: 1px solid #f3f4f6; background: white;">
                 <div class="user-profile-widget" onclick="toggleDrawer()" title="Menü ve Ayarlar"
-                    style="position: static; box-shadow: none; width: 32px; height: 32px; border: 1px solid #e2e8f0;">
+                    style="position: static; box-shadow: none; width: 32px; height: 32px; border: 1px solid #e2e8f0; margin: 0;">
                     <i class="ph-fill ph-gear" style="font-size: 1.2rem;"></i>
                 </div>
             </div>
