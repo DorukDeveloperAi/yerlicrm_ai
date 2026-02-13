@@ -112,7 +112,7 @@ try {
         unset($newRecord['rep_name']);
 
         // Update mandatory and message fields
-        $newRecord['musteri_mesaji'] = null; // Explicitly empty customer message
+        $newRecord['musteri_mesaji'] = ''; // Empty string instead of null to satisfy NOT NULL constraint
         $newRecord['personel_mesaji'] = $message;
         $newRecord['date'] = time();
         $newRecord['user_id'] = $_SESSION['user_id'];
@@ -122,7 +122,8 @@ try {
         // Build dynamic INSERT query
         $columns = array_keys($newRecord);
         $placeholders = array_map(function ($c) {
-            return ":$c"; }, $columns);
+            return ":$c";
+        }, $columns);
 
         $sql = "INSERT INTO tbl_icerik_bilgileri_ai (" . implode(', ', $columns) . ") 
                 VALUES (" . implode(', ', $placeholders) . ")";
