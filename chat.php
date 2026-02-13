@@ -411,7 +411,7 @@ $statuses = $pdo->query("SELECT * FROM tbl_ayarlar_gorusme_sonucu_bilgileri ORDE
                 <textarea id="message-text" placeholder="WhatsApp mesajınızı yazın..."></textarea>
                 <div class="input-actions flex items-center gap-2">
                     <button type="button" class="btn-templates-toggle" onclick="toggleTemplates()" title="Şablonlar">
-                        <i class="ph ph-envelope-simple"></i>
+                        <i class="ph-bold ph-envelope-simple"></i>
                     </button>
                     <button class="btn-send" onclick="sendMessage()" title="Mesaj Gönder">
                         <i class="ph ph-paper-plane-right"></i>

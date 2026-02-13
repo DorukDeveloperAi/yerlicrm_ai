@@ -1122,6 +1122,10 @@ body {
     transform: translateY(-1px);
 }
 
+.btn-templates-toggle i {
+    font-size: 1.4rem;
+}
+
 .pulse-primary {
     animation: pulse-ring 2s infinite;
     border-color: var(--primary) !important;
