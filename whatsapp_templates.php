@@ -202,13 +202,24 @@ $templates = $stmt->fetchAll();
                 <p class="text-xs text-gray-400">Şablonu kolayca tanıyabilmeniz için bir başlık verin.</p>
             </div>
 
-            <div class="space-y-2">
+            <div class="space-y-4">
                 <label class="text-sm font-bold text-gray-700">Mesaj İçeriği</label>
-                <textarea name="content" id="templateContent" required rows="4"
-                    placeholder="Mesaj içeriğini buraya yazın..."
-                    class="w-full border-2 border-gray-400 rounded-xl px-4 py-3 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-600 outline-none transition-all resize-none"></textarea>
-                <p class="text-xs text-gray-400">Not: {{name}} gibi değişkenler şu an desteklenmemektedir, düz metin
-                    kullanın.</p>
+                <div class="relative">
+                    <textarea name="content" id="templateContent" required rows="4"
+                        placeholder="Mesaj içeriğini buraya yazın..." oninput="detectVariables()"
+                        class="w-full border-2 border-gray-400 rounded-xl px-4 py-3 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-600 outline-none transition-all resize-none"></textarea>
+                </div>
+                <p class="text-xs text-gray-400">Not: Kişiselleştirme için <b>{{1}}</b>, <b>{{2}}</b> gibi değişkenler
+                    kullanabilirsiniz.</p>
+
+                <!-- Dynamic Variables Mapping -->
+                <div id="variablesContainer" class="hidden space-y-3 p-4 bg-gray-50 rounded-xl border border-gray-200">
+                    <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider">Değişken Eşleştirme</h4>
+                    <div id="variablesList" class="space-y-3">
+                        <!-- Dynamic select fields will go here -->
+                    </div>
+                </div>
+                <input type="hidden" name="variables" id="templateVariables">
             </div>
 
             <div class="flex justify-end gap-3 pt-4 border-t border-gray-100">
@@ -225,6 +236,9 @@ $templates = $stmt->fetchAll();
     function openTemplateModal() {
         document.getElementById('templateForm').reset();
         document.getElementById('templateId').value = '';
+        document.getElementById('templateVariables').value = '';
+        document.getElementById('variablesContainer').classList.add('hidden');
+        document.getElementById('variablesList').innerHTML = '';
         document.getElementById('modalTitle').innerText = 'Yeni Şablon Ekle';
         document.getElementById('templateModal').classList.remove('hidden');
         document.getElementById('templateModal').classList.add('flex');
@@ -247,6 +261,22 @@ $templates = $stmt->fetchAll();
                     document.getElementById('templateImageUrl').value = t.image_url || '';
                     document.getElementById('templateTitle').value = t.title;
                     document.getElementById('templateContent').value = t.content;
+                    document.getElementById('templateVariables').value = t.variables || '';
+
+                    // Detect and populate variables
+                    detectVariables();
+
+                    // If existing variables, pre-set them
+                    if (t.variables) {
+                        try {
+                            const vars = JSON.parse(t.variables);
+                            Object.keys(vars).forEach(key => {
+                                const select = document.querySelector(`select[data-var="${key}"]`);
+                                if (select) select.value = vars[key];
+                            });
+                        } catch (e) { console.error("Parse error", e); }
+                    }
+
                     document.getElementById('modalTitle').innerText = 'Şablonu Düzenle';
                     document.getElementById('templateModal').classList.remove('hidden');
                     document.getElementById('templateModal').classList.add('flex');
@@ -258,6 +288,14 @@ $templates = $stmt->fetchAll();
 
     function saveTemplate() {
         const form = document.getElementById('templateForm');
+
+        // Compile variables into JSON
+        const varsObj = {};
+        document.querySelectorAll('#variablesList select').forEach(select => {
+            varsObj[select.getAttribute('data-var')] = select.value;
+        });
+        document.getElementById('templateVariables').value = JSON.stringify(varsObj);
+
         const formData = new FormData(form);
 
         fetch('api/save_template.php', {
@@ -290,6 +328,42 @@ $templates = $stmt->fetchAll();
                     alert('Hata: ' + data.message);
                 }
             });
+    }
+    function detectVariables() {
+        const content = document.getElementById('templateContent').value;
+        const matches = [...new Set(content.match(/\{\{\d+\}\}/g) || [])];
+        const container = document.getElementById('variablesContainer');
+        const list = document.getElementById('variablesList');
+
+        if (matches.length > 0) {
+            container.classList.remove('hidden');
+            // Keep existing values if they are still present
+            const currentValues = {};
+            list.querySelectorAll('select').forEach(s => {
+                currentValues[s.dataset.var] = s.value;
+            });
+
+            list.innerHTML = '';
+            matches.forEach(m => {
+                const varNum = m.replace(/[\{\}]/g, '');
+                const div = document.createElement('div');
+                div.className = 'flex items-center gap-3 bg-white p-2 rounded-lg border border-gray-200';
+                div.innerHTML = `
+                    <span class="text-xs font-bold bg-indigo-50 text-indigo-600 px-2 py-1 rounded-md min-w-[40px] text-center">${m}</span>
+                    <select data-var="${m}" class="flex-1 text-sm border-none focus:ring-0 bg-transparent h-8">
+                        <option value="musteri_adi_soyadi" ${currentValues[m] === 'musteri_adi_soyadi' ? 'selected' : ''}>Müşteri Ad Soyad</option>
+                        <option value="kampanya" ${currentValues[m] === 'kampanya' ? 'selected' : ''}>Kampanya</option>
+                        <option value="telefon_numarasi" ${currentValues[m] === 'telefon_numarasi' ? 'selected' : ''}>Telefon Numarası</option>
+                        <option value="rep_name" ${currentValues[m] === 'rep_name' ? 'selected' : ''}>Personel Adı</option>
+                        <option value="gorusme_sonucu_text" ${currentValues[m] === 'gorusme_sonucu_text' ? 'selected' : ''}>Görüşme Sonucu</option>
+                    </select>
+                `;
+                list.appendChild(div);
+            });
+        } else {
+            container.classList.add('hidden');
+            list.innerHTML = '';
+        }
     }
 </script>
 

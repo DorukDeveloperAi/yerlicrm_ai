@@ -4,9 +4,11 @@ requireLogin();
 
 $type = $_POST['type'] ?? 'text';
 $templateId = $_POST['template_id'] ?? null;
+$phone = $_POST['phone'] ?? null;
+$message = $_POST['message'] ?? null;
 
 if ($type === 'template' && $templateId) {
-    $stmt = $pdo->prepare("SELECT content, gupshup_id, source_number, image_url FROM whatsapp_gupshup_templates WHERE id = ?");
+    $stmt = $pdo->prepare("SELECT content, gupshup_id, source_number, image_url, variables FROM whatsapp_gupshup_templates WHERE id = ?");
     $stmt->execute([$templateId]);
     $template = $stmt->fetch();
     if ($template) {
@@ -14,6 +16,30 @@ if ($type === 'template' && $templateId) {
         $gupshup_template_id = $template['gupshup_id'];
         $source_number = $template['source_number'];
         $image_url = $template['image_url'];
+        $variablesMap = $template['variables'] ? json_decode($template['variables'], true) : null;
+
+        // --- Variable Replacement Logic ---
+        if ($variablesMap && !empty($variablesMap) && $phone) {
+            // Fetch latest customer data
+            $cStmt = $pdo->prepare("
+                SELECT t1.*, u.username as rep_name 
+                FROM tbl_icerik_bilgileri_ai t1 
+                LEFT JOIN users u ON t1.user_id = u.id 
+                WHERE t1.telefon_numarasi = ? 
+                ORDER BY t1.id DESC LIMIT 1
+            ");
+            $cStmt->execute([$phone]);
+            $customer = $cStmt->fetch();
+
+            if ($customer) {
+                foreach ($variablesMap as $placeholder => $field) {
+                    $val = $customer[$field] ?? '';
+                    $message = str_replace($placeholder, $val, $message);
+                }
+            }
+        }
+        // ----------------------------------
+
     } else {
         echo json_encode(['success' => false, 'message' => 'Şablon bulunamadı.']);
         exit;
