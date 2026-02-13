@@ -795,45 +795,6 @@ $statuses = $pdo->query("SELECT * FROM tbl_ayarlar_gorusme_sonucu_bilgileri ORDE
                     }
                 });
 
-            function loadWhatsAppTemplates() {
-                fetch('api/get_templates.php')
-                    .then(r => r.json())
-                    .then(data => {
-                        if (data.success) {
-                            const container = document.getElementById('templates-container');
-                            container.innerHTML = '<div class="template-selector-title">Şablon Seçiniz:</div>';
-                            data.templates.forEach(t => {
-                                const btn = document.createElement('button');
-                                btn.className = 'btn-template';
-                                btn.innerText = t.title;
-                                btn.onclick = () => sendWhatsAppTemplate(t.id);
-                                container.appendChild(btn);
-                            });
-                        }
-                    });
-            }
-
-            function sendWhatsAppTemplate(templateId) {
-                if (!confirm('Bu şablon mesajı gönderilsin mi?')) return;
-
-                const formData = new FormData();
-                formData.append('phone', currentPhone);
-                formData.append('template_id', templateId);
-                formData.append('type', 'template');
-
-                fetch('api/send_message.php', {
-                    method: 'POST',
-                    body: formData
-                })
-                    .then(r => r.json())
-                    .then(data => {
-                        if (data.success) {
-                            loadConversation(currentPhone);
-                        } else {
-                            alert('Hata: ' + data.message);
-                        }
-                    });
-            }
 
             const fetchDetails = fetch('api/get_details.php?phone=' + phone)
                 .then(response => response.text())
@@ -1120,7 +1081,7 @@ $statuses = $pdo->query("SELECT * FROM tbl_ayarlar_gorusme_sonucu_bilgileri ORDE
                     if (data.success && data.templates.length > 0) {
                         container.innerHTML = `<div class="template-selector-title">Hazır Şablonlar</div>` +
                             data.templates.map(t => `
-                            <button class="btn-template flex items-center gap-2" onclick="applyTemplate(\`${t.content.replace(/`/g, '\\`').replace(/\n/g, '\\n')}\`)">
+                            <button class="btn-template flex items-center gap-2" onclick="sendWhatsAppTemplate('${t.id}')">
                                 ${t.image_url ? '<i class="ph ph-image-square text-indigo-500"></i>' : ''}
                                 ${t.title}
                             </button>
@@ -1131,11 +1092,32 @@ $statuses = $pdo->query("SELECT * FROM tbl_ayarlar_gorusme_sonucu_bilgileri ORDE
                 });
         }
 
-        function applyTemplate(content) {
-            const textarea = document.getElementById('message-text');
-            textarea.value = content;
-            textarea.focus();
-            // Optional: Auto-resize textarea if you have that logic
+        function sendWhatsAppTemplate(templateId) {
+            if (!currentPhone) {
+                alert('Önce bir görüşme seçmelisiniz.');
+                return;
+            }
+            if (!confirm('Bu şablon mesajı gönderilsin mi?')) return;
+
+            const formData = new FormData();
+            formData.append('phone', currentPhone);
+            formData.append('template_id', templateId);
+            formData.append('type', 'template');
+
+            const activeItem = document.querySelector('.contact-item.active');
+
+            fetch('api/send_message.php', {
+                method: 'POST',
+                body: formData
+            })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        loadConversation(currentPhone, null, null, activeItem);
+                    } else {
+                        alert('Hata: ' + data.message);
+                    }
+                });
         }
 
         // Initial load
