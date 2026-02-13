@@ -28,7 +28,7 @@ try {
     }
 
     if ($type === 'template' && $templateId) {
-        $stmt = $pdo->prepare("SELECT content, gupshup_id, source_number, image_url, variables FROM whatsapp_gupshup_templates WHERE id = ?");
+        $stmt = $pdo->prepare("SELECT content, gupshup_id, gupshup_account_id, source_number, image_url, variables FROM whatsapp_gupshup_templates WHERE id = ?");
         $stmt->execute([$templateId]);
         $template = $stmt->fetch();
         if ($template) {
@@ -61,13 +61,34 @@ try {
     $status_msg = 'Gönderildi';
     $api_response = null;
 
-    if (defined('GUPSHUP_API_KEY') && !empty(GUPSHUP_API_KEY)) {
+    // --- Load GupShup Credentials ---
+    $api_key = defined('GUPSHUP_API_KEY') ? GUPSHUP_API_KEY : '';
+    $src_num = defined('GUPSHUP_SOURCE_NUMBER') ? GUPSHUP_SOURCE_NUMBER : '';
+    $app_name = defined('GUPSHUP_APP_NAME') ? GUPSHUP_APP_NAME : '';
+
+    if (!empty($template['gupshup_account_id'])) {
+        $accStmt = $pdo->prepare("SELECT * FROM gupshup_accounts WHERE id = ?");
+        $accStmt->execute([$template['gupshup_account_id']]);
+        $account = $accStmt->fetch();
+        if ($account) {
+            $api_key = $account['api_key'];
+            $src_num = $account['phone_number'];
+            $app_name = $account['app_name'];
+        }
+    }
+
+    // Override with template-specific source number if provided manually
+    if (!empty($source_number)) {
+        $src_num = $source_number;
+    }
+
+    if (!empty($api_key)) {
         $endpoint = 'https://api.gupshup.io/wa/api/v1/msg';
         $postBody = [
             'channel' => 'whatsapp',
-            'source' => $source_number ?: GUPSHUP_SOURCE_NUMBER,
+            'source' => $src_num,
             'destination' => $phone,
-            'appname' => GUPSHUP_APP_NAME
+            'appname' => $app_name
         ];
 
         if ($type === 'template' && !empty($gupshup_template_id)) {
@@ -99,7 +120,7 @@ try {
         curl_setopt($ch, CURLOPT_HTTPHEADER, [
             'Cache-Control: no-cache',
             'Content-Type: application/x-www-form-urlencoded',
-            'apikey: ' . GUPSHUP_API_KEY
+            'apikey: ' . $api_key
         ]);
         curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($postBody));
 

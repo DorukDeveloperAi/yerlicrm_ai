@@ -198,6 +198,11 @@ requireLogin();
                 <i class="ph ph-whatsapp-logo"></i>
                 <span>WhatsApp Şablonları</span>
             </a>
+            <a href="gupshup_accounts.php"
+                class="nav-item <?php echo $activePage == 'gupshup_accounts' ? 'active' : ''; ?>">
+                <i class="ph ph-key"></i>
+                <span>GupShup Hesapları</span>
+            </a>
         </nav>
 
         <div class="p-4 mt-auto">

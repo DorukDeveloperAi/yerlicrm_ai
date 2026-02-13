@@ -180,7 +180,20 @@ $templates = $stmt->fetchAll();
                         class="w-full border-2 border-gray-400 rounded-xl px-4 py-3 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-600 outline-none transition-all">
                 </div>
                 <div class="space-y-2">
-                    <label class="text-sm font-bold text-gray-700">Kaynak Numara</label>
+                    <label class="text-sm font-bold text-gray-700">GupShup Hesabı</label>
+                    <select name="gupshup_account_id" id="templateGupShupAccountId"
+                        class="w-full border-2 border-gray-400 rounded-xl px-4 py-3 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-600 outline-none transition-all">
+                        <option value="">Hesap Seçin...</option>
+                        <?php
+                        $stmt_acc = $pdo->query("SELECT id, name FROM gupshup_accounts ORDER BY name ASC");
+                        while ($acc = $stmt_acc->fetch()) {
+                            echo '<option value="' . $acc['id'] . '">' . htmlspecialchars($acc['name']) . '</option>';
+                        }
+                        ?>
+                    </select>
+                </div>
+                <div class="space-y-2">
+                    <label class="text-sm font-bold text-gray-700">Kaynak Numara (Opsiyonel)</label>
                     <input type="text" name="source_number" id="templateSourceNumber" placeholder="90850..."
                         class="w-full border-2 border-gray-400 rounded-xl px-4 py-3 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-600 outline-none transition-all">
                 </div>
@@ -257,6 +270,7 @@ $templates = $stmt->fetchAll();
                     const t = data.template;
                     document.getElementById('templateId').value = t.id;
                     document.getElementById('templateGupShupId').value = t.gupshup_id || '';
+                    document.getElementById('templateGupShupAccountId').value = t.gupshup_account_id || '';
                     document.getElementById('templateSourceNumber').value = t.source_number || '';
                     document.getElementById('templateImageUrl').value = t.image_url || '';
                     document.getElementById('templateTitle').value = t.title;
