@@ -10,8 +10,8 @@ if (!$phone) {
     exit;
 }
 
-// Get the latest record for details
-$stmt = $pdo->prepare("SELECT * FROM tbl_icerik_bilgileri_ai WHERE telefon_numarasi = ? ORDER BY id DESC LIMIT 1");
+// Get the record from master table (latest one first to avoid empty fields in duplicates)
+$stmt = $pdo->prepare("SELECT * FROM icerik_bilgileri WHERE telefon_numarasi = ? ORDER BY id DESC LIMIT 1");
 $stmt->execute([$phone]);
 $detail = $stmt->fetch();
 
@@ -20,22 +20,22 @@ if (!$detail) {
     exit;
 }
 
-// 1. Get Application Date (very first interaction)
-$stmt_app = $pdo->prepare("SELECT MIN(date) FROM tbl_icerik_bilgileri_ai WHERE telefon_numarasi = ?");
-$stmt_app->execute([$phone]);
-$basvuru_tarihi = $stmt_app->fetchColumn();
+// Map icerik_bilgileri columns to the expected variable names in the view
+$detail['user_id'] = $detail['satis_temsilcisi'] ?? null;
+$detail['date'] = $detail['son_islem_tarihi'] ?? null;
 
-// 2. Handle First Access Date tracking in the main table
+// 1. Get Application Date
+$basvuru_tarihi = $detail['basvuru_tarihi'] ?? null;
+
+// 2. Handle First Access Date tracking
 if (empty($detail['ilk_erisim_tarihi'])) {
     $now = date('Y-m-d H:i:s');
-    $stmt_upd = $pdo->prepare("UPDATE tbl_icerik_bilgileri_ai SET ilk_erisim_tarihi = ? WHERE telefon_numarasi = ? AND ilk_erisim_tarihi IS NULL");
+    $stmt_upd = $pdo->prepare("UPDATE icerik_bilgileri SET ilk_erisim_tarihi = ? WHERE telefon_numarasi = ? AND (ilk_erisim_tarihi IS NULL OR ilk_erisim_tarihi = '')");
     $stmt_upd->execute([$now, $phone]);
     $ilk_erisim_tarihi = $now;
 } else {
     $ilk_erisim_tarihi = $detail['ilk_erisim_tarihi'];
 }
-
-// Essential info for the sidebar is fetched above ($detail, $basvuru_tarihi, $ilk_erisim_tarihi)
 
 // Fetch sales representatives filtered by campaign
 $customer_campaign = $detail['kampanya'] ?? '';
@@ -52,10 +52,14 @@ if ($customer_campaign) {
 
 // Find current rep name
 $current_rep_name = '-';
-if ($detail['user_id']) {
-    $stmt_rep = $pdo->prepare("SELECT username FROM users WHERE id = ?");
-    $stmt_rep->execute([$detail['user_id']]);
-    $current_rep_name = $stmt_rep->fetchColumn() ?: '-';
+if (!empty($detail['user_id'])) {
+    if (is_numeric($detail['user_id'])) {
+        $stmt_rep = $pdo->prepare("SELECT username FROM users WHERE id = ?");
+        $stmt_rep->execute([$detail['user_id']]);
+        $current_rep_name = $stmt_rep->fetchColumn() ?: $detail['user_id'];
+    } else {
+        $current_rep_name = $detail['user_id'];
+    }
 }
 
 // Helper to format dates correctly regardless of string or timestamp
@@ -105,7 +109,7 @@ for ($i = 1; $i <= 10; $i++) {
                     <span class="detail-value-text"
                         id="current-campaign-val"><?php echo htmlspecialchars($detail['kampanya'] ?: '-'); ?></span>
                     <button class="btn-edit-icon" title="Değiştir"
-                        onclick="openEditModal('kampanya', '<?php echo addslashes($detail['kampanya']); ?>', 'Kampanya')">
+                        onclick="openEditModal('kampanya', '<?php echo addslashes((string) ($detail['kampanya'] ?? '')); ?>', 'Kampanya')">
                         <i class="ph ph-pencil-simple"></i>
                     </button>
                 </div>
@@ -118,7 +122,7 @@ for ($i = 1; $i <= 10; $i++) {
                     <span
                         class="detail-value-text"><?php echo htmlspecialchars($detail['talep_icerik'] ?: '-'); ?></span>
                     <button class="btn-edit-icon" title="Değiştir"
-                        onclick="openEditModal('talep_icerik', '<?php echo addslashes($detail['talep_icerik']); ?>', 'Talep İçerik')">
+                        onclick="openEditModal('talep_icerik', '<?php echo addslashes((string) ($detail['talep_icerik'] ?? '')); ?>', 'Talep İçerik')">
                         <i class="ph ph-pencil-simple"></i>
                     </button>
                 </div>
@@ -131,7 +135,7 @@ for ($i = 1; $i <= 10; $i++) {
             <div class="detail-value-row">
                 <span class="detail-value-text"><?php echo htmlspecialchars($detail['hastane'] ?: '-'); ?></span>
                 <button class="btn-edit-icon" title="Değiştir"
-                    onclick="openEditModal('hastane', '<?php echo addslashes($detail['hastane']); ?>', 'Hastane')">
+                    onclick="openEditModal('hastane', '<?php echo addslashes((string) ($detail['hastane'] ?? '')); ?>', 'Hastane')">
                     <i class="ph ph-pencil-simple"></i>
                 </button>
             </div>
@@ -143,7 +147,7 @@ for ($i = 1; $i <= 10; $i++) {
             <div class="detail-value-row">
                 <span class="detail-value-text"><?php echo htmlspecialchars($detail['bolum'] ?: '-'); ?></span>
                 <button class="btn-edit-icon" title="Değiştir"
-                    onclick="openEditModal('bolum', '<?php echo addslashes($detail['bolum']); ?>', 'Bölüm')">
+                    onclick="openEditModal('bolum', '<?php echo addslashes((string) ($detail['bolum'] ?? '')); ?>', 'Bölüm')">
                     <i class="ph ph-pencil-simple"></i>
                 </button>
             </div>
@@ -155,7 +159,7 @@ for ($i = 1; $i <= 10; $i++) {
             <div class="detail-value-row">
                 <span class="detail-value-text"><?php echo htmlspecialchars($detail['doktor'] ?: '-'); ?></span>
                 <button class="btn-edit-icon" title="Değiştir"
-                    onclick="openEditModal('doktor', '<?php echo addslashes($detail['doktor']); ?>', 'Doktor')">
+                    onclick="openEditModal('doktor', '<?php echo addslashes((string) ($detail['doktor'] ?? '')); ?>', 'Doktor')">
                     <i class="ph ph-pencil-simple"></i>
                 </button>
             </div>
@@ -195,7 +199,7 @@ for ($i = 1; $i <= 10; $i++) {
             <div class="detail-value-row">
                 <span class="detail-value-text"><?php echo htmlspecialchars($current_rep_name); ?></span>
                 <button class="btn-edit-icon" title="Değiştir"
-                    onclick='openEditModal("user_id", "<?php echo $detail["user_id"]; ?>", "Satış Temsilcisi", <?php echo json_encode($reps_data); ?>)'>
+                    onclick='openEditModal("user_id", "<?php echo (string) ($detail["user_id"] ?? ""); ?>", "Satış Temsilcisi", <?php echo json_encode($reps_data); ?>)'>
                     <i class="ph ph-pencil-simple"></i>
                 </button>
             </div>
@@ -256,8 +260,9 @@ for ($i = 1; $i <= 10; $i++) {
         <!-- Lead Link -->
         <div class="detail-form-group">
             <label class="detail-label-sm">Lead Link</label>
-            <input type="text" class="form-input" value="https://dorukcrm.com.tr/LEAD<?php echo $detail['id']; ?>"
-                readonly id="lead-link-<?php echo $detail['id']; ?>">
+            <input type="text" class="form-input"
+                value="https://dorukcrm.com.tr/<?php echo $detail['telefon_numarasi']; ?>" readonly
+                id="lead-link-<?php echo $detail['id']; ?>">
             <button class="btn-copy" onclick="copyLeadLink('lead-link-<?php echo $detail['id']; ?>')">Kopyala</button>
         </div>
     </div>

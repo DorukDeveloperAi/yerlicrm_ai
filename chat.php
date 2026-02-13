@@ -7,8 +7,14 @@ $limit = 50;
 $page = isset($_GET['page']) ? (int) $_GET['page'] : 1;
 $page = $page < 1 ? 1 : $page;
 
-// Basic Statuses for sidebar (These are small/fast, can stay or move, keeping for now as they are core to sidebar UI)
+// Basic Statuses for sidebar
 $statuses = $pdo->query("SELECT * FROM tbl_ayarlar_gorusme_sonucu_bilgileri ORDER BY id ASC")->fetchAll();
+
+// Fetch options for the interaction form (Complaint section)
+$hospitals = $pdo->query("SELECT DISTINCT hastane as baslik FROM icerik_bilgileri WHERE hastane IS NOT NULL AND hastane != '' ORDER BY hastane ASC")->fetchAll();
+$departments = $pdo->query("SELECT DISTINCT bolum as baslik FROM icerik_bilgileri WHERE bolum IS NOT NULL AND bolum != '' ORDER BY bolum ASC")->fetchAll();
+$doctors = $pdo->query("SELECT DISTINCT doktor as baslik FROM icerik_bilgileri WHERE doktor IS NOT NULL AND doktor != '' ORDER BY doktor ASC")->fetchAll();
+$complaint_topics = $pdo->query("SELECT DISTINCT talep_icerik as baslik FROM icerik_bilgileri WHERE talep_icerik IS NOT NULL AND talep_icerik != '' ORDER BY talep_icerik ASC")->fetchAll();
 ?>
 <!DOCTYPE html>
 <html lang="tr">
@@ -243,9 +249,10 @@ $statuses = $pdo->query("SELECT * FROM tbl_ayarlar_gorusme_sonucu_bilgileri ORDE
             animation: spin 1s linear infinite;
         }
 
-        100% {
-            transform: rotate(360deg);
-        }
+        @keyframes spin {
+            100% {
+                transform: rotate(360deg);
+            }
         }
 
         /* User Profile Widget - Icon Only */
@@ -684,7 +691,40 @@ $statuses = $pdo->query("SELECT * FROM tbl_ayarlar_gorusme_sonucu_bilgileri ORDE
                 </div>`;
             }
 
+            // Append "Diğer" option to selects and add custom input listener
+            if (['kampanya', 'talep_icerik', 'hastane', 'bolum', 'doktor'].includes(field)) {
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = inputHtml;
+                const select = tempDiv.querySelector('select');
+                if (select) {
+                    const otherOpt = document.createElement('option');
+                    otherOpt.value = 'OTHER_OPTION';
+                    otherOpt.text = 'Diğer...';
+                    select.appendChild(otherOpt);
+                    inputHtml = tempDiv.innerHTML;
+
+                    // Add the custom input field (hidden by default)
+                    inputHtml += `<div id="otherInputContainer" style="display:none; margin-top: 0.75rem;">
+                        <input type="text" id="editValueOther" class="form-input" placeholder="Yeni değeri giriniz...">
+                    </div>`;
+                }
+            }
+
             container.innerHTML = inputHtml;
+
+            // Set up listener if it's a select
+            const mainSelect = container.querySelector('select');
+            if (mainSelect && ['kampanya', 'talep_icerik', 'hastane', 'bolum', 'doktor'].includes(field)) {
+                mainSelect.addEventListener('change', function () {
+                    const otherContainer = document.getElementById('otherInputContainer');
+                    if (this.value === 'OTHER_OPTION') {
+                        otherContainer.style.display = 'block';
+                        document.getElementById('editValueOther').focus();
+                    } else {
+                        otherContainer.style.display = 'none';
+                    }
+                });
+            }
         }
 
         function closeEditModal() {
@@ -694,7 +734,15 @@ $statuses = $pdo->query("SELECT * FROM tbl_ayarlar_gorusme_sonucu_bilgileri ORDE
         function saveDetailChange() {
             const phone = document.getElementById('editPhone').value;
             const field = document.getElementById('editField').value;
-            const value = document.getElementById('editValue').value;
+            let value = document.getElementById('editValue').value;
+
+            if (value === 'OTHER_OPTION') {
+                value = document.getElementById('editValueOther').value;
+                if (!value.trim()) {
+                    alert('Lütfen yeni değeri giriniz.');
+                    return;
+                }
+            }
 
             const formData = new FormData();
             formData.append('phone', phone);
@@ -931,8 +979,6 @@ $statuses = $pdo->query("SELECT * FROM tbl_ayarlar_gorusme_sonucu_bilgileri ORDE
             // Let's keep the search term but apply the filter
             loadCustomers(1, status, currentPersonnel, currentCampaign, currentSearch);
             document.getElementById('status-filter').value = 'all';
-
-            filterByStatus(status);
         }
 
         function filterByPersonnel(personnel) {
@@ -1079,13 +1125,15 @@ $statuses = $pdo->query("SELECT * FROM tbl_ayarlar_gorusme_sonucu_bilgileri ORDE
                 .then(data => {
                     const container = document.getElementById('templates-container');
                     if (data.success && data.templates.length > 0) {
-                        container.innerHTML = `<div class="template-selector-title">Hazır Şablonlar</div>` +
-                            data.templates.map(t => `
-                            <button class="btn-template flex items-center gap-2" onclick="sendWhatsAppTemplate('${t.id}')">
-                                ${t.image_url ? '<i class="ph ph-image-square text-indigo-500"></i>' : ''}
-                                ${t.title}
-                            </button>
-                        `).join('');
+                        container.innerHTML = `<div class="template-selector-title">Hazır Şablonlar</div>
+                            <div class="templates-inner">
+                                ${data.templates.map(t => `
+                                    <button class="btn-template" onclick="sendWhatsAppTemplate('${t.id}')">
+                                        ${t.image_url ? '<i class="ph ph-image-square text-indigo-500"></i>' : ''}
+                                        <span>${t.title}</span>
+                                    </button>
+                                `).join('')}
+                            </div>`;
                     } else if (!data.success) {
                         console.error('Template loading failed:', data.message);
                     }

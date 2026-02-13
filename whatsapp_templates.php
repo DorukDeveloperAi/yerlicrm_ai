@@ -17,8 +17,15 @@ $total_stmt = $pdo->query("SELECT COUNT(*) FROM whatsapp_gupshup_templates WHERE
 $total_records = $total_stmt->fetchColumn();
 $total_pages = ceil($total_records / $records_per_page);
 
-// Fetch templates for current page
-$stmt = $pdo->prepare("SELECT * FROM whatsapp_gupshup_templates WHERE status = 1 ORDER BY title ASC LIMIT :limit OFFSET :offset");
+// Fetch templates for current page with account info
+$stmt = $pdo->prepare("
+    SELECT t.*, a.name as account_name, a.phone_number as account_phone 
+    FROM whatsapp_gupshup_templates t
+    LEFT JOIN gupshup_accounts a ON t.gupshup_account_id = a.id
+    WHERE t.status = 1 
+    ORDER BY t.title ASC 
+    LIMIT :limit OFFSET :offset
+");
 $stmt->bindValue(':limit', $records_per_page, PDO::PARAM_INT);
 $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
 $stmt->execute();
@@ -44,9 +51,11 @@ $templates = $stmt->fetchAll();
                     <th class="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-widest">ID</th>
                     <th class="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-widest">Görsel
                     </th>
-                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-widest">GupShup ID
+                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-widest">GupShup
+                        Hesabı
                     </th>
-                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-widest">Kaynak No
+                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-widest">Template
+                        ID
                     </th>
                     <th class="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-widest">Şablon
                         Başlığı</th>
@@ -80,12 +89,15 @@ $templates = $stmt->fetchAll();
                             <?php endif; ?>
                         </td>
                         <td class="px-6 py-4">
+                            <div class="text-sm font-semibold text-gray-900">
+                                <?php echo htmlspecialchars($t['account_name'] ?: 'Hesap Bağlı Değil'); ?></div>
+                            <div class="text-xs text-gray-400 font-mono">
+                                <?php echo htmlspecialchars($t['account_phone'] ?: ($t['source_number'] ?: '-')); ?></div>
+                        </td>
+                        <td class="px-6 py-4">
                             <span class="text-xs font-mono bg-indigo-50 text-indigo-700 px-2 py-1 rounded">
                                 <?php echo htmlspecialchars($t['gupshup_id'] ?: '-'); ?>
                             </span>
-                        </td>
-                        <td class="px-6 py-4 text-sm font-medium text-gray-600">
-                            <?php echo htmlspecialchars($t['source_number'] ?: '-'); ?>
                         </td>
                         <td class="px-6 py-4">
                             <div class="text-sm font-semibold text-gray-900"><?php echo htmlspecialchars($t['title']); ?>
@@ -175,13 +187,8 @@ $templates = $stmt->fetchAll();
 
             <div class="grid grid-cols-2 gap-4">
                 <div class="space-y-2">
-                    <label class="text-sm font-bold text-gray-700">GupShup Template ID</label>
-                    <input type="text" name="gupshup_id" id="templateGupShupId" placeholder="Örn: welcome_msg_01"
-                        class="w-full border-2 border-gray-400 rounded-xl px-4 py-3 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-600 outline-none transition-all">
-                </div>
-                <div class="space-y-2">
                     <label class="text-sm font-bold text-gray-700">GupShup Hesabı</label>
-                    <select name="gupshup_account_id" id="templateGupShupAccountId"
+                    <select name="gupshup_account_id" id="templateGupShupAccountId" required
                         class="w-full border-2 border-gray-400 rounded-xl px-4 py-3 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-600 outline-none transition-all">
                         <option value="">Hesap Seçin...</option>
                         <?php
@@ -193,13 +200,14 @@ $templates = $stmt->fetchAll();
                     </select>
                 </div>
                 <div class="space-y-2">
-                    <label class="text-sm font-bold text-gray-700">Kaynak Numara (Opsiyonel)</label>
-                    <input type="text" name="source_number" id="templateSourceNumber" placeholder="90850..."
+                    <label class="text-sm font-bold text-gray-700">Template ID</label>
+                    <input type="text" name="gupshup_id" id="templateGupShupId" required
+                        placeholder="Örn: welcome_msg_01"
                         class="w-full border-2 border-gray-400 rounded-xl px-4 py-3 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-600 outline-none transition-all">
                 </div>
             </div>
-            <p class="text-xs text-gray-400">GupShup panelindeki benzersiz şablon ismi ve bu şablonun bağlı olduğu
-                kaynak numara.</p>
+            <p class="text-xs text-gray-400">Mesajın gönderileceği GupShup hesabını ve paneldeki benzersiz şablon ismini
+                seçin.</p>
 
             <div class="space-y-2">
                 <label class="text-sm font-bold text-gray-700">Görsel URL (Opsiyonel)</label>
@@ -271,7 +279,6 @@ $templates = $stmt->fetchAll();
                     document.getElementById('templateId').value = t.id;
                     document.getElementById('templateGupShupId').value = t.gupshup_id || '';
                     document.getElementById('templateGupShupAccountId').value = t.gupshup_account_id || '';
-                    document.getElementById('templateSourceNumber').value = t.source_number || '';
                     document.getElementById('templateImageUrl').value = t.image_url || '';
                     document.getElementById('templateTitle').value = t.title;
                     document.getElementById('templateContent').value = t.content;

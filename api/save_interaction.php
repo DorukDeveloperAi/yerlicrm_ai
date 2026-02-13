@@ -98,6 +98,26 @@ $insert_data = array_merge([
 try {
     $stmt = $pdo->prepare($sql);
     $stmt->execute($insert_data);
+
+    // Update master table (icerik_bilgileri)
+    $updateMasterSql = "UPDATE icerik_bilgileri 
+                        SET son_mesaj_yeri = 'personel_mesaji', 
+                            son_islem_tarihi = ?, 
+                            satis_temsilcisi = ?,
+                            gorusme_sonucu_text = ?,
+                            tekrar_arama_tarihi = ?,
+                            lead_puanlama = ?
+                        WHERE telefon_numarasi = ?";
+    $stmtMaster = $pdo->prepare($updateMasterSql);
+    $stmtMaster->execute([
+        time(),
+        $_SESSION['user_id'],
+        $status_text,
+        $callback_ts,
+        $lead_score,
+        $phone
+    ]);
+
     echo json_encode(['success' => true]);
 } catch (PDOException $e) {
     echo json_encode(['success' => false, 'message' => $e->getMessage()]);

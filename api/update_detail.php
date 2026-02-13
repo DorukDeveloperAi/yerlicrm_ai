@@ -35,60 +35,56 @@ if (!array_key_exists($field, $allowedFields)) {
 }
 
 try {
-    // 1. Get the latest record
-    $stmt = $pdo->prepare("SELECT * FROM tbl_icerik_bilgileri_ai WHERE telefon_numarasi = ? ORDER BY id DESC LIMIT 1");
-    $stmt->execute([$phone]);
-    $latest = $stmt->fetch(PDO::FETCH_ASSOC);
-
-    if (!$latest) {
-        echo json_encode(['success' => false, 'message' => 'Record not found.']);
-        exit;
-    }
-
-    // 2. Prepare new data
-    $newData = $latest;
-    unset($newData['id']); // Remove ID to auto-increment
-    unset($newData['created_at']); // Let DB set new timestamp if default, or we set it
-    // Note: If 'date' column exists and represents row creation time, we might need to update it too. 
-    // Assuming 'date' is unix timestamp based on previous code usage (date('d/m/Y', $c['date'])).
-    $newData['date'] = time();
-
-    // Update the specific field
-    $newData[$field] = $value;
-
-    // Clear message fields as requested
-    $newData['personel_mesaji'] = '';
-    $newData['musteri_mesaji'] = '';
-
-    // Set change note
-    $friendlyName = $allowedFields[$field];
-    $displayValue = $value;
-
-    // If updating user_id, try to get the name for the note
+    // Mapping internal field names to database columns if they differ
+    $dbField = $field;
     if ($field === 'user_id') {
-        $st_rep = $pdo->prepare("SELECT username FROM users WHERE id = ?");
-        $st_rep->execute([$value]);
-        $displayValue = $st_rep->fetchColumn() ?: $value;
+        $dbField = 'satis_temsilcisi';
     }
 
-    $note = "$friendlyName: $displayValue Olarak Değiştirildi";
-    $newData['yapilan_degisiklik_notu'] = $note;
+    // Update the master table
+    $sql = "UPDATE icerik_bilgileri SET $dbField = ?, son_islem_tarihi = ? WHERE telefon_numarasi = ?";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([$value, time(), $phone]);
 
-    // 3. Construct Insert Query dynamically
-    $columns = array_keys($newData);
-    $placeholders = array_map(function ($col) {
-        return ":$col";
-    }, $columns);
+    // Also record the change in the audit/log table (tbl_icerik_bilgileri_ai)
+    // We fetch the latest record from log to clone it with the change note
+    $stmt_latest = $pdo->prepare("SELECT * FROM tbl_icerik_bilgileri_ai WHERE telefon_numarasi = ? ORDER BY id DESC LIMIT 1");
+    $stmt_latest->execute([$phone]);
+    $latest = $stmt_latest->fetch(PDO::FETCH_ASSOC);
 
-    $sql = "INSERT INTO tbl_icerik_bilgileri_ai (" . implode(', ', $columns) . ") VALUES (" . implode(', ', $placeholders) . ")";
+    if ($latest) {
+        $newData = $latest;
+        unset($newData['id']);
+        // The requested fields to change
+        $newData['date'] = time();
+        $newData['user_id'] = $_SESSION['user_id'] ?? 0;
+        $newData['ip_adresi'] = $_SERVER['REMOTE_ADDR'] ?? '';
+        $newData['kullanici_bilgileri_adi'] = $_SESSION['username'] ?? '';
 
-    $insertStmt = $pdo->prepare($sql);
+        // Map field for log table (it uses internal field names)
+        $newData[$field] = $value;
 
-    foreach ($newData as $col => $val) {
-        $insertStmt->bindValue(":$col", $val);
+        // Clear messages as requested
+        $newData['personel_mesaji'] = '';
+        $newData['musteri_mesaji'] = '';
+
+        $friendlyName = $allowedFields[$field];
+        $displayValue = $value;
+        if ($field === 'user_id') {
+            $st_rep = $pdo->prepare("SELECT username FROM users WHERE id = ?");
+            $st_rep->execute([$value]);
+            $displayValue = $st_rep->fetchColumn() ?: $value;
+        }
+        $newData['yapilan_degisiklik_notu'] = "$friendlyName: $displayValue Olarak Değiştirildi";
+
+        $columns = array_keys($newData);
+        $placeholders = array_map(function ($col) {
+            return ":$col";
+        }, $columns);
+        $logSql = "INSERT INTO tbl_icerik_bilgileri_ai (" . implode(', ', $columns) . ") VALUES (" . implode(', ', $placeholders) . ")";
+        $logStmt = $pdo->prepare($logSql);
+        $logStmt->execute($newData);
     }
-
-    $insertStmt->execute();
 
     echo json_encode(['success' => true, 'message' => 'Değişiklik kaydedildi.']);
 

@@ -4,7 +4,7 @@ $activePage = 'dashboard';
 include 'layout_header.php';
 
 // Fetch summary stats
-$total_records = $pdo->query("SELECT count(DISTINCT telefon_numarasi) FROM tbl_icerik_bilgileri_ai")->fetchColumn();
+$total_records = $pdo->query("SELECT count(*) FROM icerik_bilgileri")->fetchColumn();
 ?>
 
 <div class="welcome-card mb-8">

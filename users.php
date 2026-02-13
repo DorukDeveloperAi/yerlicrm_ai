@@ -34,30 +34,30 @@ try {
 } catch (PDOException $e) { /* Ignore if table missing */
 }
 
-// 2. Hospitals (tbl_icerik_bilgileri_ai)
+// 2. Hospitals (icerik_bilgileri)
 $hospitals = [];
 try {
-    $stmt = $pdo->query("SELECT DISTINCT hastane FROM tbl_icerik_bilgileri_ai WHERE hastane IS NOT NULL AND hastane != ''
+    $stmt = $pdo->query("SELECT DISTINCT hastane FROM icerik_bilgileri WHERE hastane IS NOT NULL AND hastane != ''
 ORDER BY hastane ASC");
     if ($stmt)
         $hospitals = $stmt->fetchAll(PDO::FETCH_COLUMN);
 } catch (PDOException $e) {
 }
 
-// 3. Doctors (tbl_icerik_bilgileri_ai)
+// 3. Doctors (icerik_bilgileri)
 $doctors = [];
 try {
-    $stmt = $pdo->query("SELECT DISTINCT doktor FROM tbl_icerik_bilgileri_ai WHERE doktor IS NOT NULL AND doktor != '' ORDER
+    $stmt = $pdo->query("SELECT DISTINCT doktor FROM icerik_bilgileri WHERE doktor IS NOT NULL AND doktor != '' ORDER
 BY doktor ASC");
     if ($stmt)
         $doctors = $stmt->fetchAll(PDO::FETCH_COLUMN);
 } catch (PDOException $e) {
 }
 
-// 4. Campaigns (tbl_icerik_bilgileri_ai)
+// 4. Campaigns (icerik_bilgileri)
 $campaigns = [];
 try {
-    $stmt = $pdo->query("SELECT DISTINCT kampanya FROM tbl_icerik_bilgileri_ai WHERE kampanya IS NOT NULL AND kampanya != ''
+    $stmt = $pdo->query("SELECT DISTINCT kampanya FROM icerik_bilgileri WHERE kampanya IS NOT NULL AND kampanya != ''
 ORDER BY kampanya ASC");
     if ($stmt)
         $campaigns = $stmt->fetchAll(PDO::FETCH_COLUMN);
@@ -123,7 +123,8 @@ try {
                             </span>
                         </td>
                         <td class="px-6 py-4 text-sm text-gray-600">
-                            <?php echo htmlspecialchars($user['telefon_numarasi'] ?: '-'); ?></td>
+                            <?php echo htmlspecialchars($user['telefon_numarasi'] ?: '-'); ?>
+                        </td>
                         <td class="px-6 py-4 text-sm text-gray-600 leading-none">
                             <span
                                 class="font-mono bg-gray-50 px-2 py-1 rounded border border-gray-200"><?php echo htmlspecialchars($user['sensor_kodu'] ?: '-'); ?></span>

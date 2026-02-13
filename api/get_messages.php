@@ -39,8 +39,8 @@ foreach ($messages as $msg) {
     $date = date('d.m.Y H:i', (int) $msg['date']);
 
     $html .= '<div class="msg ' . $type . '">';
-    $html .= htmlspecialchars($content);
-    $html .= '<span class="msg-meta">' . $date . '</span>';
+    $html .= '<div class="msg-content">' . nl2br(htmlspecialchars($content)) . '</div>';
+    $html .= '<span class="msg-meta">' . date('H:i', (int) $msg['date']) . '</span>';
     $html .= '</div>';
 }
 
