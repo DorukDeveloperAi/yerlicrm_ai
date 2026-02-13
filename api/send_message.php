@@ -101,29 +101,46 @@ try {
         exit;
     }
 
-    // Append message to table
-    $ip = $_SERVER['REMOTE_ADDR'] ?? '';
-    $now = time();
-    $name = $customerData['musteri_adi_soyadi'] ?? '';
-    $kampanya = $customerData['kampanya'] ?? '';
-    $ilk_erisim = $customerData['ilk_erisim_tarihi'] ?? $now;
+    // --- Append message to table (Dynamically clone latest record) ---
+    if ($customerData) {
+        $newRecord = $customerData;
 
-    $stmt = $pdo->prepare("INSERT INTO tbl_icerik_bilgileri_ai (
-        telefon_numarasi, musteri_adi_soyadi, personel_mesaji, date, 
-        user_id, status, ip_adresi, ilk_erisim_tarihi, kampanya
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        // Remove ID to allow auto-increment
+        unset($newRecord['id']);
 
-    $stmt->execute([
-        $phone,
-        $name,
-        $message,
-        $now,
-        $_SESSION['user_id'],
-        1,
-        $ip,
-        $ilk_erisim,
-        $kampanya
-    ]);
+        // Remove join data (rep_name) if it exists from the SELECT query
+        unset($newRecord['rep_name']);
+
+        // Update mandatory and message fields
+        $newRecord['musteri_mesaji'] = null; // Explicitly empty customer message
+        $newRecord['personel_mesaji'] = $message;
+        $newRecord['date'] = time();
+        $newRecord['user_id'] = $_SESSION['user_id'];
+        $newRecord['ip_adresi'] = $_SERVER['REMOTE_ADDR'] ?? '';
+        $newRecord['status'] = 1;
+
+        // Build dynamic INSERT query
+        $columns = array_keys($newRecord);
+        $placeholders = array_map(function ($c) {
+            return ":$c"; }, $columns);
+
+        $sql = "INSERT INTO tbl_icerik_bilgileri_ai (" . implode(', ', $columns) . ") 
+                VALUES (" . implode(', ', $placeholders) . ")";
+
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute($newRecord);
+    } else {
+        // Fallback for brand new numbers (should rarely happen in chat)
+        $stmt = $pdo->prepare("INSERT INTO tbl_icerik_bilgileri_ai (telefon_numarasi, personel_mesaji, date, user_id, status, ip_adresi) VALUES (?, ?, ?, ?, ?, ?)");
+        $stmt->execute([
+            $phone,
+            $message,
+            time(),
+            $_SESSION['user_id'],
+            1,
+            $_SERVER['REMOTE_ADDR'] ?? ''
+        ]);
+    }
 
     echo json_encode(['success' => true]);
 } catch (Throwable $e) {
