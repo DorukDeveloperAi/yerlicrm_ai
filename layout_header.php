@@ -128,6 +128,48 @@ requireLogin();
             font-weight: 600;
             font-size: 0.875rem;
         }
+
+        @media (max-width: 1024px) {
+            .sidebar {
+                width: 70px;
+                overflow: hidden;
+            }
+
+            .sidebar span {
+                display: none;
+            }
+
+            .sidebar-brand {
+                padding: 1.5rem 0;
+                justify-content: center;
+            }
+
+            .nav-item {
+                padding: 0.875rem;
+                justify-content: center;
+                gap: 0;
+            }
+
+            .main-content,
+            .top-nav {
+                margin-left: 70px;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .sidebar {
+                display: none;
+            }
+
+            .main-content,
+            .top-nav {
+                margin-left: 0;
+            }
+
+            .top-nav {
+                padding: 1rem;
+            }
+        }
     </style>
 </head>
 

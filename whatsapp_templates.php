@@ -25,13 +25,13 @@ $stmt->execute();
 $templates = $stmt->fetchAll();
 ?>
 
-<div class="flex justify-between items-center mb-8">
+<div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
     <div>
         <h1 class="text-2xl font-bold text-gray-900">WhatsApp Şablon Yönetimi</h1>
         <p class="text-sm text-gray-500 mt-1">Chat ekranında kullanılacak hazır mesaj şablonlarını yönetin</p>
     </div>
     <button onclick="openTemplateModal()"
-        class="bg-indigo-600 text-white px-5 py-2.5 rounded-xl hover:bg-indigo-700 transition flex items-center gap-2 shadow-sm font-semibold">
+        class="bg-indigo-600 text-white px-5 py-2.5 rounded-xl hover:bg-indigo-700 transition flex items-center gap-2 shadow-sm font-semibold whitespace-nowrap">
         <i class="ph-bold ph-plus"></i> Yeni Şablon Ekle
     </button>
 </div>
@@ -91,7 +91,8 @@ $templates = $stmt->fetchAll();
                             <div class="text-sm font-semibold text-gray-900"><?php echo htmlspecialchars($t['title']); ?>
                             </div>
                             <div class="text-xs text-gray-400 truncate max-w-xs">
-                                <?php echo htmlspecialchars($t['content']); ?></div>
+                                <?php echo htmlspecialchars($t['content']); ?>
+                            </div>
                         </td>
                         <td class="px-6 py-4 text-sm text-gray-500">
                             <?php echo date('d.m.Y H:i', strtotime($t['created_at'])); ?>
@@ -161,7 +162,7 @@ $templates = $stmt->fetchAll();
 <div id="templateModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
     <div class="bg-white rounded-2xl shadow-xl w-full max-w-2xl overflow-hidden max-h-[90vh] flex flex-col">
         <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-white">
-            <h3 class="text-lg font-bold text-gray-800" id="modalTitle">Yeni Şablon</h3>
+            <h3 class="text-lg font-bold text-gray-800 truncate pr-4" id="modalTitle">Yeni Şablon</h3>
             <button onclick="closeTemplateModal()" class="text-gray-400 hover:text-gray-600">
                 <i class="ph ph-x text-2xl"></i>
             </button>
