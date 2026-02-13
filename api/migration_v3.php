@@ -7,8 +7,11 @@ requireLogin();
 // For simplicity in this demo, we assume the user is authorized
 
 try {
-    // Add variables column to whatsapp_gupshup_templates
-    $pdo->exec("ALTER TABLE whatsapp_gupshup_templates ADD COLUMN IF NOT EXISTS variables TEXT NULL");
+    // Check if column exists first for compatibility
+    $check = $pdo->query("SHOW COLUMNS FROM whatsapp_gupshup_templates LIKE 'variables'");
+    if ($check->rowCount() === 0) {
+        $pdo->exec("ALTER TABLE whatsapp_gupshup_templates ADD COLUMN variables TEXT NULL");
+    }
 
     echo json_encode(['success' => true, 'message' => 'Migration applied successfully.']);
 } catch (PDOException $e) {
