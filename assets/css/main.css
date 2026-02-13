@@ -1103,24 +1103,22 @@ body {
 }
 
 .btn-templates-toggle {
-    width: 3.5rem;
-    height: 3.5rem;
-    border-radius: 1rem;
-    border: 1.5px solid #e2e8f0;
-    background: white;
-    color: #64748b;
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    width: 44px;
+    height: 44px;
+    flex-shrink: 0;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: all 0.2s;
-    font-size: 1.25rem;
+    transition: background 0.2s;
 }
 
 .btn-templates-toggle:hover {
-    background: #f8fafc;
-    color: var(--primary);
-    border-color: var(--primary-light);
+    background: var(--primary-hover);
     transform: translateY(-1px);
 }
 

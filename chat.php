@@ -770,19 +770,28 @@ $statuses = $pdo->query("SELECT * FROM tbl_ayarlar_gorusme_sonucu_bilgileri ORDE
                     const messageInput = document.getElementById('message-text');
                     const templateContainer = document.getElementById('templates-container');
                     const sendBtn = document.querySelector('.btn-send');
-
                     const now = data.now;
                     const lastCustomerDate = data.last_customer_date;
                     const hoursPassed = (now - lastCustomerDate) / 3600;
 
-                    if (lastCustomerDate > 0 && hoursPassed > 24) {
+                    const btnSend = document.querySelector('.btn-send');
+                    const btnTemplateToggle = document.querySelector('.btn-templates-toggle');
+                    const within24h = !(lastCustomerDate > 0 && hoursPassed > 24);
+
+                    if (!within24h) {
                         messageInput.disabled = true;
                         messageInput.placeholder = "24 saat kuralı: Sadece şablon mesajı gönderilebilir";
-                        document.querySelector('.btn-templates-toggle').classList.add('pulse-primary');
+                        btnSend.style.display = 'none';
+                        btnTemplateToggle.style.display = 'flex';
+                        btnTemplateToggle.classList.add('pulse-primary');
                     } else {
                         messageInput.disabled = false;
                         messageInput.placeholder = "WhatsApp mesajınızı yazın...";
-                        document.querySelector('.btn-templates-toggle').classList.remove('pulse-primary');
+                        btnSend.style.display = 'flex';
+                        btnTemplateToggle.style.display = 'none';
+                        btnTemplateToggle.classList.remove('pulse-primary');
+                        // Ensure templates container is hidden when switching back to normal chat
+                        document.getElementById('templates-container').style.display = 'none';
                     }
                 });
 
@@ -1083,7 +1092,7 @@ $statuses = $pdo->query("SELECT * FROM tbl_ayarlar_gorusme_sonucu_bilgileri ORDE
             // If display is empty or none, show it. Otherwise hide it.
             const isHidden = !container.style.display || container.style.display === 'none';
             container.style.display = isHidden ? 'block' : 'none';
-            
+
             if (isHidden) {
                 container.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
             }
