@@ -177,12 +177,12 @@ $templates = $stmt->fetchAll();
                 <div class="space-y-2">
                     <label class="text-sm font-bold text-gray-700">GupShup Template ID</label>
                     <input type="text" name="gupshup_id" id="templateGupShupId" placeholder="Örn: welcome_msg_01"
-                        class="w-full border-1.5 border-gray-300 rounded-xl px-4 py-3 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-600 outline-none transition-all">
+                        class="w-full border-2 border-gray-400 rounded-xl px-4 py-3 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-600 outline-none transition-all">
                 </div>
                 <div class="space-y-2">
                     <label class="text-sm font-bold text-gray-700">Kaynak Numara</label>
                     <input type="text" name="source_number" id="templateSourceNumber" placeholder="90850..."
-                        class="w-full border-1.5 border-gray-300 rounded-xl px-4 py-3 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-600 outline-none transition-all">
+                        class="w-full border-2 border-gray-400 rounded-xl px-4 py-3 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-600 outline-none transition-all">
                 </div>
             </div>
             <p class="text-xs text-gray-400">GupShup panelindeki benzersiz şablon ismi ve bu şablonun bağlı olduğu
@@ -191,22 +191,22 @@ $templates = $stmt->fetchAll();
             <div class="space-y-2">
                 <label class="text-sm font-bold text-gray-700">Görsel URL (Opsiyonel)</label>
                 <input type="text" name="image_url" id="templateImageUrl" placeholder="https://domain.com/image.jpg"
-                    class="w-full border-1.5 border-gray-300 rounded-xl px-4 py-3 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-600 outline-none transition-all">
+                    class="w-full border-2 border-gray-400 rounded-xl px-4 py-3 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-600 outline-none transition-all">
                 <p class="text-xs text-gray-400">Media şablonları için başlık görseli URL'ini buraya yazın.</p>
             </div>
 
             <div class="space-y-2">
                 <label class="text-sm font-bold text-gray-700">Şablon Başlığı</label>
                 <input type="text" name="title" id="templateTitle" required placeholder="Örn: Selamlama Mesajı"
-                    class="w-full border-1.5 border-gray-300 rounded-xl px-4 py-3 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-600 outline-none transition-all">
+                    class="w-full border-2 border-gray-400 rounded-xl px-4 py-3 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-600 outline-none transition-all">
                 <p class="text-xs text-gray-400">Şablonu kolayca tanıyabilmeniz için bir başlık verin.</p>
             </div>
 
             <div class="space-y-2">
                 <label class="text-sm font-bold text-gray-700">Mesaj İçeriği</label>
-                <textarea name="content" id="templateContent" required rows="6"
-                    placeholder="WhatsApp mesaj içeriğini buraya yazın..."
-                    class="w-full border-1.5 border-gray-300 rounded-xl px-4 py-3 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-600 outline-none transition-all resize-none"></textarea>
+                <textarea name="content" id="templateContent" required rows="4"
+                    placeholder="Mesaj içeriğini buraya yazın..."
+                    class="w-full border-2 border-gray-400 rounded-xl px-4 py-3 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-600 outline-none transition-all resize-none"></textarea>
                 <p class="text-xs text-gray-400">Not: {{name}} gibi değişkenler şu an desteklenmemektedir, düz metin
                     kullanın.</p>
             </div>
