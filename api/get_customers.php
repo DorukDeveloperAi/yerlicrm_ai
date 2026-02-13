@@ -41,18 +41,22 @@ if (!empty($search_query)) {
 $where_sql = implode(" AND ", $where_clauses);
 
 // Count total unique customers satisfying filters on their LATEST record
-// Using JOIN with GROUP BY for better general performance on 750k+ records
+// Pre-filter inside subquery if searching to drastically reduce working set
+$sub_where = $where_sql;
+$sub_params = $params;
+
 $count_query = "
     SELECT COUNT(*) 
     FROM tbl_icerik_bilgileri_ai t1
     JOIN (
         SELECT MAX(id) as last_id 
         FROM tbl_icerik_bilgileri_ai 
+        WHERE $sub_where
         GROUP BY telefon_numarasi
     ) t2 ON t1.id = t2.last_id
     WHERE $where_sql";
 $stmt_count = $pdo->prepare($count_query);
-$stmt_count->execute($params);
+$stmt_count->execute(array_merge($sub_params, $params));
 $total_unique = $stmt_count->fetchColumn();
 
 $total_pages = ceil($total_unique / $limit);
@@ -67,6 +71,7 @@ $query = "
     JOIN (
         SELECT MIN(date) as first_date, MAX(id) as last_id 
         FROM tbl_icerik_bilgileri_ai 
+        WHERE $sub_where
         GROUP BY telefon_numarasi
     ) t2 ON t1.id = t2.last_id
     LEFT JOIN users u ON t1.user_id = u.id
@@ -75,7 +80,7 @@ $query = "
 $query .= " ORDER BY t1.date DESC LIMIT $limit OFFSET $offset";
 
 $stmt = $pdo->prepare($query);
-$stmt->execute($params);
+$stmt->execute(array_merge($sub_params, $params));
 $customers = $stmt->fetchAll();
 
 // HTML Output Generation
