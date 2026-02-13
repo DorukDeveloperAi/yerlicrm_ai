@@ -159,12 +159,13 @@ $templates = $stmt->fetchAll();
 </div>
 
 <!-- Template Modal -->
-<div id="templateModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
-    <div class="bg-white rounded-2xl shadow-xl w-full max-w-2xl overflow-hidden max-h-[90vh] flex flex-col">
+<div id="templateModal"
+    class="fixed inset-0 bg-black/50 hidden z-50 flex justify-center items-start overflow-y-auto p-4 sm:p-10">
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-2xl overflow-hidden flex flex-col my-auto sm:my-0">
         <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-white">
             <h3 class="text-lg font-bold text-gray-800 truncate pr-4" id="modalTitle">Yeni Şablon</h3>
-            <button onclick="closeTemplateModal()" class="text-gray-400 hover:text-gray-600">
-                <i class="ph ph-x text-2xl"></i>
+            <button onclick="closeTemplateModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
+                <i class="ph-bold ph-x text-xl"></i>
             </button>
         </div>
 
