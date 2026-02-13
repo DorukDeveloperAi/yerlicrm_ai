@@ -103,13 +103,19 @@ try {
     }
 
     // Append message to table
-    $stmt = $pdo->prepare("INSERT INTO tbl_icerik_bilgileri_ai (telefon_numarasi, personel_mesaji, date, user_id, status) VALUES (?, ?, ?, ?, ?)");
+    $ip = $_SERVER['REMOTE_ADDR'] ?? '';
+    $browser = $_SERVER['HTTP_USER_AGENT'] ?? '';
+
+    $stmt = $pdo->prepare("INSERT INTO tbl_icerik_bilgileri_ai (telefon_numarasi, personel_mesaji, date, user_id, status, ip_adresi, browser, is_bot) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
     $stmt->execute([
         $phone,
         $message,
         time(),
         $_SESSION['user_id'],
-        1
+        1,
+        $ip,
+        $browser,
+        0 // is_bot
     ]);
 
     echo json_encode(['success' => true]);
