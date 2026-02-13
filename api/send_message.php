@@ -13,6 +13,20 @@ try {
     $phone = $_POST['phone'] ?? null;
     $message = $_POST['message'] ?? null;
 
+    // --- Fetch Latest Customer Data for Context ---
+    $customerData = null;
+    if ($phone) {
+        $cStmt = $pdo->prepare("
+            SELECT t1.*, u.username as rep_name 
+            FROM tbl_icerik_bilgileri_ai t1 
+            LEFT JOIN users u ON t1.user_id = u.id 
+            WHERE t1.telefon_numarasi = ? 
+            ORDER BY t1.id DESC LIMIT 1
+        ");
+        $cStmt->execute([$phone]);
+        $customerData = $cStmt->fetch();
+    }
+
     if ($type === 'template' && $templateId) {
         $stmt = $pdo->prepare("SELECT content, gupshup_id, source_number, image_url, variables FROM whatsapp_gupshup_templates WHERE id = ?");
         $stmt->execute([$templateId]);
@@ -25,27 +39,12 @@ try {
             $variablesMap = $template['variables'] ? json_decode($template['variables'], true) : null;
 
             // --- Variable Replacement Logic ---
-            if ($variablesMap && !empty($variablesMap) && $phone) {
-                // Fetch latest customer data
-                $cStmt = $pdo->prepare("
-                SELECT t1.*, u.username as rep_name 
-                FROM tbl_icerik_bilgileri_ai t1 
-                LEFT JOIN users u ON t1.user_id = u.id 
-                WHERE t1.telefon_numarasi = ? 
-                ORDER BY t1.id DESC LIMIT 1
-            ");
-                $cStmt->execute([$phone]);
-                $customer = $cStmt->fetch();
-
-                if ($customer) {
-                    foreach ($variablesMap as $placeholder => $field) {
-                        $val = $customer[$field] ?? '';
-                        $message = str_replace($placeholder, $val, $message);
-                    }
+            if ($variablesMap && !empty($variablesMap) && $customerData) {
+                foreach ($variablesMap as $placeholder => $field) {
+                    $val = $customerData[$field] ?? '';
+                    $message = str_replace($placeholder, $val, $message);
                 }
             }
-            // ----------------------------------
-
         } else {
             echo json_encode(['success' => false, 'message' => 'Şablon bulunamadı.']);
             exit;
@@ -104,15 +103,26 @@ try {
 
     // Append message to table
     $ip = $_SERVER['REMOTE_ADDR'] ?? '';
+    $now = time();
+    $name = $customerData['musteri_adi_soyadi'] ?? '';
+    $kampanya = $customerData['kampanya'] ?? '';
+    $ilk_erisim = $customerData['ilk_erisim_tarihi'] ?? $now;
 
-    $stmt = $pdo->prepare("INSERT INTO tbl_icerik_bilgileri_ai (telefon_numarasi, personel_mesaji, date, user_id, status, ip_adresi) VALUES (?, ?, ?, ?, ?, ?)");
+    $stmt = $pdo->prepare("INSERT INTO tbl_icerik_bilgileri_ai (
+        telefon_numarasi, musteri_adi_soyadi, personel_mesaji, date, 
+        user_id, status, ip_adresi, ilk_erisim_tarihi, kampanya
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+
     $stmt->execute([
         $phone,
+        $name,
         $message,
-        time(),
+        $now,
         $_SESSION['user_id'],
         1,
-        $ip
+        $ip,
+        $ilk_erisim,
+        $kampanya
     ]);
 
     echo json_encode(['success' => true]);
