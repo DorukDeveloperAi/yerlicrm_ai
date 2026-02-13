@@ -57,15 +57,43 @@ try {
     }
 
     // --- GupShup API Call ---
-    $success = true; // Default to true for now to allow local testing
-    $error_msg = '';
+    $success = true;
+    $status_msg = 'Gönderildi';
+    $api_response = null;
 
     if (defined('GUPSHUP_API_KEY') && !empty(GUPSHUP_API_KEY)) {
-        // Implement GupShup API call logic here
-        // For template messages, GupShup usually requires sending the template ID and potentially parameters.
-        // Example logic (Conceptual):
-        /*
-        $ch = curl_init('https://api.gupshup.io/wa/api/v1/template/msg');
+        $endpoint = 'https://api.gupshup.io/wa/api/v1/msg';
+        $postBody = [
+            'channel' => 'whatsapp',
+            'source' => $source_number ?: GUPSHUP_SOURCE_NUMBER,
+            'destination' => $phone,
+            'appname' => GUPSHUP_APP_NAME
+        ];
+
+        if ($type === 'template' && !empty($gupshup_template_id)) {
+            $endpoint = 'https://api.gupshup.io/wa/api/v1/template/msg';
+
+            // Prepare params in order {{1}}, {{2}}, ...
+            $params = [];
+            if ($variablesMap && is_array($variablesMap)) {
+                // Extract keys like {{1}}, {{2}} and sort them
+                $keys = array_keys($variablesMap);
+                sort($keys); // Ensures {{1}} comes before {{2}}
+                foreach ($keys as $k) {
+                    $field = $variablesMap[$k];
+                    $params[] = (string) ($customerData[$field] ?? '');
+                }
+            }
+
+            $postBody['template'] = json_encode([
+                'id' => $gupshup_template_id,
+                'params' => $params
+            ]);
+        } else {
+            $postBody['message'] = $message;
+        }
+
+        $ch = curl_init($endpoint);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_HTTPHEADER, [
@@ -73,31 +101,26 @@ try {
             'Content-Type: application/x-www-form-urlencoded',
             'apikey: ' . GUPSHUP_API_KEY
         ]);
-
-        $postBody = [
-            'source' => GUPSHUP_SOURCE_NUMBER,
-            'destination' => $phone,
-            'template' => json_encode([
-                'id' => $gupshup_template_id,
-                'params' => [] // Add params if template is dynamic
-            ]),
-            'appname' => GUPSHUP_APP_NAME
-        ];
-
         curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($postBody));
+
         $response = curl_exec($ch);
         $resData = json_decode($response, true);
-        if ($resData['status'] !== 'submitted') {
+        $api_response = $resData;
+
+        // GupShup success status is usually 'submitted' or 'accepted'
+        if (isset($resData['status']) && ($resData['status'] === 'submitted' || $resData['status'] === 'accepted')) {
+            $success = true;
+            $status_msg = 'Başarıyla iletildi (GupShup: ' . $resData['status'] . ')';
+        } else {
             $success = false;
-            $error_msg = $resData['message'] ?? 'API hatası';
+            $status_msg = $resData['message'] ?? ($resData['error']['message'] ?? 'Bilinmeyen API hatası');
         }
         curl_close($ch);
-        */
     }
     // ------------------------
 
     if (!$success) {
-        echo json_encode(['success' => false, 'message' => 'Mesaj gönderilemedi: ' . $error_msg]);
+        echo json_encode(['success' => false, 'message' => 'GupShup Hatası: ' . $status_msg, 'api_raw' => $api_response]);
         exit;
     }
 

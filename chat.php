@@ -1099,6 +1099,16 @@ $statuses = $pdo->query("SELECT * FROM tbl_ayarlar_gorusme_sonucu_bilgileri ORDE
             }
             if (!confirm('Bu şablon mesajı gönderilsin mi?')) return;
 
+            // Show loading state
+            const container = document.getElementById('templates-container');
+            const originalContent = container.innerHTML;
+            container.innerHTML = `
+                <div class="flex flex-col items-center justify-center p-8 text-indigo-600">
+                    <i class="ph ph-circle-notch ph-spin text-4xl mb-2"></i>
+                    <div class="font-medium">Mesaj Gönderiliyor...</div>
+                </div>
+            `;
+
             const formData = new FormData();
             formData.append('phone', currentPhone);
             formData.append('template_id', templateId);
@@ -1113,10 +1123,40 @@ $statuses = $pdo->query("SELECT * FROM tbl_ayarlar_gorusme_sonucu_bilgileri ORDE
                 .then(r => r.json())
                 .then(data => {
                     if (data.success) {
-                        loadConversation(currentPhone, null, null, activeItem);
+                        // Success state
+                        container.innerHTML = `
+                            <div class="flex flex-col items-center justify-center p-8 text-emerald-600">
+                                <i class="ph ph-check-circle text-4xl mb-2"></i>
+                                <div class="font-medium text-center">Başarıyla Gönderildi</div>
+                            </div>
+                        `;
+                        // Auto-close templates after 1.5s
+                        setTimeout(() => {
+                            container.style.display = 'none';
+                            container.innerHTML = originalContent;
+                            loadConversation(currentPhone, null, null, activeItem);
+                        }, 1500);
                     } else {
-                        alert('Hata: ' + data.message);
+                        // Error state
+                        container.innerHTML = `
+                            <div class="flex flex-col items-center justify-center p-8 text-rose-600">
+                                <i class="ph ph-x-circle text-4xl mb-2"></i>
+                                <div class="font-medium text-center mb-1">Gönderim Başarısız</div>
+                                <div class="text-xs text-center opacity-75">${data.message}</div>
+                                <button class="mt-3 text-xs underline" onclick="loadTemplates()">Şablonlara Dön</button>
+                            </div>
+                        `;
+                        console.error('Full Error:', data);
                     }
+                })
+                .catch(err => {
+                    container.innerHTML = `
+                        <div class="flex flex-col items-center justify-center p-8 text-rose-600">
+                            <i class="ph ph-warning text-4xl mb-2"></i>
+                            <div class="font-medium text-center">Sorgu Hatası</div>
+                            <button class="mt-3 text-xs underline" onclick="loadTemplates()">Tekrar Dene</button>
+                        </div>
+                    `;
                 });
         }
 
