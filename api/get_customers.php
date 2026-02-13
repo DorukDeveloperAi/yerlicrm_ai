@@ -95,9 +95,23 @@ try {
     $stmt = $pdo->prepare($query);
     $stmt->execute(array_merge($sub_params, $params));
     $customers = $stmt->fetchAll();
-} catch (Exception $e) {
+} catch (Throwable $e) {
     header('Content-Type: application/json');
     die(json_encode(['success' => false, 'message' => 'Sorgu hatası: ' . $e->getMessage()]));
+}
+
+// Fallback for mbstring if missing
+if (!function_exists('mb_substr')) {
+    function mb_substr($str, $start, $len = null, $encoding = null)
+    {
+        return ($len === null) ? substr($str, $start) : substr($str, $start, $len);
+    }
+}
+if (!function_exists('mb_strtoupper')) {
+    function mb_strtoupper($str, $encoding = null)
+    {
+        return strtoupper($str);
+    }
 }
 
 // HTML Output Generation
