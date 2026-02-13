@@ -2,6 +2,10 @@
 require_once '../auth.php';
 requireLogin();
 
+// Disable error display for JSON response consistency
+ini_set('display_errors', 0);
+error_reporting(E_ALL);
+
 $limit = 50;
 $page = isset($_GET['page']) ? (int) $_GET['page'] : 1;
 $page = $page < 1 ? 1 : $page;
@@ -38,50 +42,63 @@ if (!empty($search_query)) {
     $params[] = "%$search_query%";
 }
 
-$where_sql = implode(" AND ", $where_clauses);
+try {
+    $where_sql = implode(" AND ", $where_clauses);
+    $where_sql_aliased = implode(" AND ", array_map(function ($c) {
+        // Replace column names with aliased versions for the outer WHERE clause
+        return str_replace(
+            ['musteri_adi_soyadi', 'telefon_numarasi', 'user_id', 'kampanya', 'gorusme_sonucu_text'],
+            ['t1.musteri_adi_soyadi', 't1.telefon_numarasi', 't1.user_id', 't1.kampanya', 't1.gorusme_sonucu_text'],
+            $c
+        );
+    }, $where_clauses));
 
-// Count total unique customers satisfying filters on their LATEST record
-// Pre-filter inside subquery if searching to drastically reduce working set
-$sub_where = $where_sql;
-$sub_params = $params;
+    // Count total unique customers satisfying filters on their LATEST record
+    // Pre-filter inside subquery if searching to drastically reduce working set
+    $sub_where = $where_sql; // Subquery operates on tbl_icerik_bilgileri_ai directly, no alias needed here
+    $sub_params = $params;
 
-$count_query = "
-    SELECT COUNT(*) 
-    FROM tbl_icerik_bilgileri_ai t1
-    JOIN (
-        SELECT MAX(id) as last_id 
-        FROM tbl_icerik_bilgileri_ai 
-        WHERE $sub_where
-        GROUP BY telefon_numarasi
-    ) t2 ON t1.id = t2.last_id
-    WHERE $where_sql";
-$stmt_count = $pdo->prepare($count_query);
-$stmt_count->execute(array_merge($sub_params, $params));
-$total_unique = $stmt_count->fetchColumn();
+    $count_query = "
+        SELECT COUNT(*) 
+        FROM tbl_icerik_bilgileri_ai t1
+        JOIN (
+            SELECT MAX(id) as last_id 
+            FROM tbl_icerik_bilgileri_ai 
+            WHERE $sub_where
+            GROUP BY telefon_numarasi
+        ) t2 ON t1.id = t2.last_id
+        WHERE $where_sql_aliased"; // Use aliased WHERE for the outer query
+    $stmt_count = $pdo->prepare($count_query);
+    $stmt_count->execute(array_merge($sub_params, $params));
+    $total_unique = $stmt_count->fetchColumn();
 
-$total_pages = ceil($total_unique / $limit);
+    $total_pages = ceil($total_unique / $limit);
 
-// Data Query using JOIN with GROUP BY
-// This fetches first_date and last_id in one scan
-$query = "
-    SELECT t1.*, 
-           t2.first_date,
-           u.username as rep_name
-    FROM tbl_icerik_bilgileri_ai t1
-    JOIN (
-        SELECT MIN(date) as first_date, MAX(id) as last_id 
-        FROM tbl_icerik_bilgileri_ai 
-        WHERE $sub_where
-        GROUP BY telefon_numarasi
-    ) t2 ON t1.id = t2.last_id
-    LEFT JOIN users u ON t1.user_id = u.id
-    WHERE $where_sql";
+    // Data Query using JOIN with GROUP BY
+    // This fetches first_date and last_id in one scan
+    $query = "
+        SELECT t1.*, 
+               t2.first_date,
+               u.username as rep_name
+        FROM tbl_icerik_bilgileri_ai t1
+        JOIN (
+            SELECT MIN(date) as first_date, MAX(id) as last_id 
+            FROM tbl_icerik_bilgileri_ai 
+            WHERE $sub_where
+            GROUP BY telefon_numarasi
+        ) t2 ON t1.id = t2.last_id
+        LEFT JOIN users u ON t1.user_id = u.id
+        WHERE $where_sql_aliased"; // Use aliased WHERE for the outer query
 
-$query .= " ORDER BY t1.date DESC LIMIT $limit OFFSET $offset";
+    $query .= " ORDER BY t1.date DESC LIMIT $limit OFFSET $offset";
 
-$stmt = $pdo->prepare($query);
-$stmt->execute(array_merge($sub_params, $params));
-$customers = $stmt->fetchAll();
+    $stmt = $pdo->prepare($query);
+    $stmt->execute(array_merge($sub_params, $params));
+    $customers = $stmt->fetchAll();
+} catch (Exception $e) {
+    header('Content-Type: application/json');
+    die(json_encode(['success' => false, 'message' => 'Sorgu hatası: ' . $e->getMessage()]));
+}
 
 // HTML Output Generation
 ob_start();
