@@ -591,79 +591,6 @@ $complaint_topics = $pdo->query("SELECT DISTINCT talep_icerik as baslik FROM ice
             padding: 0.5rem;
             outline: none;
         }
-
-        /* --- Header Filter Pills --- */
-        .filter-pills {
-            display: flex;
-            gap: 0.5rem;
-            align-items: center;
-        }
-
-        .filter-pill {
-            padding: 0.4rem 1rem;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            border: 1.5px solid var(--border);
-            background: white;
-            color: var(--text-muted);
-        }
-
-        .filter-pill:hover {
-            border-color: var(--primary);
-            color: var(--primary);
-        }
-
-        .filter-pill.active {
-            background: var(--primary);
-            color: white;
-            border-color: var(--primary);
-            box-shadow: 0 4px 10px rgba(37, 99, 235, 0.2);
-        }
-
-        .custom-date-group {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            margin-left: 0.5rem;
-            animation: fadeIn 0.3s ease-out;
-        }
-
-        .custom-date-group input {
-            padding: 0.35rem 0.6rem;
-            border-radius: 10px;
-            border: 1.5px solid var(--border);
-            font-size: 0.8rem;
-            font-family: inherit;
-            outline: none;
-        }
-
-        .custom-date-group input:focus {
-            border-color: var(--primary);
-        }
-
-        .btn-apply-date {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 0.4rem 0.75rem;
-            border-radius: 10px;
-            font-size: 0.8rem;
-            font-weight: 700;
-            cursor: pointer;
-        }
-
-        .sidebar-header {
-            background: white;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0.75rem 1.5rem;
-            border-bottom: 1px solid #f3f4f6;
-            min-height: 70px;
-        }
     </style>
 </head>
 
@@ -776,25 +703,10 @@ $complaint_topics = $pdo->query("SELECT DISTINCT talep_icerik as baslik FROM ice
                 <div class="spinner"></div>
                 <p style="margin-top: 1rem; color: var(--primary); font-weight: 500;">Yükleniyor...</p>
             </div>
-            <header class="sidebar-header">
-                <div style="display: flex; align-items: center; gap: 1.5rem;">
-                    <h3 id="chat-title" style="font-size: 1.1rem; font-weight: 700; color: #0f172a; margin: 0;">Müşteri Seçin</h3>
-                    
-                    <div id="header-filters" class="filter-pills">
-                        <div class="filter-pill active" onclick="setDateFilter('all', this)">Tümü</div>
-                        <div class="filter-pill" onclick="setDateFilter('today', this)">Bugün</div>
-                        <div class="filter-pill" onclick="setDateFilter('yesterday', this)">Dün</div>
-                        <div class="filter-pill" onclick="setDateFilter('custom', this)">Özel</div>
-                        
-                        <div id="custom-date-picker" class="custom-date-group" style="display: none;">
-                            <input type="date" id="filter-start-date">
-                            <span style="color: var(--text-muted); font-size: 0.8rem;">-</span>
-                            <input type="date" id="filter-end-date">
-                            <button class="btn-apply-date" onclick="applyCustomDate()">Uygula</button>
-                        </div>
-                    </div>
-                </div>
-
+            <header class="sidebar-header"
+                style="background: white; display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.5rem; border-bottom: 1px solid #f3f4f6;">
+                <h3 id="chat-title" style="font-size: 1.1rem; font-weight: 700; color: #0f172a; margin: 0;">Müşteri
+                    Seçin</h3>
                 <div id="chat-meta" style="text-align: right; display: none;">
                     <div id="meta-name" style="font-size: 0.9rem; font-weight: 600; color: #334155;"></div>
                     <div id="meta-campaign" style="font-size: 0.75rem; color: #64748b;"></div>
@@ -1004,10 +916,15 @@ $complaint_topics = $pdo->query("SELECT DISTINCT talep_icerik as baslik FROM ice
     </div>
 
     <script>
+        // Global Data for Edit Modal (Fetched via AJAX)
+        let detailData = {
+            campaigns: [],
+            requests: [],
+            hospitals: [],
+            departments: [],
+            doctors: [],
+            personnel: []
         };
-
-        let currentStartDate = '';
-        let currentEndDate = '';
 
         // Load Modal Options Content
         async function loadModalOptions() {
@@ -1191,7 +1108,6 @@ $complaint_topics = $pdo->query("SELECT DISTINCT talep_icerik as baslik FROM ice
             const spinner = document.getElementById('convo-spinner');
             if (spinner) spinner.style.display = 'flex';
 
-            document.getElementById('header-filters').style.display = 'none';
             document.getElementById('chat-title').innerText = phone;
             document.getElementById('chat-meta').style.display = 'block';
             document.getElementById('meta-name').innerText = name || 'İsimsiz';
@@ -1331,45 +1247,9 @@ $complaint_topics = $pdo->query("SELECT DISTINCT talep_icerik as baslik FROM ice
 
         let searchTimeout;
         function performSearch() {
+            const val = document.getElementById('sidebar-search').value;
+            currentSearch = val;
             loadCustomers(1, currentStatus, currentPersonnel, currentCampaign, val);
-        }
-
-        function setDateFilter(type, el) {
-            // UI Update
-            document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
-            if (el) el.classList.add('active');
-
-            const customPicker = document.getElementById('custom-date-picker');
-            customPicker.style.display = (type === 'custom') ? 'flex' : 'none';
-
-            if (type === 'custom') return; // Wait for apply button
-
-            // Date Calculation
-            const now = new Date();
-            let start = '', end = '';
-
-            if (type === 'today') {
-                start = now.toISOString().split('T')[0];
-                end = start;
-            } else if (type === 'yesterday') {
-                const yest = new Date();
-                yest.setDate(now.getDate() - 1);
-                start = yest.toISOString().split('T')[0];
-                end = start;
-            } else if (type === 'all') {
-                start = '';
-                end = '';
-            }
-
-            currentStartDate = start;
-            currentEndDate = end;
-            loadCustomers(1, currentStatus, currentPersonnel, currentCampaign, currentSearch);
-        }
-
-        function applyCustomDate() {
-            currentStartDate = document.getElementById('filter-start-date').value;
-            currentEndDate = document.getElementById('filter-end-date').value;
-            loadCustomers(1, currentStatus, currentPersonnel, currentCampaign, currentSearch);
         }
 
         function loadCustomers(page = 1, status = currentStatus, personnel = currentPersonnel, campaign = currentCampaign, search = currentSearch) {
@@ -1385,7 +1265,7 @@ $complaint_topics = $pdo->query("SELECT DISTINCT talep_icerik as baslik FROM ice
 
             if (spinner) spinner.style.display = 'flex';
 
-            fetch(`api/get_customers.php?page=${page}&status=${encodeURIComponent(status)}&personnel=${personnel}&campaign=${encodeURIComponent(campaign)}&search=${encodeURIComponent(search)}&start_date=${currentStartDate}&end_date=${currentEndDate}`)
+            fetch(`api/get_customers.php?page=${page}&status=${encodeURIComponent(status)}&personnel=${personnel}&campaign=${encodeURIComponent(campaign)}&search=${encodeURIComponent(search)}`)
                 .then(r => r.json())
                 .then(data => {
                     if (spinner) spinner.style.display = 'none';
@@ -1417,14 +1297,6 @@ $complaint_topics = $pdo->query("SELECT DISTINCT talep_icerik as baslik FROM ice
             // Let's keep the search term but apply the filter
             loadCustomers(1, status, currentPersonnel, currentCampaign, currentSearch);
             document.getElementById('status-filter').value = 'all';
-
-            // Show filters again
-            document.getElementById('header-filters').style.display = 'flex';
-            document.getElementById('chat-title').innerText = 'Müşteri Seçin';
-            document.getElementById('chat-meta').style.display = 'none';
-            document.getElementById('chat-box').innerHTML = '<div style="text-align: center; color: var(--text-muted); margin-top: 5rem;">Detaylar burada görünecek.</div>';
-            document.getElementById('input-area').style.display = 'none';
-            document.getElementById('interaction-area').style.display = 'none';
         }
 
         function filterByPersonnel(personnel) {
