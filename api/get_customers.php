@@ -15,9 +15,20 @@ $status_filter = $_GET['status'] ?? 'all';
 $personnel_filter = $_GET['personnel'] ?? 'all';
 $campaign_filter = $_GET['campaign'] ?? 'all';
 $search_query = $_GET['search'] ?? '';
+$start_date = $_GET['start_date'] ?? '';
+$end_date = $_GET['end_date'] ?? '';
 
 $where_clauses = ["1=1"];
 $params = [];
+
+if (!empty($start_date)) {
+    $where_clauses[] = "DATE(t1.basvuru_tarihi) >= ?";
+    $params[] = $start_date;
+}
+if (!empty($end_date)) {
+    $where_clauses[] = "DATE(t1.basvuru_tarihi) <= ?";
+    $params[] = $end_date;
+}
 
 if (empty($search_query)) {
     if ($status_filter === 'empty') {
