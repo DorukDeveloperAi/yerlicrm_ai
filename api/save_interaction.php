@@ -100,6 +100,16 @@ try {
     $stmt->execute($insert_data);
 
     // Update master table (icerik_bilgileri)
+    // Only update satis_temsilcisi if it's currently empty
+    $check_stmt = $pdo->prepare("SELECT satis_temsilcisi FROM icerik_bilgileri WHERE telefon_numarasi = ?");
+    $check_stmt->execute([$phone]);
+    $current_st = $check_stmt->fetchColumn();
+
+    $st_to_save = $current_st;
+    if (empty($current_st) || $current_st == '0') {
+        $st_to_save = $_SESSION['user_id'];
+    }
+
     $updateMasterSql = "UPDATE icerik_bilgileri 
                         SET son_mesaj_yeri = 'personel_mesaji', 
                             son_islem_tarihi = ?, 
@@ -111,7 +121,7 @@ try {
     $stmtMaster = $pdo->prepare($updateMasterSql);
     $stmtMaster->execute([
         time(),
-        $_SESSION['user_id'],
+        $st_to_save,
         $status_text,
         $callback_ts,
         $lead_score,

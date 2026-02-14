@@ -41,10 +41,21 @@ try {
         $dbField = 'satis_temsilcisi';
     }
 
+    // Check if sales representative is empty
+    $check_stmt = $pdo->prepare("SELECT satis_temsilcisi FROM icerik_bilgileri WHERE telefon_numarasi = ?");
+    $check_stmt->execute([$phone]);
+    $current_st = $check_stmt->fetchColumn();
+
+    $st_to_save = $current_st;
+    if (empty($current_st) || $current_st == '0') {
+        $st_to_save = $_SESSION['user_id'] ?? 0;
+    }
+
     // Update the master table
-    $sql = "UPDATE icerik_bilgileri SET $dbField = ?, son_islem_tarihi = ? WHERE telefon_numarasi = ?";
+    $sql = "UPDATE icerik_bilgileri SET $dbField = ?, son_islem_tarihi = ?, satis_temsilcisi = ? WHERE telefon_numarasi = ?";
     $stmt = $pdo->prepare($sql);
-    $stmt->execute([$value, time(), $phone]);
+    $params = [$value, time(), $st_to_save, $phone];
+    $stmt->execute($params);
 
     // Also record the change in the audit/log table (tbl_icerik_bilgileri_ai)
     // We fetch the latest record from log to clone it with the change note

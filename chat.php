@@ -196,9 +196,13 @@ $complaint_topics = $pdo->query("SELECT DISTINCT talep_icerik as baslik FROM ice
             backdrop-filter: blur(8px);
             display: flex;
             justify-content: center;
-            align-items: center;
+            align-items: flex-start;
+            /* Ortadan yukarıya çekildi */
+            padding-top: 8vh;
+            /* Üstten boşluk bırakıldı */
             z-index: 2000;
-            padding: 1rem;
+            padding-left: 1rem;
+            padding-right: 1rem;
             animation: fadeIn 0.3s ease-out;
         }
 
@@ -208,7 +212,7 @@ $complaint_topics = $pdo->query("SELECT DISTINCT talep_icerik as baslik FROM ice
             max-width: 450px;
             border-radius: 24px;
             box-shadow: var(--shadow-lg);
-            overflow: hidden;
+            /* Removed overflow: hidden to allow Select2 dropdowns to be visible */
             transform: translateY(0);
             animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
@@ -280,6 +284,7 @@ $complaint_topics = $pdo->query("SELECT DISTINCT talep_icerik as baslik FROM ice
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
             filter: brightness(1.1);
+            color: #000 !important;
         }
 
         .btn-save-premium:active {
@@ -327,25 +332,51 @@ $complaint_topics = $pdo->query("SELECT DISTINCT talep_icerik as baslik FROM ice
 
         /* --- Sidebar Specifics --- */
         .sidebar-controls {
-            padding: 1.5rem;
+            padding: 1rem;
             background: white;
             border-bottom: 1px solid var(--border);
         }
 
         .sidebar-filter-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 0.75rem;
+            display: flex;
+            gap: 0.5rem;
             align-items: center;
+            flex-wrap: wrap;
         }
 
-        .sidebar-filter-grid .select2-container {
-            width: 100% !important;
+        .joined-filters {
+            display: flex;
+            flex: 1;
+            min-width: 0;
+            gap: 0;
         }
 
-        /* Make Status Filter and Button share the second row, or maybe separate */
-        #status-filter+.select2-container {
-            grid-column: span 1;
+        .joined-filters .select2-container {
+            flex: 1;
+            min-width: 0;
+            margin: 0 !important;
+        }
+
+        .joined-filters .select2-container--default .select2-selection--single {
+            border-radius: 0;
+            border-right: none;
+        }
+
+        /* First element: Left rounded */
+        .joined-filters select:first-of-type+.select2-container .select2-selection--single {
+            border-top-left-radius: 12px;
+            border-bottom-left-radius: 12px;
+        }
+
+        /* Last element: Right rounded and has right border */
+        .joined-filters select:last-of-type+.select2-container .select2-selection--single {
+            border-top-right-radius: 12px;
+            border-bottom-right-radius: 12px;
+            border-right: 1.5px solid var(--border);
+        }
+
+        .status-filter-wrapper {
+            display: none;
         }
 
         .status-select {
@@ -396,37 +427,46 @@ $complaint_topics = $pdo->query("SELECT DISTINCT talep_icerik as baslik FROM ice
         /* --- Tabs --- */
         .sidebar-tabs {
             display: flex;
-            padding: 0.5rem 1.5rem;
-            gap: 1.5rem;
-            border-bottom: 1px solid var(--border);
-            background: #fdfdfd;
+            padding: 0.5rem 1rem;
+            background: white;
+            border: none;
         }
 
         .tab-btn {
-            padding: 0.75rem 0;
-            border: none;
-            background: transparent;
-            font-size: 0.9rem;
-            font-weight: 600;
+            flex: 1;
+            padding: 0.6rem 0;
+            border: 1px solid var(--border);
+            background: #f8fafc;
+            font-size: 0.85rem;
+            font-weight: 700;
             color: var(--text-muted);
             cursor: pointer;
-            position: relative;
             transition: all 0.2s;
         }
 
-        .tab-btn.active {
-            color: var(--primary);
+        .tab-btn:first-child {
+            border-top-left-radius: 12px;
+            border-bottom-left-radius: 12px;
+            border-right: none;
         }
 
-        .tab-btn.active::after {
-            content: '';
-            position: absolute;
-            bottom: -1px;
-            left: 0;
-            right: 0;
-            height: 3px;
+        .tab-btn:last-child {
+            border-top-right-radius: 12px;
+            border-bottom-right-radius: 12px;
+        }
+
+        .tab-btn.active {
             background: var(--primary);
-            border-radius: 3px 3px 0 0;
+            color: white;
+            border-color: var(--primary);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+            z-index: 1;
+        }
+
+        .contact-list {
+            flex: 1;
+            overflow-y: auto;
+            background: white;
         }
 
         /* --- Interaction Area (Premium) --- */
@@ -641,27 +681,28 @@ $complaint_topics = $pdo->query("SELECT DISTINCT talep_icerik as baslik FROM ice
 
             <div class="sidebar-controls">
                 <div class="sidebar-filter-grid">
-                    <select class="status-select" id="personnel-filter">
-                        <option value="all">Personel</option>
-                    </select>
+                    <div class="joined-filters">
+                        <select class="status-select" id="personnel-filter">
+                            <option value="all">Personel</option>
+                        </select>
 
-                    <select class="status-select" id="campaign-filter">
-                        <option value="all">Kampanya</option>
-                    </select>
+                        <select class="status-select" id="campaign-filter">
+                            <option value="all">Kampanya</option>
+                        </select>
 
-                    <select class="status-select" id="status-filter">
-                        <option value="all">Sonuç</option>
-                        <?php foreach ($statuses as $s): ?>
-                            <option value="<?php echo htmlspecialchars($s['baslik']); ?>">
-                                <?php echo htmlspecialchars($s['baslik']); ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
+                        <select class="status-select" id="status-filter">
+                            <option value="all">Sonuç</option>
+                            <?php foreach ($statuses as $s): ?>
+                                <option value="<?php echo htmlspecialchars($s['baslik']); ?>">
+                                    <?php echo htmlspecialchars($s['baslik']); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
 
                     <button class="btn-new-record" onclick="openNewRecordModal()" title="Yeni Kayıt Ekle"
-                        style="width: 100%;">
+                        style="width: 40px; height: 40px; padding: 0; flex-shrink: 0;">
                         <i class="ph-bold ph-plus" style="font-size: 1.25rem;"></i>
-                        <span style="font-size: 0.85rem; font-weight: 700; margin-left: 0.5rem;">Yeni</span>
                     </button>
                 </div>
 
@@ -1030,18 +1071,27 @@ $complaint_topics = $pdo->query("SELECT DISTINCT talep_icerik as baslik FROM ice
 
             container.innerHTML = inputHtml;
 
-            // Set up listener if it's a select
-            const mainSelect = container.querySelector('select');
-            if (mainSelect && ['kampanya', 'talep_icerik', 'hastane', 'bolum', 'doktor'].includes(field)) {
-                mainSelect.addEventListener('change', function () {
-                    const otherContainer = document.getElementById('otherInputContainer');
-                    if (this.value === 'OTHER_OPTION') {
-                        otherContainer.style.display = 'block';
-                        document.getElementById('editValueOther').focus();
-                    } else {
-                        otherContainer.style.display = 'none';
-                    }
+            // Initialize Select2 if it's a select
+            const mainSelect = $(container).find('select');
+            if (mainSelect.length > 0) {
+                mainSelect.select2({
+                    dropdownParent: $('#editDetailModal'),
+                    width: '100%',
+                    placeholder: 'Seçiniz'
                 });
+
+                // Set up listener for "Other" option
+                if (['kampanya', 'talep_icerik', 'hastane', 'bolum', 'doktor'].includes(field)) {
+                    mainSelect.on('change', function () {
+                        const otherContainer = document.getElementById('otherInputContainer');
+                        if (this.value === 'OTHER_OPTION') {
+                            otherContainer.style.display = 'block';
+                            document.getElementById('editValueOther').focus();
+                        } else {
+                            otherContainer.style.display = 'none';
+                        }
+                    });
+                }
             }
         }
 
@@ -1297,6 +1347,16 @@ $complaint_topics = $pdo->query("SELECT DISTINCT talep_icerik as baslik FROM ice
             // Let's keep the search term but apply the filter
             loadCustomers(1, status, currentPersonnel, currentCampaign, currentSearch);
             document.getElementById('status-filter').value = 'all';
+
+            // Show/Hide Status Filter based on tab
+            const statusFilter = $('#status-filter');
+            if (statusFilter.data('select2')) {
+                if (status === 'all') {
+                    statusFilter.next('.select2-container').show();
+                } else {
+                    statusFilter.next('.select2-container').hide();
+                }
+            }
         }
 
         function filterByPersonnel(personnel) {
@@ -1534,6 +1594,12 @@ $complaint_topics = $pdo->query("SELECT DISTINCT talep_icerik as baslik FROM ice
             // Initialize Status filter Select2 (static in HTML)
             $('#status-filter').select2({ placeholder: "Sonuç" }).on('change', function () {
                 filterByStatus(this.value);
+            });
+
+            // Initialize Interaction Form Select2
+            $('#interaction-form select:not(#editValue)').select2({
+                width: '100%',
+                placeholder: 'Seçiniz'
             });
         };
     </script>
