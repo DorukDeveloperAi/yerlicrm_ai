@@ -111,6 +111,14 @@ try {
     $fullData = array_merge($masterData, $insert_data);
     unset($fullData['id']); // Remove ID from master before insert
 
+    // SQL Error Fix: 'kayit_tarihi' exists in master but not in log (date is used instead)
+    if (isset($fullData['kayit_tarihi'])) {
+        if (empty($fullData['date'])) {
+            $fullData['date'] = $fullData['kayit_tarihi'];
+        }
+        unset($fullData['kayit_tarihi']);
+    }
+
     // Ensure metadata is correct
     $fullData['user_id'] = $_SESSION['user_id'];
     $fullData['kullanici_bilgileri_adi'] = $_SESSION['username'] ?? '';
@@ -152,13 +160,25 @@ try {
         $fullData['denetci_ip_adresi'] = $_SERVER['REMOTE_ADDR'];
     }
 
-    // Insert into log table (Full Context)
-    $columns = array_keys($fullData);
+    // Dynamic Column Filtering: Fetch log table columns to avoid "Unknown column" errors
+    $logColsStmt = $pdo->query("SHOW COLUMNS FROM tbl_icerik_bilgileri_ai");
+    $validLogCols = $logColsStmt->fetchAll(PDO::FETCH_COLUMN);
+
+    $finalLogData = [];
+    foreach ($fullData as $key => $val) {
+        if (in_array($key, $validLogCols)) {
+            $finalLogData[$key] = $val;
+        }
+    }
+
+    // Insert into log table (Filtered Full Context)
+    $columns = array_keys($finalLogData);
     $placeholders = array_map(function ($col) {
-        return ":$col"; }, $columns);
+        return ":$col";
+    }, $columns);
     $logSql = "INSERT INTO tbl_icerik_bilgileri_ai (" . implode(', ', $columns) . ") VALUES (" . implode(', ', $placeholders) . ")";
     $logStmt = $pdo->prepare($logSql);
-    $logStmt->execute($fullData);
+    $logStmt->execute($finalLogData);
 
     // 3. Update master table (icerik_bilgileri)
     // Only update satis_temsilcisi if it's currently empty
