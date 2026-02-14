@@ -30,13 +30,21 @@ $complaint_topics = $pdo->query("SELECT DISTINCT talep_icerik as baslik FROM ice
     <script src="https://unpkg.com/phosphor-icons"></script>
     <style>
         :root {
-            --primary: #6366f1;
-            --primary-dark: #4f46e5;
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --primary-light: #eff6ff;
+            --accent: #f59e0b;
             --bg-main: #f8fafc;
             --sidebar-bg: #ffffff;
-            --text-main: #1e293b;
+            --text-main: #0f172a;
             --text-muted: #64748b;
             --border: #e2e8f0;
+            --glass-bg: rgba(255, 255, 255, 0.8);
+            --glass-border: rgba(226, 232, 240, 0.5);
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-md: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
         }
 
         body,
@@ -48,6 +56,7 @@ $complaint_topics = $pdo->query("SELECT DISTINCT talep_icerik as baslik FROM ice
             overflow: hidden;
             font-family: 'Plus Jakarta Sans', sans-serif;
             background-color: var(--bg-main);
+            color: var(--text-main);
         }
 
         .chat-page {
@@ -55,234 +64,355 @@ $complaint_topics = $pdo->query("SELECT DISTINCT talep_icerik as baslik FROM ice
             height: 100vh;
             width: 100vw;
             background: white;
-            box-shadow: none;
-            border-radius: 0;
-            margin: 0;
-        }
-
-
-
-        /* Drawer Sidebar */
-        .menu-drawer {
-            position: fixed;
-            top: 0;
-            left: -280px;
-            width: 280px;
-            height: 100%;
-            background: white;
-            z-index: 1001;
-            box-shadow: 10px 0 30px rgba(0, 0, 0, 0.05);
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            display: flex;
-            flex-direction: column;
-            padding: 2rem 1.5rem;
-        }
-
-        .menu-drawer.active {
-            left: 0;
-        }
-
-        .drawer-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: rgba(0, 0, 0, 0.2);
-            backdrop-filter: blur(4px);
-            z-index: 100;
-            display: none;
-        }
-
-        .drawer-overlay.active {
-            display: block;
-        }
-
-        .drawer-header {
-            margin-bottom: 2.5rem;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .drawer-logo {
-            width: 32px;
-            height: 32px;
-            background: linear-gradient(135deg, var(--primary), #818cf8);
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-        }
-
-        .chat-main {
-            display: flex;
-            flex-direction: column;
-            flex: 1;
-            background: white;
-            height: 100vh;
             overflow: hidden;
-            border-left: 1px solid var(--border);
-            border-right: 1px solid var(--border);
         }
 
+        /* --- Sidebar & Layout --- */
         .chat-sidebar {
             width: 380px;
             flex-shrink: 0;
             display: flex;
             flex-direction: column;
             background: white;
-            height: 100vh;
             border-right: 1px solid var(--border);
+            z-index: 20;
         }
 
-        .chat-box {
+        .chat-main {
             flex: 1;
-            overflow-y: auto;
-            padding: 1.5rem;
-            background: #f8fafc;
             display: flex;
             flex-direction: column;
-            gap: 1rem;
+            background: #f8fafc;
+            position: relative;
+            z-index: 10;
         }
 
-        .interaction-area {
+        .chat-details {
+            width: 380px;
+            flex-shrink: 0;
             background: white;
-            border-top: 1px solid var(--border);
-            padding: 1rem 1.5rem;
-        }
-
-        .sidebar-footer {
-            padding: 1rem;
-            border-top: 1px solid var(--border);
-            background: #f8fafc;
-        }
-
-        .sidebar-search-footer {
-            display: flex;
-            gap: 0.5rem;
-            margin-bottom: 0.75rem;
-        }
-
-        .sidebar-search-footer input {
-            flex: 1;
-            padding: 0.5rem 0.75rem;
-            border: 1px solid var(--border);
-            border-radius: 0.5rem;
-            font-size: 0.875rem;
-            outline: none;
-            transition: border-color 0.2s;
-        }
-
-        .sidebar-search-footer input:focus {
-            border-color: var(--primary);
-        }
-
-        .btn-search-bul {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 0.5rem;
-            font-size: 0.875rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: opacity 0.2s;
-        }
-
-        .btn-search-bul:hover {
-            opacity: 0.9;
-        }
-
-        .drawer-nav {
+            border-left: 1px solid var(--border);
             display: flex;
             flex-direction: column;
-            gap: 0.5rem;
+            z-index: 20;
         }
 
-        .drawer-link {
+        /* --- Modals (Premium Look) --- */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(8px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            padding: 1rem;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .modal-content {
+            background: white;
+            width: 100%;
+            max-width: 450px;
+            border-radius: 24px;
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+            transform: translateY(0);
+            animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .modal-header {
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #fdfdfd;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-main);
+            letter-spacing: -0.025em;
+        }
+
+        .modal-close {
+            background: var(--primary-light);
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
             display: flex;
             align-items: center;
-            gap: 0.75rem;
-            padding: 0.875rem 1rem;
-            color: var(--text-muted);
-            text-decoration: none;
-            border-radius: 0.75rem;
-            font-weight: 500;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--primary);
             transition: all 0.2s;
         }
 
-        .drawer-link:hover,
-        .drawer-link.active {
-            background: #f1f5f9;
-            color: var(--primary);
+        .modal-close:hover {
+            background: #dbeafe;
+            transform: rotate(90deg);
         }
 
-        .drawer-link i {
-            font-size: 1.25rem;
+        .modal-body {
+            padding: 2rem;
         }
 
-        .drawer-footer {
-            margin-top: auto;
-            border-top: 1px solid var(--border);
-            padding-top: 1.5rem;
-        }
-
-        .spinner-container {
-            position: absolute;
-            inset: 0;
-            background: rgba(255, 255, 255, 0.7);
-            display: flex;
-            flex-direction: column;
+        /* --- Enhanced Modal Buttons --- */
+        .btn-change,
+        .btn-primary-lg {
+            display: inline-flex;
             align-items: center;
             justify-content: center;
-            z-index: 1000;
+            padding: 0.875rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            border: none;
+            gap: 0.5rem;
+            width: 100%;
         }
 
-        .spinner {
-            width: 30px;
-            height: 30px;
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid var(--primary);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
+        .btn-save-premium {
+            background: linear-gradient(135deg, var(--primary) 0%, #4f46e5 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn-save-premium:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+            filter: brightness(1.1);
+        }
+
+        .btn-save-premium:active {
+            transform: translateY(0);
+        }
+
+        .btn-cancel-premium {
+            background: #f1f5f9;
+            color: #475569;
+        }
+
+        .btn-cancel-premium:hover {
+            background: #e2e8f0;
+            color: var(--text-main);
+        }
+
+        /* --- Animations --- */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         @keyframes spin {
-            100% {
+            to {
                 transform: rotate(360deg);
             }
         }
 
-        /* User Profile Widget - Icon Only */
-        .user-profile-widget {
-            position: fixed;
-            top: 1.25rem;
-            right: 1.25rem;
-            z-index: 1002;
+        /* --- Sidebar Specifics --- */
+        .sidebar-controls {
+            padding: 1.5rem;
+            background: white;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .sidebar-filter-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr) auto;
+            gap: 0.75rem;
+            align-items: center;
+        }
+
+        .status-select {
+            height: 40px;
+            border-radius: 10px;
+            border: 1.5px solid var(--border);
+            padding: 0 0.75rem;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-main);
+            background-color: #f8fafc;
             cursor: pointer;
+            transition: all 0.2s;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.5rem center;
+            background-size: 1rem;
+        }
+
+        .status-select:focus {
+            border-color: var(--primary);
+            background-color: white;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .btn-new-record {
             width: 40px;
             height: 40px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 50%;
+            cursor: pointer;
             transition: all 0.2s;
-            background: white;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn-new-record:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        /* --- Tabs --- */
+        .sidebar-tabs {
+            display: flex;
+            padding: 0.5rem 1.5rem;
+            gap: 1.5rem;
+            border-bottom: 1px solid var(--border);
+            background: #fdfdfd;
+        }
+
+        .tab-btn {
+            padding: 0.75rem 0;
+            border: none;
+            background: transparent;
+            font-size: 0.9rem;
+            font-weight: 600;
             color: var(--text-muted);
+            cursor: pointer;
+            position: relative;
+            transition: all 0.2s;
         }
 
-        .user-profile-widget:hover {
+        .tab-btn.active {
             color: var(--primary);
-            transform: scale(1.1);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
         }
 
-        .user-profile-icon {
-            font-size: 1.5rem;
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--primary);
+            border-radius: 3px 3px 0 0;
         }
+
+        /* --- Interaction Area (Premium) --- */
+        .interaction-grid-two-rows {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr 1fr;
+            gap: 1.5rem;
+            padding: 2rem;
+            background: white;
+        }
+
+        .field-group label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
+        }
+
+        .field-group select, .field-group input, .field-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: 12px;
+            border: 1.5px solid var(--border);
+            font-size: 0.9rem;
+            background: #f8fafc;
+            transition: all 0.2s;
+        }
+
+        .field-group select:focus, .field-group input:focus, .field-group textarea:focus {
+            border-color: var(--primary);
+            background: white;
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+            outline: none;
+        }
+
+        .note-field-group {
+            grid-row: span 2;
+        }
+
+        #complaint-section {
+            padding: 2rem;
+            background: #fffafa;
+            border-top: 1px solid #fee2e2;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.25rem;
+        }
+
+        /* --- Footer & Pagination --- */
+        .sidebar-footer {
+            padding: 1.5rem;
+            border-top: 1px solid var(--border);
+            background: white;
+        }
+
+        .sidebar-search-footer {
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .sidebar-search-footer input {
+            flex: 1;
+            padding: 0.75rem;
+            border-radius: 12px;
+            border: 1.5px solid var(--border);
+            font-size: 0.9rem;
+        }
+
+        .btn-search-bul {
+            padding: 0 1.25rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* Profile Circle Extra */
+        .contact-details .contact-name { font-size: 1rem; font-weight: 700; color: #0f172a; }
+        .contact-details .contact-time { font-size: 0.75rem; color: #94a3b8; }
+        .contact-details .contact-snippet { font-size: 0.875rem; color: #64748b; margin-top: 2px; }
     </style>
 </head>
 
@@ -530,11 +660,14 @@ $complaint_topics = $pdo->query("SELECT DISTINCT talep_icerik as baslik FROM ice
                         </div>
                     </div>
 
-                    <div class="interaction-footer">
-                        <button type="button" class="btn-inspector" onclick="saveInteraction('inspector')">Denetçi
+                    <div class="interaction-footer"
+                        style="padding: 1.5rem; background: #fafafa; border-top: 1px solid var(--border); display: flex; gap: 1rem;">
+                        <button type="button" class="btn-inspector" onclick="saveInteraction('inspector')"
+                            style="flex: 1; padding: 0.75rem; border-radius: 12px; font-weight: 600; border: 1px solid #cbd5e1; background: white; color: #475569; transition: all 0.2s;">Denetçi
                             Mesajı</button>
-                        <button type="button" class="btn-update" onclick="saveInteraction('update')">Bilgileri
-                            Düzenle</button>
+                        <button type="button" class="btn-update btn-save-premium" onclick="saveInteraction('update')"
+                            style="flex: 1.5; padding: 0.75rem; border-radius: 12px; font-weight: 700; background: var(--primary); color: white; border: none; box-shadow: var(--shadow); transition: all 0.2s;">Bilgileri
+                            Güncelle</button>
                     </div>
                 </form>
             </div>
@@ -594,11 +727,11 @@ $complaint_topics = $pdo->query("SELECT DISTINCT talep_icerik as baslik FROM ice
                     </div>
                 </div>
 
-                <div style="display: flex; gap: 0.5rem; margin-top: 1.5rem;">
-                    <button onclick="closeEditModal()" class="btn-change"
-                        style="flex: 1; background: #f1f5f9; color: #64748b; justify-content: center;">İptal</button>
-                    <button onclick="saveDetailChange()" class="btn-change"
-                        style="flex: 1; justify-content: center;">Kaydet</button>
+                <div style="display: flex; gap: 0.75rem; margin-top: 2rem;">
+                    <button onclick="closeEditModal()" class="btn-change btn-cancel-premium">İptal</button>
+                    <button onclick="saveDetailChange()" class="btn-change btn-save-premium">
+                        <i class="ph-bold ph-check"></i> Kaydet
+                    </button>
                 </div>
             </div>
         </div>
