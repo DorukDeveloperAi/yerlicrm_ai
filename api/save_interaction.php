@@ -167,6 +167,12 @@ try {
     $finalLogData = [];
     foreach ($fullData as $key => $val) {
         if (in_array($key, $validLogCols)) {
+            // Safety Check: If a column is required but missing/null, provide safe default
+            if ($val === null) {
+                if ($key === 'lead_kodu')
+                    $val = '';
+                // Add more safe defaults if needed
+            }
             $finalLogData[$key] = $val;
         }
     }
