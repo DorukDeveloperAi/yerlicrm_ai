@@ -24,6 +24,7 @@ $allowedFields = [
     'talep_icerik' => 'Talep İçerik',
     'hastane' => 'Hastane',
     'bolum' => 'Bölüm',
+    'brans' => 'Branş',
     'doktor' => 'Doktor',
     'dogum_haftasi' => 'Doğum Haftası',
     'satis_temsilcisi' => 'Satış Temsilcisi'

@@ -155,6 +155,18 @@ for ($i = 1; $i <= 10; $i++) {
             </div>
         </div>
 
+        <!-- Branch (Branş) -->
+        <div class="detail-form-group">
+            <label class="detail-label-sm">Branş</label>
+            <div class="detail-value-row">
+                <span class="detail-value-text"><?php echo htmlspecialchars($detail['brans'] ?: '-'); ?></span>
+                <button class="btn-edit-icon" title="Değiştir"
+                    onclick="openEditModal('brans', '<?php echo addslashes((string) ($detail['brans'] ?? '')); ?>', 'Branş')">
+                    <i class="ph ph-pencil-simple"></i>
+                </button>
+            </div>
+        </div>
+
         <!-- Doctor -->
         <div class="detail-form-group">
             <label class="detail-label-sm">Doktor</label>
@@ -166,16 +178,6 @@ for ($i = 1; $i <= 10; $i++) {
                 </button>
             </div>
         </div>
-
-        <!-- Branch (Branş) if different or extra -->
-        <?php if (!empty($detail['brans']) && $detail['brans'] !== $detail['bolum']): ?>
-            <div class="detail-form-group">
-                <label class="detail-label-sm">Branş</label>
-                <div class="detail-value-row">
-                    <span class="detail-value-text"><?php echo htmlspecialchars($detail['brans']); ?></span>
-                </div>
-            </div>
-        <?php endif; ?>
 
         <hr class="detail-divider">
 

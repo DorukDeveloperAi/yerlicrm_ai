@@ -963,6 +963,7 @@ $complaint_topics = $pdo->query("SELECT DISTINCT talep_icerik as baslik FROM ice
             requests: [],
             hospitals: [],
             departments: [],
+            branches: [],
             doctors: [],
             personnel: []
         };
@@ -1039,6 +1040,7 @@ $complaint_topics = $pdo->query("SELECT DISTINCT talep_icerik as baslik FROM ice
             else if (field === 'talep_icerik') inputHtml = buildSelect(detailData.requests);
             else if (field === 'hastane') inputHtml = buildSelect(detailData.hospitals);
             else if (field === 'bolum') inputHtml = buildSelect(detailData.departments);
+            else if (field === 'brans') inputHtml = buildSelect(detailData.branches);
             else if (field === 'doktor') inputHtml = buildSelect(detailData.doctors);
             else if (field === 'satis_temsilcisi' && options) {
                 inputHtml = buildSelect(options, true);
@@ -1051,7 +1053,7 @@ $complaint_topics = $pdo->query("SELECT DISTINCT talep_icerik as baslik FROM ice
             }
 
             // Append "Diğer" option to selects and add custom input listener
-            if (['kampanya', 'talep_icerik', 'hastane', 'bolum', 'doktor'].includes(field)) {
+            if (['kampanya', 'talep_icerik', 'hastane', 'bolum', 'brans', 'doktor'].includes(field)) {
                 const tempDiv = document.createElement('div');
                 tempDiv.innerHTML = inputHtml;
                 const select = tempDiv.querySelector('select');
