@@ -206,15 +206,22 @@ try {
     $masterColsStmt = $pdo->query("SHOW COLUMNS FROM icerik_bilgileri");
     $validMasterCols = $masterColsStmt->fetchAll(PDO::FETCH_COLUMN);
 
-    // Prepare data for master update
+    // Calculate sales representative to save
+    $current_st = $masterData['satis_temsilcisi'] ?? '';
+    $st_to_save = $current_st;
+    if (empty($current_st) || $current_st == '0') {
+        $st_to_save = $_SESSION['username'] ?? 'Sistem';
+    }
+
+    // Prepare data for master update with safety checks for array keys
     $masterUpdateData = [
         'son_mesaj_yeri' => 'personel_mesaji',
         'son_islem_tarihi' => time(),
         'satis_temsilcisi' => $st_to_save,
-        'gorusme_sonucu_text' => $status_text ?: $masterData['gorusme_sonucu_text'],
-        'tekrar_arama_tarihi' => $callback_ts ?: $masterData['tekrar_arama_tarihi'],
-        'lead_puanlama' => $lead_score ?: $masterData['lead_puanlama'],
-        'kampanya' => $kampanya ?: $masterData['kampanya']
+        'gorusme_sonucu_text' => $status_text ?: ($masterData['gorusme_sonucu_text'] ?? ''),
+        'tekrar_arama_tarihi' => $callback_ts ?: ($masterData['tekrar_arama_tarihi'] ?? 0),
+        'lead_puanlama' => $lead_score ?: ($masterData['lead_puanlama'] ?? ''),
+        'kampanya' => $kampanya ?: ($masterData['kampanya'] ?? '')
     ];
 
     // Filter data to include only existing columns
