@@ -86,13 +86,13 @@ $sql = "INSERT INTO tbl_icerik_bilgileri_ai (
     :denetci_id, :denetci_adi, :denetci_mesaj, :denetci_mesaj_tarihi, :denetci_ip_adresi
 )";
 
-// Ensure keys match exactly
+// Ensure keys match exactly - Use safe defaults instead of null to avoid DB constraints
 $insert_data = array_merge([
-    'denetci_id' => null,
-    'denetci_adi' => null,
-    'denetci_mesaj' => null,
-    'denetci_mesaj_tarihi' => null,
-    'denetci_ip_adresi' => null
+    'denetci_id' => 0,
+    'denetci_adi' => '',
+    'denetci_mesaj' => '',
+    'denetci_mesaj_tarihi' => 0,
+    'denetci_ip_adresi' => ''
 ], $data);
 
 try {
