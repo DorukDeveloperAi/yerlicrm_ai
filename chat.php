@@ -334,9 +334,18 @@ $complaint_topics = $pdo->query("SELECT DISTINCT talep_icerik as baslik FROM ice
 
         .sidebar-filter-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr) auto;
+            grid-template-columns: 1fr 1fr;
             gap: 0.75rem;
             align-items: center;
+        }
+
+        .sidebar-filter-grid .select2-container {
+            width: 100% !important;
+        }
+
+        /* Make Status Filter and Button share the second row, or maybe separate */
+        #status-filter+.select2-container {
+            grid-column: span 1;
         }
 
         .status-select {
@@ -643,16 +652,16 @@ $complaint_topics = $pdo->query("SELECT DISTINCT talep_icerik as baslik FROM ice
                     <select class="status-select" id="status-filter">
                         <option value="all">Sonuç</option>
                         <?php foreach ($statuses as $s): ?>
-                            <option value="<?php echo htmlspecialchars($s['baslik']); ?>" <?php echo (isset($status_filter) && $status_filter === $s['baslik']) ? 'selected' : ''; ?>>
+                            <option value="<?php echo htmlspecialchars($s['baslik']); ?>">
                                 <?php echo htmlspecialchars($s['baslik']); ?>
                             </option>
                         <?php endforeach; ?>
                     </select>
 
-                    <button class="btn-new-record" onclick="openNewRecordModal()" title="Yeni Kayıt Ekle">
-                        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
-                            <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
-                        </svg>
+                    <button class="btn-new-record" onclick="openNewRecordModal()" title="Yeni Kayıt Ekle"
+                        style="width: 100%;">
+                        <i class="ph-bold ph-plus" style="font-size: 1.25rem;"></i>
+                        <span style="font-size: 0.85rem; font-weight: 700; margin-left: 0.5rem;">Yeni</span>
                     </button>
                 </div>
 
@@ -949,8 +958,8 @@ $complaint_topics = $pdo->query("SELECT DISTINCT talep_icerik as baslik FROM ice
             pSelect.select2({ placeholder: "Personel", allowClear: false });
             cSelect.select2({ placeholder: "Kampanya", allowClear: false });
 
-            pSelect.on('change', function() { filterByPersonnel(this.value); });
-            cSelect.on('change', function() { filterByCampaign(this.value); });
+            pSelect.on('change', function () { filterByPersonnel(this.value); });
+            cSelect.on('change', function () { filterByCampaign(this.value); });
         }
 
         function openEditModal(field, currentValue, label, options = null) {
@@ -1523,7 +1532,7 @@ $complaint_topics = $pdo->query("SELECT DISTINCT talep_icerik as baslik FROM ice
             loadCustomers(1, currentStatus, currentPersonnel, currentCampaign, currentSearch);
 
             // Initialize Status filter Select2 (static in HTML)
-            $('#status-filter').select2({ placeholder: "Sonuç" }).on('change', function() {
+            $('#status-filter').select2({ placeholder: "Sonuç" }).on('change', function () {
                 filterByStatus(this.value);
             });
         };
