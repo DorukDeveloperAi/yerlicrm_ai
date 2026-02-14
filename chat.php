@@ -1083,7 +1083,7 @@ $complaint_topics = $pdo->query("SELECT DISTINCT talep_icerik as baslik FROM ice
                 });
 
                 // Set up listener for "Other" option
-                if (['kampanya', 'talep_icerik', 'hastane', 'bolum', 'doktor'].includes(field)) {
+                if (['kampanya', 'talep_icerik', 'hastane', 'bolum', 'brans', 'doktor'].includes(field)) {
                     mainSelect.on('change', function () {
                         const otherContainer = document.getElementById('otherInputContainer');
                         if (this.value === 'OTHER_OPTION') {
