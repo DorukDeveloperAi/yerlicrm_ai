@@ -516,12 +516,12 @@ $complaint_topics = $pdo->query("SELECT DISTINCT talep_icerik as baslik FROM ice
         }
 
         .interaction-container {
-            padding: 0.25rem 1.5rem 1rem 1.5rem !important; /* Sol/Sağ hizalama */
+            padding: 0.75rem 1.5rem 1rem 1.5rem !important; /* Üst boşluk artırıldı (0.25 -> 0.75) */
             background: white;
         }
 
         .chat-input-area {
-            padding: 0.75rem 1.5rem 0.25rem 1.5rem !important; /* Dikey boşluk azaldı */
+            padding: 0.75rem 1.5rem 0.5rem 1.5rem !important; /* Alt boşluk artırıldı (0.25 -> 0.5) */
             background: white;
             border-top: 1px solid var(--border);
             display: flex;
