@@ -96,15 +96,73 @@ $insert_data = array_merge([
 ], $data);
 
 try {
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute($insert_data);
-
-    // Update master table (icerik_bilgileri)
-    // Only update satis_temsilcisi if it's currently empty
-    $check_stmt = $pdo->prepare("SELECT satis_temsilcisi FROM icerik_bilgileri WHERE telefon_numarasi = ?");
+    // 1. Fetch current data from master table for full context log
+    $check_stmt = $pdo->prepare("SELECT * FROM icerik_bilgileri WHERE telefon_numarasi = ?");
     $check_stmt->execute([$phone]);
-    $current_st = $check_stmt->fetchColumn();
+    $masterData = $check_stmt->fetch(PDO::FETCH_ASSOC);
 
+    if (!$masterData) {
+        echo json_encode(['success' => false, 'message' => 'Müşteri bulunamadı']);
+        exit;
+    }
+
+    // 2. Prepare full context data for logging
+    // We override master data with form data if provided
+    $fullData = array_merge($masterData, $insert_data);
+    unset($fullData['id']); // Remove ID from master before insert
+
+    // Ensure metadata is correct
+    $fullData['user_id'] = $_SESSION['user_id'];
+    $fullData['kullanici_bilgileri_adi'] = $_SESSION['username'] ?? '';
+    $fullData['ip_adresi'] = $_SERVER['REMOTE_ADDR'];
+    $fullData['date'] = time();
+    $fullData['personel_mesaji'] = $note;
+    $fullData['telefon_numarasi'] = $phone;
+
+    // Update fields from form
+    if ($status_text)
+        $fullData['gorusme_sonucu_text'] = $status_text;
+    if ($callback_ts)
+        $fullData['tekrar_arama_tarihi'] = $callback_ts;
+    if ($lead_score)
+        $fullData['lead_puanlama'] = $lead_score;
+    if ($kampanya)
+        $fullData['kampanya'] = $kampanya;
+
+    // Complaint fields (only if it's an update/interaction, handled by form conditionally)
+    if ($complaint_hospital)
+        $fullData['sikayet_hastane'] = $complaint_hospital;
+    if ($complaint_dept)
+        $fullData['sikayet_bolum'] = $complaint_dept;
+    if ($complaint_doctor)
+        $fullData['sikayet_doktor'] = $complaint_doctor;
+    if ($complaint_topic)
+        $fullData['sikayet_konusu'] = $complaint_topic;
+    if ($complaint_detail)
+        $fullData['sikayet_detayi'] = $complaint_detail;
+    if ($complaint_image)
+        $fullData['sikayet_gorseli'] = $complaint_image;
+
+    // Handle Inspector specific fields
+    if ($type === 'inspector') {
+        $fullData['denetci_id'] = $_SESSION['user_id'];
+        $fullData['denetci_adi'] = $_SESSION['username'] ?? 'Denetçi';
+        $fullData['denetci_mesaj'] = $note;
+        $fullData['denetci_mesaj_tarihi'] = time();
+        $fullData['denetci_ip_adresi'] = $_SERVER['REMOTE_ADDR'];
+    }
+
+    // Insert into log table (Full Context)
+    $columns = array_keys($fullData);
+    $placeholders = array_map(function ($col) {
+        return ":$col"; }, $columns);
+    $logSql = "INSERT INTO tbl_icerik_bilgileri_ai (" . implode(', ', $columns) . ") VALUES (" . implode(', ', $placeholders) . ")";
+    $logStmt = $pdo->prepare($logSql);
+    $logStmt->execute($fullData);
+
+    // 3. Update master table (icerik_bilgileri)
+    // Only update satis_temsilcisi if it's currently empty
+    $current_st = $masterData['satis_temsilcisi'];
     $st_to_save = $current_st;
     if (empty($current_st) || $current_st == '0') {
         $st_to_save = $_SESSION['username'] ?? 'Sistem';
@@ -116,15 +174,17 @@ try {
                             satis_temsilcisi = ?,
                             gorusme_sonucu_text = ?,
                             tekrar_arama_tarihi = ?,
-                            lead_puanlama = ?
+                            lead_puanlama = ?,
+                            kampanya = ?
                         WHERE telefon_numarasi = ?";
     $stmtMaster = $pdo->prepare($updateMasterSql);
     $stmtMaster->execute([
         time(),
         $st_to_save,
-        $status_text,
-        $callback_ts,
-        $lead_score,
+        $status_text ?: $masterData['gorusme_sonucu_text'],
+        $callback_ts ?: $masterData['tekrar_arama_tarihi'],
+        $lead_score ?: $masterData['lead_puanlama'],
+        $kampanya ?: $masterData['kampanya'],
         $phone
     ]);
 
