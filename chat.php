@@ -473,8 +473,10 @@ $complaint_topics = $pdo->query("SELECT DISTINCT talep_icerik as baslik FROM ice
         .interaction-grid-two-rows {
             display: grid;
             grid-template-columns: 1.5fr 1fr 1fr;
-            gap: 1.5rem;
-            padding: 2rem;
+            gap: 0.75rem;
+            /* 1.5rem -> 0.75rem */
+            padding: 1rem;
+            /* 2rem -> 1rem */
             background: white;
         }
 
@@ -483,7 +485,8 @@ $complaint_topics = $pdo->query("SELECT DISTINCT talep_icerik as baslik FROM ice
             font-size: 0.8rem;
             font-weight: 700;
             color: var(--text-main);
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.25rem;
+            /* 0.5rem -> 0.25rem */
             text-transform: uppercase;
             letter-spacing: 0.025em;
         }
@@ -492,7 +495,8 @@ $complaint_topics = $pdo->query("SELECT DISTINCT talep_icerik as baslik FROM ice
         .field-group input,
         .field-group textarea {
             width: 100%;
-            padding: 0.75rem;
+            padding: 0.5rem;
+            /* 0.75rem -> 0.5rem */
             border-radius: 12px;
             border: 1.5px solid var(--border);
             font-size: 0.9rem;
@@ -514,12 +518,14 @@ $complaint_topics = $pdo->query("SELECT DISTINCT talep_icerik as baslik FROM ice
         }
 
         #complaint-section {
-            padding: 2rem;
+            padding: 1rem;
+            /* 2rem -> 1rem */
             background: #fffafa;
             border-top: 1px solid #fee2e2;
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 1.25rem;
+            gap: 1rem;
+            /* 1.25rem -> 1rem */
         }
 
         /* --- Footer & Pagination --- */
