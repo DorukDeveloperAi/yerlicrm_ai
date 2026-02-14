@@ -201,7 +201,7 @@ for ($i = 1; $i <= 10; $i++) {
             <div class="detail-value-row">
                 <span class="detail-value-text"><?php echo htmlspecialchars($current_rep_name); ?></span>
                 <button class="btn-edit-icon" title="Değiştir"
-                    onclick='openEditModal("user_id", "<?php echo (string) ($detail["user_id"] ?? ""); ?>", "Satış Temsilcisi", <?php echo json_encode($reps_data); ?>)'>
+                    onclick='openEditModal("satis_temsilcisi", "<?php echo (string) ($detail["satis_temsilcisi"] ?? ""); ?>", "Satış Temsilcisi", <?php echo json_encode($reps_data); ?>)'>
                     <i class="ph ph-pencil-simple"></i>
                 </button>
             </div>

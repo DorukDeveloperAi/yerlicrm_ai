@@ -26,7 +26,7 @@ $allowedFields = [
     'bolum' => 'Bölüm',
     'doktor' => 'Doktor',
     'dogum_haftasi' => 'Doğum Haftası',
-    'user_id' => 'Satış Temsilcisi'
+    'satis_temsilcisi' => 'Satış Temsilcisi'
 ];
 
 if (!array_key_exists($field, $allowedFields)) {
@@ -37,9 +37,6 @@ if (!array_key_exists($field, $allowedFields)) {
 try {
     // Mapping internal field names to database columns if they differ
     $dbField = $field;
-    if ($field === 'user_id') {
-        $dbField = 'satis_temsilcisi';
-    }
 
     // Check if sales representative is empty
     $check_stmt = $pdo->prepare("SELECT satis_temsilcisi FROM icerik_bilgileri WHERE telefon_numarasi = ?");
@@ -48,8 +45,8 @@ try {
 
     $st_to_save = $current_st;
 
-    // Eğer saha user_id (satis_temsilcisi) ise ve bir değer gönderilmişse, manuel seçimi uygula
-    if ($field === 'user_id' && !empty($value)) {
+    // Eğer saha satis_temsilcisi ise ve bir değer gönderilmişse, manuel seçimi uygula
+    if ($field === 'satis_temsilcisi' && !empty($value)) {
         // Eğer gelen değer sayısal ise (ID ise), ismine çevir (garanti için)
         if (is_numeric($value)) {
             $st_get = $pdo->prepare("SELECT username FROM users WHERE id = ?");

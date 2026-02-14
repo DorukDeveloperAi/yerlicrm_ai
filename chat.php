@@ -1040,7 +1040,7 @@ $complaint_topics = $pdo->query("SELECT DISTINCT talep_icerik as baslik FROM ice
             else if (field === 'hastane') inputHtml = buildSelect(detailData.hospitals);
             else if (field === 'bolum') inputHtml = buildSelect(detailData.departments);
             else if (field === 'doktor') inputHtml = buildSelect(detailData.doctors);
-            else if (field === 'user_id' && options) {
+            else if (field === 'satis_temsilcisi' && options) {
                 inputHtml = buildSelect(options, true);
             }
             else if (field === 'dogum_haftasi') {
