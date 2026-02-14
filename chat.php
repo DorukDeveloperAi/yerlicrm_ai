@@ -474,9 +474,7 @@ $complaint_topics = $pdo->query("SELECT DISTINCT talep_icerik as baslik FROM ice
             display: grid;
             grid-template-columns: 1.5fr 1fr 1fr;
             gap: 0.75rem;
-            /* 1.5rem -> 0.75rem */
-            padding: 1rem;
-            /* 2rem -> 1rem */
+            padding: 0; /* Align with container */
             background: white;
         }
 
@@ -515,6 +513,20 @@ $complaint_topics = $pdo->query("SELECT DISTINCT talep_icerik as baslik FROM ice
 
         .note-field-group {
             grid-row: span 2;
+        }
+
+        .interaction-container {
+            padding: 0.25rem 1.5rem 1rem 1.5rem !important; /* Sol/Sağ hizalama */
+            background: white;
+        }
+
+        .chat-input-area {
+            padding: 0.75rem 1.5rem 0.25rem 1.5rem !important; /* Dikey boşluk azaldı */
+            background: white;
+            border-top: 1px solid var(--border);
+            display: flex;
+            align-items: flex-end;
+            gap: 1rem;
         }
 
         #complaint-section {
