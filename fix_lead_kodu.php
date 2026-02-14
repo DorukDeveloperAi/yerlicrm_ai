@@ -3,18 +3,24 @@ require_once 'auth.php';
 requireLogin();
 
 try {
-    // lead_kodu artık kullanılmayacağı için hem ana tabloda hem log tablosunda nullable yapalım
-    // Veya varsayılan değer ekleyelim. En temizi NULL kabul etmesidir.
+    // Kullanıcı talebi: icerik_bilgileri tablosuna yeni alan eklenmeyecek.
+    // Sadece tbl_icerik_bilgileri_ai (log) tablosundaki kısıtlamaları esnetiyoruz.
 
-    // Log tablosu için
-    $stmt1 = $pdo->prepare("ALTER TABLE tbl_icerik_bilgileri_ai MODIFY COLUMN lead_kodu VARCHAR(255) NULL DEFAULT NULL");
-    $stmt1->execute();
+    function safeModifyColumn($pdo, $table, $column)
+    {
+        $stmt = $pdo->query("SHOW COLUMNS FROM `$table` LIKE '$column'");
+        if ($stmt->fetch()) {
+            $pdo->exec("ALTER TABLE `$table` MODIFY COLUMN `$column` VARCHAR(255) NULL DEFAULT NULL");
+            return "[$table] '$column' alanı NULL kabul edecek şekilde güncellendi.<br>";
+        }
+        return "[$table] '$column' alanı bulunamadı, atlandı.<br>";
+    }
 
-    // Ana tablo için (ne olur ne olmaz)
-    $stmt2 = $pdo->prepare("ALTER TABLE icerik_bilgileri MODIFY COLUMN lead_kodu VARCHAR(255) NULL DEFAULT NULL");
-    $stmt2->execute();
+    // Sadece log tablosu güncelleniyor
+    echo safeModifyColumn($pdo, 'tbl_icerik_bilgileri_ai', 'lead_kodu');
+    echo safeModifyColumn($pdo, 'tbl_icerik_bilgileri_ai', 'lead_id');
 
-    echo "Veritabanı başarıyla güncellendi: lead_kodu artık NULL kabul ediyor.";
+    echo "<br>İşlem tamamlandı. Ana tabloya (icerik_bilgileri) herhangi bir alan eklenmedi.";
 } catch (PDOException $e) {
     echo "Hata: " . $e->getMessage();
 }
