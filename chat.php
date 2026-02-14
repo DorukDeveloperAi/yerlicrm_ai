@@ -986,7 +986,7 @@ $complaint_topics = $pdo->query("SELECT DISTINCT talep_icerik as baslik FROM ice
             const cSelect = $('#campaign-filter');
 
             detailData.personnel.forEach(p => {
-                const opt = new Option(p.username, p.id);
+                const opt = new Option(p.username, p.username); // ID yerine username kullanılıyor
                 pSelect.append(opt);
             });
 
@@ -1021,7 +1021,7 @@ $complaint_topics = $pdo->query("SELECT DISTINCT talep_icerik as baslik FROM ice
                 let html = '<select id="editValue" class="form-select">';
                 html += '<option value="">Seçiniz</option>';
                 opts.forEach(opt => {
-                    const val = isRep ? opt.id : opt;
+                    const val = isRep ? opt.username : opt; // Temsilciler için val artık username
                     const text = isRep ? opt.username : opt;
                     const selected = String(val) === String(currentValue) ? 'selected' : '';
                     html += `<option value="${val}" ${selected}>${text}</option>`;

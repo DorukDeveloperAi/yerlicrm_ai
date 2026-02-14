@@ -47,8 +47,22 @@ try {
     $current_st = $check_stmt->fetchColumn();
 
     $st_to_save = $current_st;
-    if (empty($current_st) || $current_st == '0') {
-        $st_to_save = $_SESSION['user_id'] ?? 0;
+
+    // Eğer saha user_id (satis_temsilcisi) ise ve bir değer gönderilmişse, manuel seçimi uygula
+    if ($field === 'user_id' && !empty($value)) {
+        // Eğer gelen değer sayısal ise (ID ise), ismine çevir (garanti için)
+        if (is_numeric($value)) {
+            $st_get = $pdo->prepare("SELECT username FROM users WHERE id = ?");
+            $st_get->execute([$value]);
+            $st_to_save = $st_get->fetchColumn() ?: $value;
+        } else {
+            $st_to_save = $value;
+        }
+        $value = $st_to_save; // Ana UPDATE sorgusu için value'yu da güncelle
+    }
+    // Eğer mevcut temsilci boşsa ve manuel bir seçim yapılmıyorsa otomatik ata
+    elseif (empty($current_st) || $current_st == '0') {
+        $st_to_save = $_SESSION['username'] ?? 'Sistem';
     }
 
     // Update the master table

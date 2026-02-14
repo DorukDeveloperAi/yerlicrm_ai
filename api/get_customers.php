@@ -30,7 +30,7 @@ if (empty($search_query)) {
 
 if ($personnel_filter !== 'all') {
     $where_clauses[] = "t1.satis_temsilcisi = ?";
-    $params[] = (int) $personnel_filter;
+    $params[] = $personnel_filter; // Artık username geliyor
 }
 
 if ($campaign_filter !== 'all') {
@@ -63,9 +63,8 @@ try {
         SELECT t1.*, 
                t1.basvuru_tarihi as first_date,
                t1.son_islem_tarihi as date,
-               COALESCE(u.username, t1.satis_temsilcisi) as rep_name
+               COALESCE(t1.satis_temsilcisi, 'Atanmamış') as rep_name
         FROM icerik_bilgileri t1
-        LEFT JOIN users u ON t1.satis_temsilcisi = CAST(u.id AS CHAR) COLLATE utf8mb4_unicode_ci
         WHERE $where_sql
         ORDER BY $order_by 
         LIMIT $limit OFFSET $offset";

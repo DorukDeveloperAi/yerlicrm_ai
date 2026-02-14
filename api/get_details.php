@@ -53,10 +53,12 @@ if ($customer_campaign) {
 // Find current rep name
 $current_rep_name = '-';
 if (!empty($detail['user_id'])) {
-    if (is_numeric($detail['user_id'])) {
-        $stmt_rep = $pdo->prepare("SELECT username FROM users WHERE id = ?");
-        $stmt_rep->execute([$detail['user_id']]);
-        $current_rep_name = $stmt_rep->fetchColumn() ?: $detail['user_id'];
+    $stmt_rep = $pdo->prepare("SELECT username FROM users WHERE id = ?");
+    $stmt_rep->execute([$detail['user_id']]);
+    $repo_username = $stmt_rep->fetchColumn();
+
+    if ($repo_username) {
+        $current_rep_name = $repo_username;
     } else {
         $current_rep_name = $detail['user_id'];
     }

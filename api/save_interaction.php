@@ -107,7 +107,7 @@ try {
 
     $st_to_save = $current_st;
     if (empty($current_st) || $current_st == '0') {
-        $st_to_save = $_SESSION['user_id'];
+        $st_to_save = $_SESSION['username'] ?? 'Sistem';
     }
 
     $updateMasterSql = "UPDATE icerik_bilgileri 
