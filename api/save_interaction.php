@@ -160,24 +160,39 @@ try {
         $fullData['denetci_ip_adresi'] = $_SERVER['REMOTE_ADDR'];
     }
 
-    // Dynamic Column Filtering: Fetch log table columns to avoid "Unknown column" errors
+    // Dynamic Column Filtering & Default Values: Fetch log table columns to avoid "Unknown column" or "No default value" errors
     $logColsStmt = $pdo->query("SHOW COLUMNS FROM tbl_icerik_bilgileri_ai");
-    $validLogCols = $logColsStmt->fetchAll(PDO::FETCH_COLUMN);
+    $validLogCols = $logColsStmt->fetchAll(PDO::FETCH_ASSOC);
 
     $finalLogData = [];
-    foreach ($fullData as $key => $val) {
-        if (in_array($key, $validLogCols)) {
-            // Safety Check: If a column is required but missing/null, provide safe default
-            if ($val === null) {
-                if ($key === 'lead_kodu')
-                    $val = '';
-                // Add more safe defaults if needed
+    foreach ($validLogCols as $colInfo) {
+        $fieldName = $colInfo['Field'];
+        $fieldType = strtolower($colInfo['Type']);
+
+        if (isset($fullData[$fieldName]) && $fullData[$fieldName] !== null) {
+            $finalLogData[$fieldName] = $fullData[$fieldName];
+        } else {
+            // Field exists in DB but not in our combined data or is null.
+            // If it's NOT NULL and has no default, we MUST provide one.
+            if ($colInfo['Null'] === 'NO' && $colInfo['Default'] === null) {
+                // Determine safe default by type
+                if (strpos($fieldType, 'int') !== false || strpos($fieldType, 'decimal') !== false || strpos($fieldType, 'float') !== false) {
+                    $finalLogData[$fieldName] = 0;
+                } else {
+                    $finalLogData[$fieldName] = '';
+                }
+            } else {
+                // If it is NULLable or has a default, we can just skip it or set to null
+                // but for stability with PDO::execute, we can just not put it in finalLogData
+                // unless it's a specific field we want to guarantee as empty string
+                if ($fieldName === 'lead_kodu' || $fieldName === 'lead_id') {
+                    $finalLogData[$fieldName] = '';
+                }
             }
-            $finalLogData[$key] = $val;
         }
     }
 
-    // Insert into log table (Filtered Full Context)
+    // Insert into log table (Filtered & Sanitized Full Context)
     $columns = array_keys($finalLogData);
     $placeholders = array_map(function ($col) {
         return ":$col";
