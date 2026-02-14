@@ -67,6 +67,94 @@ $complaint_topics = $pdo->query("SELECT DISTINCT talep_icerik as baslik FROM ice
             overflow: hidden;
         }
 
+        /* --- Drawer Menu (Premium) --- */
+        .menu-drawer {
+            position: fixed;
+            top: 0;
+            left: -280px;
+            width: 280px;
+            height: 100%;
+            background: white;
+            z-index: 2001;
+            box-shadow: 10px 0 30px rgba(0, 0, 0, 0.05);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            padding: 2rem 1.5rem;
+        }
+
+        .menu-drawer.active {
+            left: 0;
+        }
+
+        .drawer-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.4);
+            backdrop-filter: blur(4px);
+            z-index: 2000;
+            display: none;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .drawer-overlay.active {
+            display: block;
+        }
+
+        .drawer-header {
+            margin-bottom: 2.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .drawer-logo {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary), #4f46e5);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
+        }
+
+        .drawer-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .drawer-link {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.875rem 1.25rem;
+            color: var(--text-muted);
+            text-decoration: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+        }
+
+        .drawer-link:hover,
+        .drawer-link.active {
+            background: var(--primary-light);
+            color: var(--primary);
+        }
+
+        .drawer-link i {
+            font-size: 1.25rem;
+        }
+
+        .drawer-footer {
+            margin-top: auto;
+            border-top: 1px solid var(--border);
+            padding-top: 1.5rem;
+        }
+
         /* --- Sidebar & Layout --- */
         .chat-sidebar {
             width: 380px;
@@ -348,7 +436,9 @@ $complaint_topics = $pdo->query("SELECT DISTINCT talep_icerik as baslik FROM ice
             letter-spacing: 0.025em;
         }
 
-        .field-group select, .field-group input, .field-group textarea {
+        .field-group select,
+        .field-group input,
+        .field-group textarea {
             width: 100%;
             padding: 0.75rem;
             border-radius: 12px;
@@ -358,7 +448,9 @@ $complaint_topics = $pdo->query("SELECT DISTINCT talep_icerik as baslik FROM ice
             transition: all 0.2s;
         }
 
-        .field-group select:focus, .field-group input:focus, .field-group textarea:focus {
+        .field-group select:focus,
+        .field-group input:focus,
+        .field-group textarea:focus {
             border-color: var(--primary);
             background: white;
             box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
@@ -410,9 +502,22 @@ $complaint_topics = $pdo->query("SELECT DISTINCT talep_icerik as baslik FROM ice
         }
 
         /* Profile Circle Extra */
-        .contact-details .contact-name { font-size: 1rem; font-weight: 700; color: #0f172a; }
-        .contact-details .contact-time { font-size: 0.75rem; color: #94a3b8; }
-        .contact-details .contact-snippet { font-size: 0.875rem; color: #64748b; margin-top: 2px; }
+        .contact-details .contact-name {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .contact-details .contact-time {
+            font-size: 0.75rem;
+            color: #94a3b8;
+        }
+
+        .contact-details .contact-snippet {
+            font-size: 0.875rem;
+            color: #64748b;
+            margin-top: 2px;
+        }
     </style>
 </head>
 
