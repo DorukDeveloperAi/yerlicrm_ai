@@ -201,33 +201,38 @@ try {
     $logStmt = $pdo->prepare($logSql);
     $logStmt->execute($finalLogData);
 
-    // 3. Update master table (icerik_bilgileri)
-    // Only update satis_temsilcisi if it's currently empty
-    $current_st = $masterData['satis_temsilcisi'];
-    $st_to_save = $current_st;
-    if (empty($current_st) || $current_st == '0') {
-        $st_to_save = $_SESSION['username'] ?? 'Sistem';
+    // 3. Update master table (icerik_bilgileri) - DYNAMIC VERSION
+    // Fetch master table columns to avoid "Unknown column" errors
+    $masterColsStmt = $pdo->query("SHOW COLUMNS FROM icerik_bilgileri");
+    $validMasterCols = $masterColsStmt->fetchAll(PDO::FETCH_COLUMN);
+
+    // Prepare data for master update
+    $masterUpdateData = [
+        'son_mesaj_yeri' => 'personel_mesaji',
+        'son_islem_tarihi' => time(),
+        'satis_temsilcisi' => $st_to_save,
+        'gorusme_sonucu_text' => $status_text ?: $masterData['gorusme_sonucu_text'],
+        'tekrar_arama_tarihi' => $callback_ts ?: $masterData['tekrar_arama_tarihi'],
+        'lead_puanlama' => $lead_score ?: $masterData['lead_puanlama'],
+        'kampanya' => $kampanya ?: $masterData['kampanya']
+    ];
+
+    // Filter data to include only existing columns
+    $finalMasterUpdate = [];
+    $updateFields = [];
+    foreach ($masterUpdateData as $key => $val) {
+        if (in_array($key, $validMasterCols)) {
+            $finalMasterUpdate[$key] = $val;
+            $updateFields[] = "$key = :$key";
+        }
     }
 
-    $updateMasterSql = "UPDATE icerik_bilgileri 
-                        SET son_mesaj_yeri = 'personel_mesaji', 
-                            son_islem_tarihi = ?, 
-                            satis_temsilcisi = ?,
-                            gorusme_sonucu_text = ?,
-                            tekrar_arama_tarihi = ?,
-                            lead_puanlama = ?,
-                            kampanya = ?
-                        WHERE telefon_numarasi = ?";
-    $stmtMaster = $pdo->prepare($updateMasterSql);
-    $stmtMaster->execute([
-        time(),
-        $st_to_save,
-        $status_text ?: $masterData['gorusme_sonucu_text'],
-        $callback_ts ?: $masterData['tekrar_arama_tarihi'],
-        $lead_score ?: $masterData['lead_puanlama'],
-        $kampanya ?: $masterData['kampanya'],
-        $phone
-    ]);
+    if (!empty($updateFields)) {
+        $finalMasterUpdate['phone_filter'] = $phone;
+        $updateMasterSql = "UPDATE icerik_bilgileri SET " . implode(', ', $updateFields) . " WHERE telefon_numarasi = :phone_filter";
+        $stmtMaster = $pdo->prepare($updateMasterSql);
+        $stmtMaster->execute($finalMasterUpdate);
+    }
 
     echo json_encode(['success' => true]);
 } catch (PDOException $e) {
