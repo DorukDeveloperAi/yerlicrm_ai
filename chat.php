@@ -784,10 +784,10 @@ $complaint_topics = $pdo->query("SELECT DISTINCT talep_icerik as baslik FROM ice
                 <!-- Template buttons will be injected here -->
             </div>
             <div class="chat-input-area" id="input-area" style="display: none;">
-                <button type="button" class="btn-templates-toggle" onclick="toggleTemplates()" title="Şablonlar">
-                    <i class="ph-bold ph-plus"></i>
-                </button>
                 <textarea id="message-text" placeholder="Mesaj yazın..."></textarea>
+                <button type="button" class="btn-templates-toggle" onclick="toggleTemplates()" title="Şablonlar">
+                    <i class="ph-bold ph-envelope-simple"></i>
+                </button>
                 <button class="btn-send" onclick="sendMessage()" title="Gönder">
                     <i class="ph ph-paper-plane-right"></i>
                 </button>
