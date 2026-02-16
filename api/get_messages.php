@@ -18,7 +18,8 @@ foreach ($messages as $msg) {
     // Check for system message (change log)
     if (!empty($msg['yapilan_degisiklik_notu'])) {
         $changer = !empty($msg['kullanici_bilgileri_adi']) ? ' (' . htmlspecialchars($msg['kullanici_bilgileri_adi']) . ')' : '';
-        $html .= '<div class="system-message"><span>' . htmlspecialchars($msg['yapilan_degisiklik_notu']) . $changer . '</span></div>';
+        $dateStr = date('d.m.Y H:i', (int) $msg['date']);
+        $html .= '<div class="system-message"><span>' . htmlspecialchars($msg['yapilan_degisiklik_notu']) . $changer . '<br><small style="opacity:0.7; font-size:0.65rem;">' . $dateStr . '</small></span></div>';
         continue;
     }
 
@@ -45,11 +46,15 @@ foreach ($messages as $msg) {
     }
 
     $html .= '<div class="msg ' . $type . '">';
-    if ($senderName && $type !== 'msg-center') {
-        $html .= '<div class="msg-sender">' . htmlspecialchars($senderName) . '</div>';
-    }
     $html .= '<div class="msg-content">' . nl2br(htmlspecialchars($content)) . '</div>';
-    $html .= '<span class="msg-meta">' . date('d.m.Y H:i', (int) $msg['date']) . '</span>';
+
+    $html .= '<div class="msg-meta-wrap" style="display: flex; justify-content: flex-end; align-items: center; gap: 8px; margin-top: 4px;">';
+    if ($senderName && $type !== 'msg-center') {
+        $html .= '<span class="msg-sender-bottom" style="font-size: 0.65rem; font-weight: 700; opacity: 0.8; color: inherit;">' . htmlspecialchars($senderName) . '</span>';
+    }
+    $html .= '<span class="msg-meta" style="margin: 0;">' . date('d.m.Y H:i', (int) $msg['date']) . '</span>';
+    $html .= '</div>';
+
     $html .= '</div>';
 }
 
