@@ -17,7 +17,8 @@ $html = '';
 foreach ($messages as $msg) {
     // Check for system message (change log)
     if (!empty($msg['yapilan_degisiklik_notu'])) {
-        $html .= '<div class="system-message"><span>' . htmlspecialchars($msg['yapilan_degisiklik_notu']) . '</span></div>';
+        $changer = !empty($msg['kullanici_bilgileri_adi']) ? ' (' . htmlspecialchars($msg['kullanici_bilgileri_adi']) . ')' : '';
+        $html .= '<div class="system-message"><span>' . htmlspecialchars($msg['yapilan_degisiklik_notu']) . $changer . '</span></div>';
         continue;
     }
 
