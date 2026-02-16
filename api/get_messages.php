@@ -17,9 +17,15 @@ $html = '';
 foreach ($messages as $msg) {
     // Check for system message (change log)
     if (!empty($msg['yapilan_degisiklik_notu'])) {
-        $changer = !empty($msg['kullanici_bilgileri_adi']) ? ' (' . htmlspecialchars($msg['kullanici_bilgileri_adi']) . ')' : '';
+        $changer = !empty($msg['kullanici_bilgileri_adi']) ? htmlspecialchars($msg['kullanici_bilgileri_adi']) : '';
         $dateStr = date('d.m.Y H:i', (int) $msg['date']);
-        $html .= '<div class="system-message"><span>' . htmlspecialchars($msg['yapilan_degisiklik_notu']) . $changer . '<br><small style="opacity:0.7; font-size:0.65rem;">' . $dateStr . '</small></span></div>';
+
+        $html .= '<div class="system-message"><span>';
+        $html .= htmlspecialchars($msg['yapilan_degisiklik_notu']);
+        if ($changer) {
+            $html .= '<br><span style="font-weight:700; font-size:0.7rem; display:block; margin-top:2px;">' . $changer . '</span>';
+        }
+        $html .= '<small style="opacity:0.7; font-size:0.65rem;">' . $dateStr . '</small></span></div>';
         continue;
     }
 
