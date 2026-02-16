@@ -976,11 +976,8 @@ body {
 }
 
 .msg-sender {
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     font-weight: 900;
-    /* Maximum bold for clarity */
-    margin-bottom: 4px;
-    display: block;
     letter-spacing: 0.3px;
     text-transform: uppercase;
 }
