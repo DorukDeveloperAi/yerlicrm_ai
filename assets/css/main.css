@@ -975,13 +975,29 @@ body {
     font-weight: 600;
 }
 
+.msg-sender {
+    font-size: 0.7rem;
+    font-weight: 700;
+    margin-bottom: 2px;
+    display: block;
+    color: var(--primary);
+}
+
+.msg-out .msg-sender {
+    color: #4ade80;
+    /* Light green for clarity on green bg */
+}
+
+.msg-in .msg-sender {
+    color: var(--primary);
+}
+
 .msg-meta {
     font-size: 0.65rem;
     color: #667781;
     display: block;
     /* Fixed float/display conflict */
-    float: right;
-    margin-left: 0.5rem;
+    text-align: right;
     margin-top: 0.25rem;
     line-height: normal;
 }

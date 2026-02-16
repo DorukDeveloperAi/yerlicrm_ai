@@ -35,12 +35,20 @@ foreach ($messages as $msg) {
     if (empty($content) && empty($msg['gorusme_sonucu_text']))
         continue;
 
-    // Reverting to original behavior for timestamp (assuming date is int)
-    $date = date('d.m.Y H:i', (int) $msg['date']);
+    // Determine sender name
+    $senderName = '';
+    if ($type === 'msg-out') {
+        $senderName = !empty($msg['kullanici_bilgileri_adi']) ? $msg['kullanici_bilgileri_adi'] : (!empty($msg['satis_temsilcisi']) ? $msg['satis_temsilcisi'] : 'Sistem');
+    } elseif ($type === 'msg-in') {
+        $senderName = 'Müşteri';
+    }
 
     $html .= '<div class="msg ' . $type . '">';
+    if ($senderName && $type !== 'msg-center') {
+        $html .= '<div class="msg-sender">' . htmlspecialchars($senderName) . '</div>';
+    }
     $html .= '<div class="msg-content">' . nl2br(htmlspecialchars($content)) . '</div>';
-    $html .= '<span class="msg-meta">' . date('H:i', (int) $msg['date']) . '</span>';
+    $html .= '<span class="msg-meta">' . date('d.m.Y H:i', (int) $msg['date']) . '</span>';
     $html .= '</div>';
 }
 
