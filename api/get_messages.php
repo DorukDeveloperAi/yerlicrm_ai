@@ -21,11 +21,14 @@ foreach ($messages as $msg) {
         $dateStr = date('d.m.Y H:i', (int) $msg['date']);
 
         $html .= '<div class="system-message"><span>';
-        $html .= htmlspecialchars($msg['yapilan_degisiklik_notu']);
+        $html .= '<div class="msg-content">' . htmlspecialchars($msg['yapilan_degisiklik_notu']) . '</div>';
+        $html .= '<div class="msg-meta-wrap" style="display: flex; justify-content: flex-end; align-items: center; gap: 8px; margin-top: 4px; border-top: 1px solid rgba(0,0,0,0.05); padding-top: 2px;">';
         if ($changer) {
-            $html .= '<br><span style="font-weight:700; font-size:0.7rem; display:block; margin-top:2px;">' . $changer . '</span>';
+            $html .= '<span class="msg-sender-bottom" style="font-size: 0.65rem; font-weight: 700; opacity: 0.8;">' . $changer . '</span>';
         }
-        $html .= '<small style="opacity:0.7; font-size:0.65rem;">' . $dateStr . '</small></span></div>';
+        $html .= '<span class="msg-meta" style="margin: 0; font-size: 0.65rem; opacity: 0.7;">' . $dateStr . '</span>';
+        $html .= '</div>';
+        $html .= '</span></div>';
         continue;
     }
 
