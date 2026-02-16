@@ -1024,6 +1024,13 @@ body {
     line-height: normal;
 }
 
+.msg-sender-small {
+    font-size: 0.65rem;
+    color: #667781;
+    font-style: italic;
+    font-weight: 500;
+}
+
 .system-message {
     text-align: center;
     margin: 1rem 0;

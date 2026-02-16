@@ -57,6 +57,9 @@ foreach ($messages as $msg) {
     $html .= '<div class="msg-content">' . nl2br(htmlspecialchars($content)) . '</div>';
 
     $html .= '<div class="msg-footer">';
+    if ($type === 'msg-out') {
+        $html .= '<span class="msg-sender-small">' . htmlspecialchars($senderName) . '</span>';
+    }
     $html .= '<span class="msg-meta">' . date('H:i', (int) $msg['date']) . '</span>';
     $html .= '</div>';
 
