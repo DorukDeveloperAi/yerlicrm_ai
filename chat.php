@@ -763,12 +763,14 @@ $complaint_topics = $pdo->query("SELECT DISTINCT talep_icerik as baslik FROM ice
                 <p style="margin-top: 1rem; color: var(--primary); font-weight: 500;">Yükleniyor...</p>
             </div>
             <header class="sidebar-header"
-                style="background: white; display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.5rem; border-bottom: 1px solid #f3f4f6;">
-                <h3 id="chat-title" style="font-size: 1.1rem; font-weight: 700; color: #0f172a; margin: 0;">Müşteri
-                    Seçin</h3>
-                <div id="chat-meta" style="text-align: right; display: none;">
-                    <div id="meta-name" style="font-size: 0.9rem; font-weight: 600; color: #334155;"></div>
-                    <div id="meta-campaign" style="font-size: 0.75rem; color: #64748b;"></div>
+                style="background: #f0f2f5; display: flex; align-items: center; padding: 0.5rem 1rem; border-bottom: 1px solid #d1d7db; gap: 1rem;">
+                <div id="active-chat-avatar" class="profile-circle" style="width: 40px; height: 40px; display: none;"></div>
+                <div style="flex: 1; min-width: 0;">
+                    <h3 id="chat-title" style="font-size: 1rem; font-weight: 600; color: #111b21; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Müşteri Seçin</h3>
+                    <div id="chat-meta" style="display: none;">
+                        <span id="meta-name" style="font-size: 0.8rem; color: #667781;"></span>
+                        <span id="meta-campaign" style="font-size: 0.8rem; color: #667781; margin-left: 0.5rem;"></span>
+                    </div>
                 </div>
             </header>
 
@@ -782,15 +784,13 @@ $complaint_topics = $pdo->query("SELECT DISTINCT talep_icerik as baslik FROM ice
                 <!-- Template buttons will be injected here -->
             </div>
             <div class="chat-input-area" id="input-area" style="display: none;">
-                <textarea id="message-text" placeholder="WhatsApp mesajınızı yazın..."></textarea>
-                <div class="input-actions flex items-center gap-2">
-                    <button type="button" class="btn-templates-toggle" onclick="toggleTemplates()" title="Şablonlar">
-                        <i class="ph-bold ph-envelope-simple"></i>
-                    </button>
-                    <button class="btn-send" onclick="sendMessage()" title="Mesaj Gönder">
-                        <i class="ph ph-paper-plane-right"></i>
-                    </button>
-                </div>
+                <button type="button" class="btn-templates-toggle" onclick="toggleTemplates()" title="Şablonlar">
+                    <i class="ph-bold ph-plus"></i>
+                </button>
+                <textarea id="message-text" placeholder="Mesaj yazın..."></textarea>
+                <button class="btn-send" onclick="sendMessage()" title="Gönder">
+                    <i class="ph ph-paper-plane-right"></i>
+                </button>
             </div>
 
             <div class="interaction-container" id="interaction-area" style="display: none;">
@@ -1178,10 +1178,17 @@ $complaint_topics = $pdo->query("SELECT DISTINCT talep_icerik as baslik FROM ice
             const spinner = document.getElementById('convo-spinner');
             if (spinner) spinner.style.display = 'flex';
 
-            document.getElementById('chat-title').innerText = phone;
+            document.getElementById('chat-title').innerText = name || phone;
             document.getElementById('chat-meta').style.display = 'block';
-            document.getElementById('meta-name').innerText = name || 'İsimsiz';
-            document.getElementById('meta-campaign').innerText = campaign || '';
+            document.getElementById('meta-name').innerText = phone;
+            document.getElementById('meta-campaign').innerText = campaign ? '• ' + campaign : '';
+
+            // Update header avatar
+            const avatar = document.getElementById('active-chat-avatar');
+            avatar.style.display = 'flex';
+            avatar.innerText = (name || phone).charAt(0).toUpperCase();
+            avatar.style.background = getProfileColor(name || phone);
+            avatar.style.color = 'white';
 
             document.getElementById('input-area').style.display = 'flex';
             document.getElementById('interaction-area').style.display = 'block';

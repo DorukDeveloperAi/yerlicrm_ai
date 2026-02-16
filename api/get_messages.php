@@ -19,30 +19,30 @@ foreach ($messages as $msg) {
     // Check for system message (change log)
     if (!empty($msg['yapilan_degisiklik_notu'])) {
         $changer = !empty($msg['kullanici_bilgileri_adi']) ? htmlspecialchars($msg['kullanici_bilgileri_adi']) : '';
-        $dateStr = date('d.m.Y H:i', (int) $msg['date']);
+        $dateStr = date('H:i', (int) $msg['date']);
 
         $html .= '<div class="system-message"><span>';
-        $html .= '<div class="msg-content" style="font-weight:600;">' . htmlspecialchars($msg['yapilan_degisiklik_notu']) . '</div>';
-        $html .= '<div class="msg-footer">';
-        $html .= '<span class="msg-sender">' . ($changer ?: 'Sistem') . '</span>';
-        $html .= '<span class="msg-meta">' . $dateStr . '</span>';
-        $html .= '</div>';
+        $html .= ($changer ? '<strong>' . $changer . '</strong>: ' : '') . htmlspecialchars($msg['yapilan_degisiklik_notu']);
+        $html .= ' <small style="opacity:0.6; margin-left:5px;">' . $dateStr . '</small>';
         $html .= '</span></div>';
         continue;
     }
 
     $isInfo = (!empty($msg['personel_mesaji']) && !empty($msg['gorusme_sonucu_text']));
-
-    if ($isInfo) {
-        $type = 'msg-center';
-    } else {
-        $type = (empty($msg['personel_mesaji']) && !empty($msg['musteri_mesaji'])) ? 'msg-in' : 'msg-out';
-    }
-
     $content = !empty($msg['musteri_mesaji']) ? $msg['musteri_mesaji'] : $msg['personel_mesaji'];
 
-    // Skip if no content (e.g., empty rows from other logic), though system msg handles one type of empty row
-    if (empty($content) && empty($msg['gorusme_sonucu_text']))
+    if ($isInfo) {
+        $senderName = !empty($msg['kullanici_bilgileri_adi']) ? $msg['kullanici_bilgileri_adi'] : 'Sistem';
+        $html .= '<div class="msg-center">';
+        $html .= '<strong>' . htmlspecialchars($senderName) . '</strong>: ' . nl2br(htmlspecialchars($content));
+        $html .= ' <small style="opacity:0.6; margin-left:5px;">' . date('H:i', (int) $msg['date']) . '</small>';
+        $html .= '</div>';
+        continue;
+    }
+
+    $type = (empty($msg['personel_mesaji']) && !empty($msg['musteri_mesaji'])) ? 'msg-in' : 'msg-out';
+
+    if (empty($content))
         continue;
 
     // Determine sender name
@@ -51,16 +51,13 @@ foreach ($messages as $msg) {
         $senderName = !empty($msg['kullanici_bilgileri_adi']) ? $msg['kullanici_bilgileri_adi'] : (!empty($msg['satis_temsilcisi']) ? $msg['satis_temsilcisi'] : 'Sistem');
     } elseif ($type === 'msg-in') {
         $senderName = 'Müşteri';
-    } elseif ($type === 'msg-center') {
-        $senderName = !empty($msg['kullanici_bilgileri_adi']) ? $msg['kullanici_bilgileri_adi'] : 'Sistem';
     }
 
     $html .= '<div class="msg ' . $type . '">';
     $html .= '<div class="msg-content">' . nl2br(htmlspecialchars($content)) . '</div>';
 
     $html .= '<div class="msg-footer">';
-    $html .= '<span class="msg-sender">' . htmlspecialchars($senderName) . '</span>';
-    $html .= '<span class="msg-meta">' . date('d.m.Y H:i', (int) $msg['date']) . '</span>';
+    $html .= '<span class="msg-meta">' . date('H:i', (int) $msg['date']) . '</span>';
     $html .= '</div>';
 
     $html .= '</div>';
