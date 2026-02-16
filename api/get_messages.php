@@ -23,7 +23,7 @@ foreach ($messages as $msg) {
 
         $html .= '<div class="system-message"><span>';
         if ($changer) {
-            $html .= '<div class="msg-sender" style="font-weight:700; font-size:0.7rem; color: var(--primary); margin-bottom:2px;">' . $changer . '</div>';
+            $html .= '<div class="msg-sender">' . $changer . '</div>';
         }
         $html .= '<div class="msg-content">' . htmlspecialchars($msg['yapilan_degisiklik_notu']) . '</div>';
         $html .= '<small style="opacity:0.7; font-size:0.65rem; display:block; margin-top:4px;">' . $dateStr . '</small></span></div>';
