@@ -55,7 +55,7 @@ foreach ($messages as $msg) {
     }
 
     $html .= '<div class="msg ' . $type . '">';
-    if ($senderName && $type !== 'msg-center') {
+    if ($senderName) {
         $html .= '<div class="msg-sender">' . htmlspecialchars($senderName) . '</div>';
     }
     $html .= '<div class="msg-content">' . nl2br(htmlspecialchars($content)) . '</div>';
