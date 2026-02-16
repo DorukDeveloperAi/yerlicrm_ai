@@ -22,11 +22,16 @@ foreach ($messages as $msg) {
         $dateStr = date('d.m.Y H:i', (int) $msg['date']);
 
         $html .= '<div class="system-message"><span>';
-        if ($changer) {
-            $html .= '<div class="msg-sender">' . $changer . '</div>';
-        }
         $html .= '<div class="msg-content">' . htmlspecialchars($msg['yapilan_degisiklik_notu']) . '</div>';
-        $html .= '<small style="opacity:0.7; font-size:0.65rem; display:block; margin-top:4px;">' . $dateStr . '</small></span></div>';
+        $html .= '<div class="msg-footer" style="display: flex; justify-content: space-between; align-items: center; margin-top: 4px; border-top: 1px solid rgba(0,0,0,0.05); padding-top: 2px; gap: 10px;">';
+        if ($changer) {
+            $html .= '<span class="msg-sender" style="font-size: 0.65rem; margin: 0;">' . $changer . '</span>';
+        } else {
+            $html .= '<span></span>';
+        }
+        $html .= '<span class="msg-meta" style="font-size: 0.65rem; margin: 0; opacity: 0.7;">' . $dateStr . '</span>';
+        $html .= '</div>';
+        $html .= '</span></div>';
         continue;
     }
 
@@ -55,11 +60,17 @@ foreach ($messages as $msg) {
     }
 
     $html .= '<div class="msg ' . $type . '">';
-    if ($senderName) {
-        $html .= '<div class="msg-sender">' . htmlspecialchars($senderName) . '</div>';
-    }
     $html .= '<div class="msg-content">' . nl2br(htmlspecialchars($content)) . '</div>';
-    $html .= '<div class="msg-meta">' . date('d.m.Y H:i', (int) $msg['date']) . '</div>';
+
+    $html .= '<div class="msg-footer" style="display: flex; justify-content: space-between; align-items: center; margin-top: 4px; gap: 10px;">';
+    if ($senderName) {
+        $html .= '<span class="msg-sender" style="font-size: 0.65rem; margin: 0;">' . htmlspecialchars($senderName) . '</span>';
+    } else {
+        $html .= '<span></span>';
+    }
+    $html .= '<span class="msg-meta" style="font-size: 0.65rem; margin: 0;">' . date('d.m.Y H:i', (int) $msg['date']) . '</span>';
+    $html .= '</div>';
+
     $html .= '</div>';
 }
 

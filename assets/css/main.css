@@ -1008,11 +1008,15 @@ body {
 .msg-meta {
     font-size: 0.65rem;
     color: #667781;
-    text-align: right;
-    margin-top: 4px;
-    display: block;
     line-height: normal;
     opacity: 0.8;
+}
+
+.msg-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 4px;
 }
 
 .system-message span {
