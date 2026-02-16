@@ -975,15 +975,37 @@ body {
     font-weight: 600;
 }
 
+.msg-sender {
+    font-size: 0.7rem;
+    font-weight: 700;
+    margin-bottom: 4px;
+    display: block;
+    color: var(--primary);
+}
+
+.msg-out .msg-sender {
+    color: #0b8a0b;
+    /* Darker green for readability on light green bg */
+}
+
+.msg-in .msg-sender {
+    color: #6366f1;
+    /* Primary color for inbound */
+}
+
 .msg-meta {
     font-size: 0.65rem;
     color: #667781;
-    display: inline-block;
+    text-align: right;
+    margin-top: 4px;
+    display: block;
     line-height: normal;
+    opacity: 0.8;
 }
 
 .system-message span {
     line-height: 1.5;
+    padding: 0.6rem 1rem;
 }
 
 /* Chat Input Area */
