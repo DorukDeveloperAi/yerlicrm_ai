@@ -22,7 +22,7 @@ foreach ($messages as $msg) {
         $dateStr = date('H:i', (int) $msg['date']);
 
         $html .= '<div class="system-message"><span>';
-        $html .= '<div class="msg-content">' . htmlspecialchars($msg['yapilan_degisiklik_notu']) . '</div>';
+        $html .= '<div class="msg-content" style="font-weight:600;">' . htmlspecialchars($msg['yapilan_degisiklik_notu']) . '</div>';
         $html .= '<div class="msg-footer" style="justify-content:center; gap:8px; opacity:0.7; font-size:0.65rem; margin-top:4px;">';
         $html .= '<span>' . $changer . '</span>';
         $html .= '<span>' . $dateStr . '</span>';
