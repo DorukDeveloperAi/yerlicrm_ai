@@ -18,12 +18,15 @@ foreach ($messages as $msg) {
     // Check for system message (change log)
     // Check for system message (change log)
     if (!empty($msg['yapilan_degisiklik_notu'])) {
-        $changer = !empty($msg['kullanici_bilgileri_adi']) ? htmlspecialchars($msg['kullanici_bilgileri_adi']) : '';
+        $changer = !empty($msg['kullanici_bilgileri_adi']) ? htmlspecialchars($msg['kullanici_bilgileri_adi']) : 'Sistem';
         $dateStr = date('H:i', (int) $msg['date']);
 
         $html .= '<div class="system-message"><span>';
-        $html .= ($changer ? '<strong>' . $changer . '</strong>: ' : '') . htmlspecialchars($msg['yapilan_degisiklik_notu']);
-        $html .= ' <small style="opacity:0.6; margin-left:5px;">' . $dateStr . '</small>';
+        $html .= '<div class="msg-content">' . htmlspecialchars($msg['yapilan_degisiklik_notu']) . '</div>';
+        $html .= '<div class="msg-footer" style="justify-content:center; gap:8px; opacity:0.7; font-size:0.65rem; margin-top:4px;">';
+        $html .= '<span>' . $changer . '</span>';
+        $html .= '<span>' . $dateStr . '</span>';
+        $html .= '</div>';
         $html .= '</span></div>';
         continue;
     }
@@ -34,8 +37,11 @@ foreach ($messages as $msg) {
     if ($isInfo) {
         $senderName = !empty($msg['kullanici_bilgileri_adi']) ? $msg['kullanici_bilgileri_adi'] : 'Sistem';
         $html .= '<div class="msg-center">';
-        $html .= '<strong>' . htmlspecialchars($senderName) . '</strong>: ' . nl2br(htmlspecialchars($content));
-        $html .= ' <small style="opacity:0.6; margin-left:5px;">' . date('H:i', (int) $msg['date']) . '</small>';
+        $html .= '<div class="msg-content" style="font-weight:600;">' . nl2br(htmlspecialchars($content)) . '</div>';
+        $html .= '<div class="msg-footer" style="justify-content:center; gap:8px; opacity:0.7; font-size:0.65rem; margin-top:4px;">';
+        $html .= '<span>' . htmlspecialchars($senderName) . '</span>';
+        $html .= '<span>' . date('H:i', (int) $msg['date']) . '</span>';
+        $html .= '</div>';
         $html .= '</div>';
         continue;
     }
