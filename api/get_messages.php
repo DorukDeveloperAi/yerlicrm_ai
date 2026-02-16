@@ -43,13 +43,15 @@ foreach ($messages as $msg) {
         $senderName = !empty($msg['kullanici_bilgileri_adi']) ? $msg['kullanici_bilgileri_adi'] : (!empty($msg['satis_temsilcisi']) ? $msg['satis_temsilcisi'] : 'Sistem');
     } elseif ($type === 'msg-in') {
         $senderName = 'Müşteri';
+    } elseif ($type === 'msg-center') { // For info messages, sender is usually the system or the agent who made the change
+        $senderName = !empty($msg['kullanici_bilgileri_adi']) ? $msg['kullanici_bilgileri_adi'] : 'Sistem';
     }
 
     $html .= '<div class="msg ' . $type . '">';
     $html .= '<div class="msg-content">' . nl2br(htmlspecialchars($content)) . '</div>';
 
     $html .= '<div class="msg-meta-wrap" style="display: flex; justify-content: flex-end; align-items: center; gap: 8px; margin-top: 4px;">';
-    if ($senderName && $type !== 'msg-center') {
+    if ($senderName) {
         $html .= '<span class="msg-sender-bottom" style="font-size: 0.65rem; font-weight: 700; opacity: 0.8; color: inherit;">' . htmlspecialchars($senderName) . '</span>';
     }
     $html .= '<span class="msg-meta" style="margin: 0;">' . date('d.m.Y H:i', (int) $msg['date']) . '</span>';
