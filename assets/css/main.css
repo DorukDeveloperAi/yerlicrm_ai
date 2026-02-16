@@ -976,21 +976,22 @@ body {
 }
 
 .msg-sender {
-    font-size: 0.7rem;
-    font-weight: 700;
+    font-size: 0.75rem;
+    /* Slightly larger */
+    font-weight: 800;
+    /* Extra bold */
     margin-bottom: 4px;
     display: block;
-    color: var(--primary);
 }
 
 .msg-out .msg-sender {
-    color: #0b8a0b;
-    /* Darker green for readability on light green bg */
+    color: #c2410c;
+    /* Distinct orange-red for outbox to pop against green bg */
 }
 
 .msg-in .msg-sender {
-    color: #6366f1;
-    /* Primary color for inbound */
+    color: #4338ca;
+    /* Deep indigo for inbox to pop against white bg */
 }
 
 .msg-meta {
